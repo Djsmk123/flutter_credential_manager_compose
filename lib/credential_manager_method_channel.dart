@@ -48,7 +48,7 @@ If you set preferImmediatelyAvailableCredentials to true and there are no immedi
         'save_password_credentials',
         credential.toJson(),
       );
-      if (res != null && res == "password saved") {
+      if (res != null && res == "credential_saved") {
         return;
       }
       throw CredentialException(
