@@ -95,8 +95,10 @@ await credentialManager.savePasswordCredentials(
 ```
  PasswordCredential credential =await credentialManager.getPasswordCredentials();
 ```
-![Get Credential 1](https://i.ibb.co/fCs0kqV/5.jpg)
-![Get Credential 2](https://i.ibb.co/3ChSstH/6.jpg)
+<img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="80" height="150">
+
+<img src="https://i.ibb.co/3ChSstH/6.jpg" alt="Get Credential 2" width="80" height="150">
+
 
 
 ## Properties and Methods
