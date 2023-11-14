@@ -77,6 +77,12 @@ if(credentialManager.isSupportedPlatform){
 await credentialManager.savePasswordCredentials(
           PasswordCredential(username: username, password: password));
 ```
+![Save Credential 1](https://i.ibb.co/CtK7ffZ/1.jpg)
+![Save Credential 2](https://i.ibb.co/qyGGv37/2.jpg)
+![Save Credential 3](https://i.ibb.co/vZmbsXL/3.jpg)
+![Save Credential 4](https://i.ibb.co/NsTFTVB/4.jpg)
+
+
 
 > Note: It is not nesscessary to be username and password,you can send any string you want to store but you will get credentials as `PasswordCredential` which has `username` and `password` properties.
 
@@ -85,7 +91,8 @@ await credentialManager.savePasswordCredentials(
 ```
  PasswordCredential credential =await credentialManager.getPasswordCredentials();
 ```
-
+![Get Credential 1](https://i.ibb.co/fCs0kqV/5.jpg)
+![Get Credential 2](https://i.ibb.co/3ChSstH/6.jpg)
 
 
 ## Properties and Methods
