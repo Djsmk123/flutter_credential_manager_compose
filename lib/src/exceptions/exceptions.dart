@@ -22,7 +22,7 @@ class CredentialException implements Exception {
   301   Save Credentials cancelled
   302   Create Credentials failed
 
-  401  Create PublicKey Credential Dom Exception
+
 
 
  */

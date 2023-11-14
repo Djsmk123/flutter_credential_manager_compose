@@ -8,8 +8,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.exceptions.*
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+
 
 
 
@@ -22,15 +21,16 @@ class CredentialManagerUtils {
      * Initialize the CredentialManagerUtils.
      *
      * @param preferImmediatelyAvailableCredentials Set to true if immediately available credentials are preferred.
-     * @param c The Android context.
+     * @param context The Android context.
      * @return A Pair containing either null and a success message or CredentialManagerExceptions and an empty string.
      */
-    fun initialize(preferImmediatelyAvailableCredentials: Boolean, c: Context): Pair<CredentialManagerExceptions?, String> {
+    fun initialize(preferImmediatelyAvailableCredentials: Boolean, context: Context): Pair<CredentialManagerExceptions?, String> {
         return try {
-            credentialManager = CredentialManager.create(context = c)
+            credentialManager = CredentialManager.create(context = context)
             this.preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
             Pair(null, "Initialization successful")
         } catch (e: Exception) {
+            Log.d("CredentialManager","${e.message}")
             val message = e.localizedMessage
             Pair(CredentialManagerExceptions(code = 101, message = "Initialization failure", details = message), "")
         }
@@ -67,7 +67,7 @@ class CredentialManagerUtils {
         } catch (e: CreateCredentialException) {
             Pair(
                 CredentialManagerExceptions(
-                    code = 301,
+                    code = 302,
                     message = "Create credentials failed",
                     details = e.localizedMessage
                 ), ""
@@ -75,13 +75,15 @@ class CredentialManagerUtils {
         } catch (e: Exception) {
             Pair(
                 CredentialManagerExceptions(
-                    code = 301,
+                    code = 302,
                     message = "Create credentials failed, ${e.message}",
                     details = e.localizedMessage
                 ), ""
             )
         }
     }
+
+
 
     /**
      * Get password credentials.
@@ -100,17 +102,11 @@ class CredentialManagerUtils {
 
             val pair = when (val response = credentialResponse.credential) {
                 is PasswordCredential -> {
-                    // Map the credentials to a data class
-                    val data = mapOf(
-                        "username" to response.id,
-                        "password" to response.password
-                    )
                     // Deserialize the data into PasswordCredentials
-                    val deserializedUserCredentials =
-                        Json.decodeFromString<PasswordCredentials>(data.toString())
-                    Pair(null, deserializedUserCredentials)
+                    val cred =PasswordCredentials(username = response.id, password = response.password)
+                    Pair(null, cred)
                 }
-                !is PasswordCredential -> {
+                /*!is PasswordCredential -> {
                     Pair(
                         CredentialManagerExceptions(
                             code = 203,
@@ -118,7 +114,7 @@ class CredentialManagerUtils {
                             details = null
                         ), null
                     )
-                }
+                }*/
                 else -> {
                     Pair(
                         CredentialManagerExceptions(
@@ -141,7 +137,7 @@ class CredentialManagerUtils {
         } catch (e: NoCredentialException) {
             Pair(
                 CredentialManagerExceptions(
-                    code = 204,
+                    code = 202,
                     message = "No credentials found",
                     details = e.localizedMessage
                 ), null
@@ -149,7 +145,7 @@ class CredentialManagerUtils {
         } catch (e: GetCredentialException) {
             Pair(
                 CredentialManagerExceptions(
-                    code = 203,
+                    code = 204,
                     message = "Login failed",
                     details = e.localizedMessage
                 ), null
@@ -157,7 +153,7 @@ class CredentialManagerUtils {
         } catch (e: Exception) {
             Pair(
                 CredentialManagerExceptions(
-                    code = 203,
+                    code = 204,
                     message = "Login failed",
                     details = e.localizedMessage
                 ), null

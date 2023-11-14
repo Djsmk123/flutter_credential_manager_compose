@@ -1,7 +1,10 @@
 package com.smkwinner.cred_manager.credential_manager
 
+import android.app.Activity
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -10,76 +13,99 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+
 
 /** CredentialManagerPlugin */
-class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler {
+class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private lateinit var channel: MethodChannel
   private var utils: CredentialManagerUtils = CredentialManagerUtils()
   private val mainScope = CoroutineScope(Dispatchers.Main)
   private lateinit var context: Context
+  private lateinit var activity: Activity
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "credential_manager")
-    context = flutterPluginBinding.applicationContext
     channel.setMethodCallHandler(this)
+    context = flutterPluginBinding.applicationContext
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    mainScope.launch {
-      withContext(Dispatchers.Main){
-        when (call.method) {
-          "getPlatformVersion" -> {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-          }
-          "init" -> {
-            val preferImmediatelyAvailableCredentials: Boolean =
-              call.argument("prefer_immediately_available_credentials") ?: true
-            val (exception: CredentialManagerExceptions?, message: String) =
-              utils.initialize(preferImmediatelyAvailableCredentials, context)
+    if(call.method=="getPlatformVersion"){
+      result.success("Android ${android.os.Build.VERSION.RELEASE}")
+    }
+    if(call.method=="init")
+    {
+      val preferImmediatelyAvailableCredentials: Boolean =
+        call.argument("prefer_immediately_available_credentials") ?: true
+      val (exception: CredentialManagerExceptions?, message: String) =
+        utils.initialize(preferImmediatelyAvailableCredentials, activity)
 
-            if (exception != null) {
-              result.error(exception.code.toString(), exception.details, exception.message)
-            } else {
-              result.success(message)
+      if (exception != null) {
+        result.error(exception.code.toString(), exception.details, exception.message)
+      } else {
+        result.success(message)
+      }
+    }
+    else{
+      mainScope.launch {
+        withContext(Dispatchers.Main){
+          when (call.method) {
+
+            "save_password_credentials" -> {
+              val username: String? = call.argument("username")
+              val password: String? = call.argument("password")
+              if (username == null)
+              {
+                result.error("302", "username is required", "not found all required fields")
+              }else if (password == null)
+                result.error("302", "password is required", "not found all required fields")
+              else{
+                val (exception: CredentialManagerExceptions?, message: String) =
+                  utils.savePasswordCredentials(username = username.toString(), password = password.toString(), activity = activity)
+                if (exception != null) {
+                  result.error(exception.code.toString(), exception.details, exception.message)
+                } else {
+                  result.success(message)
+                }
+              }
             }
-          }
-          "save_password_credentials" -> {
-            val username: String? = call.argument("user_name")
-            val password: String? = call.argument("password")
-            if (username == null)
-              result.error("302", "username is required", "not found all required fields")
-            if (password == null)
-              result.error("302", "password is required", "not found all required fields")
-            val (exception: CredentialManagerExceptions?, message: String) =
-              utils.savePasswordCredentials(username = username.toString(), password = password.toString(), activity = context)
-            if (exception != null) {
-              result.error(exception.code.toString(), exception.details, exception.message)
-            } else {
-              result.success(message)
+            "get_password_credentials" -> {
+              val (exception: CredentialManagerExceptions?, credentials: PasswordCredentials?) = utils.getPasswordCredentials(activity = activity)
+              if (exception != null) {
+                result.error(exception.code.toString(), exception.details, exception.message)
+              } else {
+                result.success(mapOf(
+                  "username" to credentials?.username,
+                  "password" to credentials?.password
+                ))
+              }
             }
-          }
-          "get_password_credentials" -> {
-            val (exception: CredentialManagerExceptions?, credentials: PasswordCredentials?) = utils.getPasswordCredentials(activity = context)
-            if (exception != null) {
-              result.error(exception.code.toString(), exception.details, exception.message)
-            } else {
-              val jsonString = Json.encodeToString(credentials)
-              result.success(jsonString)
-            }
-          }
-          else -> {
-            result.notImplemented()
           }
         }
-      }
 
+      }
     }
+
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
+  }
+
+  override fun onAttachedToActivity(p0: ActivityPluginBinding) {
+    activity = p0.activity
+  }
+
+  override fun onDetachedFromActivityForConfigChanges() {
+    TODO("Not yet implemented")
+  }
+
+  override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {
+    TODO("Not yet implemented")
+  }
+
+  override fun onDetachedFromActivity() {
+    TODO("Not yet implemented")
   }
 }

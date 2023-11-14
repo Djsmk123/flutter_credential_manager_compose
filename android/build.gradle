@@ -71,15 +71,16 @@ android {
 }
 
 dependencies {
-    //implementation files('libs/flutter.jar')
+
     implementation 'androidx.annotation:annotation:1.7.0'
+
+    //jetpack credential Manager
     implementation "androidx.credentials:credentials:1.2.0"
 
     // optional - needed for credentials support from play services, for devices running
     // Android 13 and below.
     implementation "androidx.credentials:credentials-play-services-auth:1.2.0"
-    //for Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+
 
     //Co-routine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
