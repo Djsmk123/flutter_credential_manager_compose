@@ -77,10 +77,14 @@ if(credentialManager.isSupportedPlatform){
 await credentialManager.savePasswordCredentials(
           PasswordCredential(username: username, password: password));
 ```
-![Save Credential 1](https://i.ibb.co/CtK7ffZ/1.jpg)
-![Save Credential 2](https://i.ibb.co/qyGGv37/2.jpg)
-![Save Credential 3](https://i.ibb.co/vZmbsXL/3.jpg)
-![Save Credential 4](https://i.ibb.co/NsTFTVB/4.jpg)
+<img src="https://i.ibb.co/CtK7ffZ/1.jpg" alt="Save Credential 1" width="80" height="150">
+
+<img src="https://i.ibb.co/qyGGv37/2.jpg" alt="Save Credential 2" width="80" height="150">
+
+<img src="https://i.ibb.co/vZmbsXL/3.jpg" alt="Save Credential 3" width="80" height="150">
+
+<img src="https://i.ibb.co/NsTFTVB/4.jpg" alt="Save Credential 4" width="80" height="150">
+
 
 
 
