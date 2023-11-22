@@ -3,8 +3,9 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'credential_manager_method_channel.dart';
 
+/// A platform-agnostic interface for managing credentials.
 abstract class CredentialManagerPlatform extends PlatformInterface {
-  /// Constructs a CredentialManagerPlatform.
+  /// Constructs a [CredentialManagerPlatform].
   CredentialManagerPlatform() : super(token: _token);
 
   static final Object _token = Object();
@@ -24,14 +25,17 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  /// Initializes the credential manager with the option to prefer immediately available credentials.
   Future<void> init(bool preferImmediatelyAvailableCredentials) {
     return _instance.init(preferImmediatelyAvailableCredentials);
   }
 
+  /// Saves password credentials.
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
     return _instance.savePasswordCredentials(credential);
   }
 
+  /// Saves encrypted credentials using the provided secret key and initialization vector (IV).
   Future<void> saveEncryptedCredentials({
     required PasswordCredential credential,
     required String secretKey,
@@ -41,6 +45,7 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
         credential: credential, secretKey: secretKey, ivKey: ivKey);
   }
 
+  /// Retrieves encrypted credentials using the provided secret key and initialization vector (IV).
   Future<PasswordCredential> getEncryptedCredentials({
     required String secretKey,
     required String ivKey,
@@ -49,10 +54,12 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
         secretKey: secretKey, ivKey: ivKey);
   }
 
+  /// Retrieves password credentials.
   Future<PasswordCredential> getPasswordCredentials() async {
     return _instance.getPasswordCredentials();
   }
 
+  /// Retrieves the platform version information.
   Future<String?> getPlatformVersion() {
     return _instance.getPlatformVersion();
   }
