@@ -1,5 +1,5 @@
 name: credential_manager
-description: Credential Manager plugin,Help on-tap Login functionality and store credentials in Google service account of user.
+description: Credential Manager plugin,Help one-tap Login functionality and store credentials in Google service account of user.
 
 version: 0.0.1
 repository: https://github.com/Djsmk123/flutter_credential_manager_compose
