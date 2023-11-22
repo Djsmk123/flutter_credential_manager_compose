@@ -32,6 +32,23 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
     return _instance.savePasswordCredentials(credential);
   }
 
+  Future<void> saveEncryptedCredentials({
+    required PasswordCredential credential,
+    required String secretKey,
+    required String ivKey,
+  }) async {
+    return _instance.saveEncryptedCredentials(
+        credential: credential, secretKey: secretKey, ivKey: ivKey);
+  }
+
+  Future<PasswordCredential> getEncryptedCredentials({
+    required String secretKey,
+    required String ivKey,
+  }) async {
+    return _instance.getEncryptedCredentials(
+        secretKey: secretKey, ivKey: ivKey);
+  }
+
   Future<PasswordCredential> getPasswordCredentials() async {
     return _instance.getPasswordCredentials();
   }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:credential_manager/src/Models/password_credentials.dart';
 import 'package:credential_manager/src/exceptions/exceptions.dart';
+import 'package:credential_manager/src/utils/encryption.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -20,29 +21,31 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
     return version;
   }
 
-  /*
-
-Note: If the call to Credential Manager was triggered by an explicit user action, set preferImmediatelyAvailableCredentials to false. If Credential Manager was opportunistically called, set preferImmediatelyAvailableCredentials to true.
-
-The preferImmediatelyAvailableCredentials option defines whether you prefer to only use locally-available credentials to fulfill the request, instead of credentials from security keys or hybrid key flows. This value is false by default.
-
-If you set preferImmediatelyAvailableCredentials to true and there are no immediately available credentials, Credential Manager won't show any UI and the request will fail immediately, returning NoCredentialException for get requests and CreateCredentialNoCreateOptionException for create requests. This is recommended when calling the Credential Manager API opportunistically, such as when first opening the app.
-*/
-
+  /// Initializes the Credential Manager.
+  ///
+  /// [preferImmediatelyAvailableCredentials] - Whether to prefer only locally-available credentials.
+  ///
+  /// Throws [CredentialException] if initialization fails.
   @override
   Future<void> init(bool preferImmediatelyAvailableCredentials) async {
     final res = await methodChannel.invokeMethod<String>("init", {
       'prefer_immediately_available_credentials':
-          preferImmediatelyAvailableCredentials
+          preferImmediatelyAvailableCredentials,
     });
 
     if (res != null && res == "Initialization successful") {
       return;
     }
 
-    throw CredentialException(code: 101, message: "initialization failure");
+    throw CredentialException(
+        code: 101, message: "Initialization failure", details: null);
   }
 
+  /// Saves password credentials as plain text.
+  ///
+  /// [credential] - The password credentials to be saved.
+  ///
+  /// Throws [CredentialException] if the credential creation fails.
   @override
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
     try {
@@ -54,20 +57,28 @@ If you set preferImmediatelyAvailableCredentials to true and there are no immedi
       if (res != null && res == "Credentials saved") {
         return;
       }
+
       throw CredentialException(
-          code: 302, message: "Create Credentials failed");
+          code: 302, message: "Create Credentials failed", details: null);
     } on PlatformException catch (e) {
       switch (e.code) {
         case "301":
           throw CredentialException(
-              code: 301, message: "Save Credentials cancelled");
+              code: 301,
+              message: "Save Credentials cancelled",
+              details: e.details);
         default:
           throw CredentialException(
-              code: 302, message: e.message ?? "Credentials save failed");
+              code: 302,
+              message: e.message ?? "Credentials save failed",
+              details: e.details);
       }
     }
   }
 
+  /// Gets plain text credentials.
+  ///
+  /// Throws [CredentialException] if the login fails.
   @override
   Future<PasswordCredential> getPasswordCredentials() async {
     try {
@@ -81,20 +92,62 @@ If you set preferImmediatelyAvailableCredentials to true and there are no immedi
         return credentials;
       }
 
-      throw CredentialException(code: 204, message: "Login failed");
+      throw CredentialException(
+          code: 204, message: "Login failed", details: null);
     } on PlatformException catch (e) {
       switch (e.code) {
         case "201":
-          throw CredentialException(code: 201, message: "Login cancelled");
+          throw CredentialException(
+              code: 201, message: "Login cancelled", details: e.details);
         case "202":
-          throw CredentialException(code: 202, message: "No credentials found");
+          throw CredentialException(
+              code: 202, message: "No credentials found", details: e.details);
         case "203":
           throw CredentialException(
-              code: 203, message: "Mismatched credentials");
+              code: 203, message: "Mismatched credentials", details: e.details);
         default:
           throw CredentialException(
-              code: 204, message: e.message ?? "${e.details}");
+              code: 204,
+              message: e.message ?? "${e.details}",
+              details: e.details);
       }
+    }
+  }
+
+  /// Saves encrypted credentials.
+  ///
+  /// [credential] - The password credentials to be saved.
+  /// [secretKey] - The secret key used for encryption.
+  ///
+  /// Throws [CredentialException] if the credential creation fails.
+  @override
+  Future<void> saveEncryptedCredentials({
+    required PasswordCredential credential,
+    required String secretKey,
+    required String ivKey,
+  }) async {
+    credential.password =
+        EncryptData.encode(credential.password!.toString(), secretKey, ivKey);
+    return savePasswordCredentials(credential);
+  }
+
+  /// Gets encrypted credentials.
+  ///
+  /// [secretKey] - The secret key used for decryption.
+  ///
+  /// Throws [CredentialException] if the login fails.
+  @override
+  Future<PasswordCredential> getEncryptedCredentials({
+    required String secretKey,
+    required String ivKey,
+  }) async {
+    try {
+      PasswordCredential? credential = await getPasswordCredentials();
+      credential.password =
+          EncryptData.decode(credential.password.toString(), secretKey, ivKey);
+      return credential;
+    } catch (e) {
+      rethrow;
     }
   }
 }

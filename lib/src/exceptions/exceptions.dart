@@ -1,9 +1,11 @@
 class CredentialException implements Exception {
   final int code;
   final String message;
+  final dynamic details;
   CredentialException({
     required this.code,
     required this.message,
+    required this.details,
   });
 }
 // Table for error
@@ -21,6 +23,9 @@ class CredentialException implements Exception {
 
   301   Save Credentials cancelled
   302   Create Credentials failed
+
+  401  Encryption failed
+  402  Decryption failed 
 
 
 

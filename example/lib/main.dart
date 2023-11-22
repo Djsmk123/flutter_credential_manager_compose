@@ -44,6 +44,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? password;
+
+  final secretKey = '1234567812345678'; // Use a secure key here
+  final ivKey = "xfpkDQJXIfb3mcnb";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,8 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoading = true;
     });
     try {
-      PasswordCredential credential =
-          await credentialManager.getPasswordCredentials();
+      PasswordCredential credential = await credentialManager
+          .getEncryptedCredentials(secretKey: secretKey, ivKey: ivKey);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Successfully retrived credential")));
       showDialog(
@@ -186,8 +190,11 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoading = true;
     });
     try {
-      await credentialManager.savePasswordCredentials(
-          PasswordCredential(username: username, password: password));
+      await credentialManager.saveEncryptedCredentials(
+          credential:
+              PasswordCredential(username: username, password: password),
+          secretKey: secretKey,
+          ivKey: ivKey);
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Successfully saved credential")));
     } on CredentialException catch (e) {

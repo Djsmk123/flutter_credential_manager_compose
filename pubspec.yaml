@@ -9,6 +9,7 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
+  encrypt: ^5.0.3
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
