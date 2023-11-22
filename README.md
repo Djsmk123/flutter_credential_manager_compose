@@ -36,7 +36,6 @@ if `proguard-rules.pro` is not exist in `android/app` then create new file with 
 buildTypes {
         release {
             //add these lines 
-            signingConfig signingConfigs.debug
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -71,6 +70,7 @@ if(credentialManager.isSupportedPlatform){
 ```
 > Note: If the call to Credential Manager was triggered by an explicit user action, credential will be available immediately after saving if `true`(by default) or user will not able to get credential as soon as possible(May throw error if fetched just after saving credentials)
 
+> If you want to encrypted credential manager [encrypted_credential_manager](#encrypt-your-credentials)
 - Save credentials in credential manager
 
 ```
@@ -100,6 +100,37 @@ await credentialManager.savePasswordCredentials(
 <img src="https://i.ibb.co/3ChSstH/6.jpg" alt="Get Credential 2" width="80" height="150">
 
 
+## Encrypt Your credentials
+To ensure the security of credentials, we will encrypt the password field using the [encrypt](https://pub.dev/packages/encrypt) library and store the encrypted information in a credential manager. This approach reduces the risk of exposing sensitive information, such as passwords.
+
+**To encrypt value and decrypt the encrypted data, you need 128 bit-key of `secret_key` and 128 bit-key of `iv_key`.**
+
+> you need to provide a 16 character string as a key. 
+
+```
+
+  final secretKey = "<Secret-key>"; // Use a secure key here for example "1234567812345678"
+  final ivKey = "<16-bit-iv-key>" //for e.g: "xfpkDQJXIfb3mcnb"; 
+```
+
+
+- Save encrypted credentials
+```
+await credentialManager.saveEncryptedCredentials(
+        credential: PasswordCredential(username: username, password: password),
+        secretKey: secretKey,
+        ivKey: ivKey,
+      );
+```
+- Get encrypted credentials and decrypted the sensitive data
+
+```
+ PasswordCredential credential = await credentialManager
+          .getEncryptedCredentials(secretKey: secretKey, ivKey: ivKey);
+```
+
+
+
 
 ## Properties and Methods
 
@@ -107,8 +138,10 @@ await credentialManager.savePasswordCredentials(
 |-----------------------|---------------------------|---------------------------------------------|
 | isSupportedPlatform            | boolean     | Check if targeted platform supported or not(Only Android supported) |  
 | init(bool preferImmediatelyAvailableCredentials)         | Future(void)                  | To initialize credential Manager,preferImmediatelyAvailableCredentials,If the call to Credential Manager was triggered by an explicit user action, credential will be available immediately after saving if `true`(by default) or user will not able to get credential as soon as possible(May throw error if fetched just after saving credentials) |
-| savePasswordCredentials(String username,String password)         | Future(void)                  | To save credentials in credential Manager|
+| savePasswordCredentials(PasswordCredential credential)         | Future(void)                  | To save credentials in credential Manager|
+| saveEncryptedCredentials(PasswordCredential credential,String secretKey,String ivKey)         | Future(void)                  | To save credentials in credential Manager with encryption|
 | getPasswordCredentials()         | Future(PasswordCredential)                  | return `PasswordCredential` object which has username,password fields |
+| getEncryptedCredentials(String secretKey,String ivKey)         | Future(PasswordCredential)                  | return `PasswordCredential` object which has username,password fields and decrypt the encrypted data|
 
 ## About `PasswordCredential()`
 
@@ -116,7 +149,6 @@ await credentialManager.savePasswordCredentials(
 |----------|---------|-------------------------------------------|
 | username | String? | User's username for authentication.       |
 | password | String? | User's password for authentication.       |
-|----------|---------|-------------------------------------------|
 | **Constructor:**                                  |
 | PasswordCredential({String? username, String? password}) | Creates a new instance of `PasswordCredential`. |
 |                                                   |
@@ -146,11 +178,13 @@ if any exception occure it throws `CredentialException` which has field  `int co
 |      |                            |                                                     |
 | 301  | Save Credentials cancelled  | The process of saving credentials was cancelled by the user.|
 | 302  | Create Credentials failed   | Failed to create new credentials.                   |
+| 401  | Encryption failed   | Failed to encrypt value.                   |
+| 402  | Decryption failed   | Failed to decrypt value.                   |
+
+
 
 
 ## Upcoming
-
-- Encryption of PasswordCredential
 - iOS Support
 - Passkey extenstion for flowless integration with web
 
