@@ -41,10 +41,10 @@ class CredentialManagerUtils {
      *
      * @param username The username to be saved.
      * @param password The password to be saved.
-     * @param activity The Android context.
+     * @param context The Android context.
      * @return A Pair containing either null and a success message or CredentialManagerExceptions and an empty string.
      */
-    suspend fun savePasswordCredentials(username: String, password: String, activity: Context): Pair<CredentialManagerExceptions?, String> {
+    suspend fun savePasswordCredentials(username: String, password: String, context: Context): Pair<CredentialManagerExceptions?, String> {
         return try {
             credentialManager.createCredential(
                 request = CreatePasswordRequest(
@@ -52,7 +52,7 @@ class CredentialManagerUtils {
                     password = password,
                     preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
                 ),
-                context = activity
+                context = context
             )
             Log.v("CredentialTest", "Credentials successfully added")
             Pair(null, "Credentials saved")
@@ -88,16 +88,16 @@ class CredentialManagerUtils {
     /**
      * Get password credentials.
      *
-     * @param activity The Android context.
+     * @param context The Android context.
      * @return A Pair containing either null and deserialized password credentials
      * or CredentialManagerExceptions and null if no credentials are found or an error occurs.
      */
-    suspend fun getPasswordCredentials(activity: Context): Pair<CredentialManagerExceptions?, PasswordCredentials?> {
+    suspend fun getPasswordCredentials(context: Context): Pair<CredentialManagerExceptions?, PasswordCredentials?> {
         return try {
             val getCredRequest = GetCredentialRequest(listOf(GetPasswordOption()))
             val credentialResponse = credentialManager.getCredential(
                 request = getCredRequest,
-                context = activity
+                context = context
             )
 
             val pair = when (val response = credentialResponse.credential) {
