@@ -22,7 +22,9 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   private var utils: CredentialManagerUtils = CredentialManagerUtils()
   private val mainScope = CoroutineScope(Dispatchers.Main)
   private lateinit var context: Context
-  private lateinit var activity: Activity
+  private var activity: Activity? = null
+
+  val currentContext get() = activity ?: context
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "credential_manager")
@@ -39,7 +41,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       val preferImmediatelyAvailableCredentials: Boolean =
         call.argument("prefer_immediately_available_credentials") ?: true
       val (exception: CredentialManagerExceptions?, message: String) =
-        utils.initialize(preferImmediatelyAvailableCredentials, activity)
+        utils.initialize(preferImmediatelyAvailableCredentials, currentContext)
 
       if (exception != null) {
         result.error(exception.code.toString(), exception.details, exception.message)
@@ -62,7 +64,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 result.error("302", "password is required", "not found all required fields")
               else{
                 val (exception: CredentialManagerExceptions?, message: String) =
-                  utils.savePasswordCredentials(username = username.toString(), password = password.toString(), activity = activity)
+                  utils.savePasswordCredentials(username = username.toString(), password = password.toString(), context = currentContext)
                 if (exception != null) {
                   result.error(exception.code.toString(), exception.details, exception.message)
                 } else {
@@ -71,7 +73,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
               }
             }
             "get_password_credentials" -> {
-              val (exception: CredentialManagerExceptions?, credentials: PasswordCredentials?) = utils.getPasswordCredentials(activity = activity)
+              val (exception: CredentialManagerExceptions?, credentials: PasswordCredentials?) = utils.getPasswordCredentials(context = currentContext)
               if (exception != null) {
                 result.error(exception.code.toString(), exception.details, exception.message)
               } else {
@@ -98,14 +100,14 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
-    TODO("Not yet implemented")
+    activity = null
   }
 
   override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {
-    TODO("Not yet implemented")
+    activity = p0.activity
   }
 
   override fun onDetachedFromActivity() {
-    TODO("Not yet implemented")
+    activity = null
   }
 }
