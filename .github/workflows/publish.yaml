@@ -16,7 +16,7 @@ jobs:
 
       # Use the dart-lang/setup-dart action
       - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@v1 
 
       # Install dependencies
       - name: Install dependencies
