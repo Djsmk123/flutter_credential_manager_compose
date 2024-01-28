@@ -1,7 +1,5 @@
-import 'dart:io' show Platform;
 
-import 'package:credential_manager/src/Models/password_credentials.dart';
-import 'package:credential_manager/src/channel/credential_manager_platform_interface.dart';
+import 'package:credential_manager/credential_manager.dart';
 
 /// A class that provides a high-level interface for interacting with the Credential Manager.
 class CredentialManager {
@@ -19,9 +17,10 @@ class CredentialManager {
   /// Returns a [Future] that completes when initialization is successful.
   Future<void> init({
     required bool preferImmediatelyAvailableCredentials,
+    String? googleClientId,
   }) async {
     return CredentialManagerPlatform.instance
-        .init(preferImmediatelyAvailableCredentials);
+        .init(preferImmediatelyAvailableCredentials, googleClientId);
   }
 
   /// Saves plain text password credentials.
@@ -37,7 +36,7 @@ class CredentialManager {
   /// Gets plain text password credentials.
   ///
   /// Returns a [Future] that completes with [PasswordCredential] representing the retrieved credentials.
-  Future<PasswordCredential> getPasswordCredentials() async {
+  Future<Credentials> getPasswordCredentials() async {
     return CredentialManagerPlatform.instance.getPasswordCredentials();
   }
 
@@ -61,12 +60,17 @@ class CredentialManager {
   /// [secretKey] - The secret key used for decryption.
   ///
   /// Returns a [Future] that completes with [PasswordCredential] representing the decrypted credentials.
-  Future<PasswordCredential> getEncryptedCredentials({
+  Future<Credentials> getEncryptedCredentials({
     required String secretKey,
     required String ivKey,
   }) {
     return CredentialManagerPlatform.instance
         .getEncryptedCredentials(secretKey: secretKey, ivKey: ivKey);
+  }
+
+  /// Returns a [Future] that completes when the credentials are successfully saved.
+  Future<GoogleIdTokenCredential?> saveGoogleCredential() async {
+    return CredentialManagerPlatform.instance.saveGoogleCredential();
   }
 
   /// Checks if the Credential Manager is supported on the current platform.
