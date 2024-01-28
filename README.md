@@ -19,6 +19,7 @@ Furthermore, for users, Credential Manager unifies the sign-in interface across 
    ```
    flutter pub get credential_manager
    ```
+
 ## [Setup android](https://developer.android.com/training/sign-in/passkeys)
 - Add proguard rules
 if `proguard-rules.pro` is not exist in `android/app` then create new file with same name 
@@ -41,6 +42,20 @@ buildTypes {
         }
     }
 ```
+
+## Setup Google Sign In (optional)
+- [Google Cloud Console Set Up](https://console.cloud.google.com/)
+-  Go to Google Could Console
+- Create a project if you haven’t yet. 
+- Find the search bar (top center) and type “Credentials” and select Credentials under “Product & Pages”. 
+- Find the “Create Credentials” button and click it!
+- Click on “OAuth client ID” from the pop-up window. 
+- We have to select an “Application Type”.
+- Add package ID and Get debug SHA-1 and release SHA-1
+   - `cd android`
+   - `./gradlew signInReport`
+- Copy `WebClient(auto created by google)`
+
 ## Usage in flutter
 - import the package
 
@@ -59,12 +74,15 @@ if(credentialManager.isSupportedPlatform){
 }
 ```
 
-- initialize credential manager
+- Initialize credential manager
 
 ```
 if(credentialManager.isSupportedPlatform){
     // if supported
-    await credentialManager.init(preferImmediatelyAvailableCredentials: true);
+    await credentialManager.init(preferImmediatelyAvailableCredentials: true
+    //optional perameter for integrate google signing
+        googleClientId: googleClientId 
+    );
 
 }
 ```
@@ -77,28 +95,30 @@ if(credentialManager.isSupportedPlatform){
 await credentialManager.savePasswordCredentials(
           PasswordCredential(username: username, password: password));
 ```
-<img src="https://i.ibb.co/CtK7ffZ/1.jpg" alt="Save Credential 1" width="80" height="150">
+- Save Google credentials in credential manager
 
-<img src="https://i.ibb.co/qyGGv37/2.jpg" alt="Save Credential 2" width="80" height="150">
+```
+final GoogleIdTokenCredential? gCredential= await credentialManager.saveGoogleCredential();
 
-<img src="https://i.ibb.co/vZmbsXL/3.jpg" alt="Save Credential 3" width="80" height="150">
-
-<img src="https://i.ibb.co/NsTFTVB/4.jpg" alt="Save Credential 4" width="80" height="150">
-
-
+```
+<img src="https://i.ibb.co/X2YVw1B/IMG-20240128-164412.jpg" alt="Get Google/Password Saved Credential " width="300" height="300">
+<img src="https://i.ibb.co/HgYkBgM/IMG-20240128-164512.jpg" alt="Get Google/Password Saved Credential Success" width="300" height="300">
 
 
-> Note: It is not nesscessary to be username and password,you can send any string you want to store but you will get credentials as `PasswordCredential` which has `username` and `password` properties.
+
+
+
+
+
+> Note: It is not necessary to be username and password,you can send any string you want to store but you will get credentials as `PasswordCredential` which has `username` and `password` properties.
 
 - Get the saved  credentials
 
 ```
- PasswordCredential credential =await credentialManager.getPasswordCredentials();
+ Credentials credential =await credentialManager.getPasswordCredentials();
 ```
-<img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="80" height="150">
-
-<img src="https://i.ibb.co/3ChSstH/6.jpg" alt="Get Credential 2" width="80" height="150">
-
+<img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="300" height="300">
+<img src="https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg" alt="Google Save Credential 1" width="300" height="300">
 
 ## Encrypt Your credentials
 To ensure the security of credentials, we will encrypt the password field using the [encrypt](https://pub.dev/packages/encrypt) library and store the encrypted information in a credential manager. This approach reduces the risk of exposing sensitive information, such as passwords.
@@ -125,7 +145,7 @@ await credentialManager.saveEncryptedCredentials(
 - Get encrypted credentials and decrypted the sensitive data
 
 ```
- PasswordCredential credential = await credentialManager
+ Credentials credential = await credentialManager
           .getEncryptedCredentials(secretKey: secretKey, ivKey: ivKey);
 ```
 
@@ -134,37 +154,61 @@ await credentialManager.saveEncryptedCredentials(
 
 ## Properties and Methods
 
-| Method              | Type                      | Description                                 |
-|-----------------------|---------------------------|---------------------------------------------|
-| isSupportedPlatform            | boolean     | Check if targeted platform supported or not(Only Android supported) |  
-| init(bool preferImmediatelyAvailableCredentials)         | Future(void)                  | To initialize credential Manager,preferImmediatelyAvailableCredentials,If the call to Credential Manager was triggered by an explicit user action, credential will be available immediately after saving if `true`(by default) or user will not able to get credential as soon as possible(May throw error if fetched just after saving credentials) |
-| savePasswordCredentials(PasswordCredential credential)         | Future(void)                  | To save credentials in credential Manager|
-| saveEncryptedCredentials(PasswordCredential credential,String secretKey,String ivKey)         | Future(void)                  | To save credentials in credential Manager with encryption|
-| getPasswordCredentials()         | Future(PasswordCredential)                  | return `PasswordCredential` object which has username,password fields |
-| getEncryptedCredentials(String secretKey,String ivKey)         | Future(PasswordCredential)                  | return `PasswordCredential` object which has username,password fields and decrypt the encrypted data|
+| Method                                                                                | Type                | Description                                                                                                                                                                                                                                                                                                                                                                                                                |
+|---------------------------------------------------------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| isSupportedPlatform                                                                   | boolean             | Check if targeted platform supported or not(Only Android supported)                                                                                                                                                                                                                                                                                                                                                        |  
+| init(bool preferImmediatelyAvailableCredentials,googleClientId)                       | Future(void)        | To initialize credential Manager,preferImmediatelyAvailableCredentials,If the call to Credential Manager was triggered by an explicit user action, credential will be available immediately after saving if `true`(by default) or user will not able to get credential as soon as possible(May throw error if fetched just after saving credentials)<br/> googleClientId(optional) required when google sign-in is enabled |
+| savePasswordCredentials(PasswordCredential credential)                                | Future(void)        | To save credentials in credential Manager                                                                                                                                                                                                                                                                                                                                                                                  |
+| saveEncryptedCredentials(PasswordCredential credential,String secretKey,String ivKey) | Future(void)        | To save credentials in credential Manager with encryption                                                                                                                                                                                                                                                                                                                                                                  |
+| getPasswordCredentials()                                                              | Future(Credential)  | return `Credential` object which has either `GoogleIdTokenCredential` or `PasswordCredential` at time, other would have null value.                                                                                                                                                                                                                                                                                        |
+| getEncryptedCredentials(String secretKey,String ivKey)                                | Future(Credential ) | which has either `GoogleIdTokenCredential` or `PasswordCredential` at time, other would have null value. if  `PasswordCredential` is not null then password will be return as decrypted values.                                                                                                                                                                                                                            |
 
 ## About `PasswordCredential()`
 
-| Field    | Type    | Description                               |
-|----------|---------|-------------------------------------------|
-| username | String? | User's username for authentication.       |
-| password | String? | User's password for authentication.       |
-| **Constructor:**                                  |
+| Field                                                    | Type                                            | Description                         |
+|----------------------------------------------------------|-------------------------------------------------|-------------------------------------|
+| username                                                 | String?                                         | User's username for authentication. |
+| password                                                 | String?                                         | User's password for authentication. |
+| **Constructor:**                                         |
 | PasswordCredential({String? username, String? password}) | Creates a new instance of `PasswordCredential`. |
-|                                                   |
-| **Properties:**                                   |
-| String? get username => _username;                | Retrieves the username.                        |
-| set username(String? username) => _username = username; | Sets the username.                             |
-| String? get password => _password;                | Retrieves the password.                        |
-| set password(String? password) => _password = password; | Sets the password.                             |
-|                                                   |
-| **JSON Serialization/Deserialization:**           |
-| PasswordCredential.fromJson(Map<String, dynamic> json) | Creates an instance from a JSON map.           |
-| Map<String, dynamic> toJson()                      | Converts the instance to a JSON map.           |
+|                                                          |
+| **Properties:**                                          |
+| String? get username => _username;                       | Retrieves the username.                         |
+| set username(String? username) => _username = username;  | Sets the username.                              |
+| String? get password => _password;                       | Retrieves the password.                         |
+| set password(String? password) => _password = password;  | Sets the password.                              |
+|                                                          |
+| **JSON Serialization/Deserialization:**                  |
+| PasswordCredential.fromJson(Map<String, dynamic> json)   | Creates an instance from a JSON map.            |
+| Map<String, dynamic> toJson()                            | Converts the instance to a JSON map.            |
+
+## About `GoogleIdTokenCredential()`
+
+| Field             | Type    | Description                         |
+|-------------------|---------|-------------------------------------|
+| id                | String  | Identifier for the Google account.  |
+| idToken           | String  | Google ID token for authentication. |
+| displayName       | String? | Display name of the user.           |
+| familyName        | String? | Family name of the user.            |
+| givenName         | String? | Given name of the user.             |
+| phoneNumber       | String? | Phone number of the user.           |
+| profilePictureUri | Uri?    | URI for the user's profile picture. |
+
+## About `Credentials()`
+
+| Field                       | Type                          | Description                                                     |
+|-----------------------------|-------------------------------|-----------------------------------------------------------------|
+| passwordCredential          | PasswordCredential?           | Password credentials for authentication. Null if not available. |
+| googleIdTokenCredential     | GoogleIdTokenCredential?      | Google ID token credentials. Null if not available.             |
+
+NOTE: at a time only one of them will be not null.
+
+
+
 
 
 ## Error Handling 
-if any exception occure it throws `CredentialException` which has field  `int code` and `String message`.
+if any exception occurs it throws `CredentialException` which has field  `int code` and `String message`.
 | Code | Message                    | Description                                         |
 |------|----------------------------|-----------------------------------------------------|
 | 101  | Initialization failure     | The initialization process encountered an error.   |
@@ -181,12 +225,17 @@ if any exception occure it throws `CredentialException` which has field  `int co
 | 401  | Encryption failed   | Failed to encrypt value.                   |
 | 402  | Decryption failed   | Failed to decrypt value.                   |
 
+| 501  | Received an invalid google id token response | Bad response received from  Custom Credentials |
+| 502  | Invalid request | Invalid request has been made while saving google credentials |
+| 503  | Google client is not initialized yet | Google Web token Id is invalid or not missing |
+| 504  | Credentials operation failed | Operation failed,something went wrong |
+
 
 
 
 ## Upcoming
 - iOS Support
-- Passkey extenstion for flowless integration with web
+- Passkey extension for flawless integration with web
 
 ## Contributing
 - Fork it
