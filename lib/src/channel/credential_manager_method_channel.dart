@@ -1,17 +1,10 @@
 import 'dart:convert';
 
-import 'package:credential_manager/src/Models/password_credentials.dart';
-import 'package:credential_manager/src/exceptions/exceptions.dart';
-import 'package:credential_manager/src/utils/encryption.dart';
-import 'package:flutter/foundation.dart';
+import 'package:credential_manager/credential_manager.dart';
+
 import 'package:flutter/services.dart';
 
-import 'credential_manager_platform_interface.dart';
-
-/// An implementation of [CredentialManagerPlatform] that uses method channels.
 class MethodChannelCredentialManager extends CredentialManagerPlatform {
-  /// The method channel used to interact with the native platform.
-  @visibleForTesting
   final methodChannel = const MethodChannel('credential_manager');
 
   @override
@@ -21,16 +14,15 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
     return version;
   }
 
-  /// Initializes the Credential Manager.
-  ///
-  /// [preferImmediatelyAvailableCredentials] - Whether to prefer only locally-available credentials.
-  ///
-  /// Throws [CredentialException] if initialization fails.
   @override
-  Future<void> init(bool preferImmediatelyAvailableCredentials) async {
+  Future<void> init(
+    bool preferImmediatelyAvailableCredentials,
+    String? googleClientId,
+  ) async {
     final res = await methodChannel.invokeMethod<String>("init", {
       'prefer_immediately_available_credentials':
           preferImmediatelyAvailableCredentials,
+      'google_client_id': googleClientId,
     });
 
     if (res != null && res == "Initialization successful") {
@@ -41,11 +33,6 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
         code: 101, message: "Initialization failure", details: null);
   }
 
-  /// Saves password credentials as plain text.
-  ///
-  /// [credential] - The password credentials to be saved.
-  ///
-  /// Throws [CredentialException] if the credential creation fails.
   @override
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
     try {
@@ -61,65 +48,38 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
       throw CredentialException(
           code: 302, message: "Create Credentials failed", details: null);
     } on PlatformException catch (e) {
-      switch (e.code) {
-        case "301":
-          throw CredentialException(
-              code: 301,
-              message: "Save Credentials cancelled",
-              details: e.details);
-        default:
-          throw CredentialException(
-              code: 302,
-              message: e.message ?? "Credentials save failed",
-              details: e.details);
-      }
+      handlePlatformException(e, false);
     }
   }
 
-  /// Gets plain text credentials.
-  ///
-  /// Throws [CredentialException] if the login fails.
   @override
-  Future<PasswordCredential> getPasswordCredentials() async {
+  Future<Credentials> getPasswordCredentials() async {
+    bool isGoogleCredentials = false;
     try {
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
         'get_password_credentials',
       );
 
       if (res != null) {
-        PasswordCredential credentials =
-            PasswordCredential.fromJson(jsonDecode(jsonEncode(res)));
-        return credentials;
+        var data = jsonDecode(jsonEncode(res));
+        if (data['type'] == 'PasswordCredentials') {
+          return Credentials(
+              passwordCredential: PasswordCredential.fromJson(data['data']));
+        } else {
+          isGoogleCredentials = true;
+          return Credentials(
+              googleIdTokenCredential:
+                  GoogleIdTokenCredential.fromJson(data['data']));
+        }
       }
 
       throw CredentialException(
           code: 204, message: "Login failed", details: null);
     } on PlatformException catch (e) {
-      switch (e.code) {
-        case "201":
-          throw CredentialException(
-              code: 201, message: "Login cancelled", details: e.details);
-        case "202":
-          throw CredentialException(
-              code: 202, message: "No credentials found", details: e.details);
-        case "203":
-          throw CredentialException(
-              code: 203, message: "Mismatched credentials", details: e.details);
-        default:
-          throw CredentialException(
-              code: 204,
-              message: e.message ?? "${e.details}",
-              details: e.details);
-      }
+      throw (handlePlatformException(e, isGoogleCredentials));
     }
   }
 
-  /// Saves encrypted credentials.
-  ///
-  /// [credential] - The password credentials to be saved.
-  /// [secretKey] - The secret key used for encryption.
-  ///
-  /// Throws [CredentialException] if the credential creation fails.
   @override
   Future<void> saveEncryptedCredentials({
     required PasswordCredential credential,
@@ -131,23 +91,85 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
     return savePasswordCredentials(credential);
   }
 
-  /// Gets encrypted credentials.
-  ///
-  /// [secretKey] - The secret key used for decryption.
-  ///
-  /// Throws [CredentialException] if the login fails.
   @override
-  Future<PasswordCredential> getEncryptedCredentials({
+  Future<Credentials> getEncryptedCredentials({
     required String secretKey,
     required String ivKey,
   }) async {
     try {
-      PasswordCredential? credential = await getPasswordCredentials();
-      credential.password =
-          EncryptData.decode(credential.password.toString(), secretKey, ivKey);
+      Credentials? credential = await getPasswordCredentials();
+      if (credential.passwordCredential != null) {
+        var password = EncryptData.decode(
+            credential.passwordCredential!.password.toString(),
+            secretKey,
+            ivKey);
+        var passwordCredential = credential.passwordCredential;
+        passwordCredential!.password = password;
+        credential =
+            credential.copyWith(passwordCredential: passwordCredential);
+      }
+
       return credential;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  @override
+  Future<GoogleIdTokenCredential?> saveGoogleCredential() async {
+    try {
+      final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
+        'save_google_credential',
+      );
+      if (res == null) {
+        throw CredentialException(
+          code: 505,
+          message: "Google credential decode error",
+          details: "Null response received",
+        );
+      }
+      return GoogleIdTokenCredential.fromJson(jsonDecode(jsonEncode(res)));
+    } on PlatformException catch (e) {
+      throw (handlePlatformException(e, true));
+    }
+  }
+
+  CredentialException handlePlatformException(
+      PlatformException e, bool isGoogleCredentials) {
+    switch (e.code) {
+      case "301":
+        return CredentialException(
+            code: 301,
+            message: isGoogleCredentials
+                ? "Save Google Credentials cancelled"
+                : "Save Credentials cancelled",
+            details: e.details);
+      case "201":
+        return CredentialException(
+            code: 201,
+            message: isGoogleCredentials
+                ? "Login with Google cancelled"
+                : "Login cancelled",
+            details: e.details);
+      case "202":
+        return CredentialException(
+            code: 202,
+            message: isGoogleCredentials
+                ? "No Google credentials found"
+                : "No credentials found",
+            details: e.details);
+      case "203":
+        return CredentialException(
+            code: 203,
+            message: isGoogleCredentials
+                ? "Mismatched Google credentials"
+                : "Mismatched credentials",
+            details: e.details);
+      default:
+        return CredentialException(
+            code: isGoogleCredentials ? 504 : 204,
+            message: e.message ?? "Credentials operation failed",
+            details: e.details);
     }
   }
 }

@@ -15,4 +15,4 @@
 ## 0.0.4
 
 - Migrate to latest version of jetpack library [https://developer.android.com/jetpack/androidx/releases/credentials#groovy](https://developer.android.com/jetpack/androidx/releases/credentials#groovy)
-
+- Google Sign in with Credential Manager 
