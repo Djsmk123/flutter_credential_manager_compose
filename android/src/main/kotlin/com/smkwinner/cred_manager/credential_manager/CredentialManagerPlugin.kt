@@ -2,6 +2,7 @@ package com.smkwinner.cred_manager.credential_manager
 
 import android.app.Activity
 import android.content.Context
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -18,96 +19,142 @@ import kotlinx.coroutines.withContext
 /** CredentialManagerPlugin */
 class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
-  private lateinit var channel: MethodChannel
-  private var utils: CredentialManagerUtils = CredentialManagerUtils()
-  private val mainScope = CoroutineScope(Dispatchers.Main)
-  private lateinit var context: Context
-  private var activity: Activity? = null
+    private lateinit var channel: MethodChannel
+    private var utils: CredentialManagerUtils = CredentialManagerUtils()
+    private val mainScope = CoroutineScope(Dispatchers.Main)
+    private lateinit var context: Context
+    private var activity: Activity? = null
 
-  val currentContext get() = activity ?: context
+    // Use currentContext property to get the current context (activity or application context)
+    private val currentContext get() = activity ?: context
 
-  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "credential_manager")
-    channel.setMethodCallHandler(this)
-    context = flutterPluginBinding.applicationContext
-  }
-
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    if(call.method=="getPlatformVersion"){
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "credential_manager")
+        channel.setMethodCallHandler(this)
+        context = flutterPluginBinding.applicationContext
     }
-    if(call.method=="init")
-    {
-      val preferImmediatelyAvailableCredentials: Boolean =
-        call.argument("prefer_immediately_available_credentials") ?: true
-      val (exception: CredentialManagerExceptions?, message: String) =
-        utils.initialize(preferImmediatelyAvailableCredentials, currentContext)
-
-      if (exception != null) {
-        result.error(exception.code.toString(), exception.details, exception.message)
-      } else {
-        result.success(message)
-      }
-    }
-    else{
-      mainScope.launch {
-        withContext(Dispatchers.Main){
-          when (call.method) {
-
-            "save_password_credentials" -> {
-              val username: String? = call.argument("username")
-              val password: String? = call.argument("password")
-              if (username == null)
-              {
-                result.error("302", "username is required", "not found all required fields")
-              }else if (password == null)
-                result.error("302", "password is required", "not found all required fields")
-              else{
-                val (exception: CredentialManagerExceptions?, message: String) =
-                  utils.savePasswordCredentials(username = username.toString(), password = password.toString(), context = currentContext)
-                if (exception != null) {
-                  result.error(exception.code.toString(), exception.details, exception.message)
-                } else {
-                  result.success(message)
-                }
-              }
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        when (call.method) {
+            "getPlatformVersion" -> {
+                // Handle getPlatformVersion method
+                result.success("Android ${android.os.Build.VERSION.RELEASE}")
             }
-            "get_password_credentials" -> {
-              val (exception: CredentialManagerExceptions?, credentials: PasswordCredentials?) = utils.getPasswordCredentials(context = currentContext)
-              if (exception != null) {
-                result.error(exception.code.toString(), exception.details, exception.message)
-              } else {
-                result.success(mapOf(
-                  "username" to credentials?.username,
-                  "password" to credentials?.password
-                ))
-              }
-            }
-          }
+            "init" -> handleInitMethod(call, result)
+            else -> handleCredentialMethods(call, result)
         }
+    }
+    private fun handleCredentialMethods(call: MethodCall, result: Result) {
+        mainScope.launch {
+            withContext(Dispatchers.Main) {
+                try {
+                    // Handling other credential-related methods
+                    when (call.method) {
+                        "save_password_credentials" -> handleSavePasswordCredentials(call, result)
+                        "get_password_credentials" -> handleGetPasswordCredentials(result)
+                        "save_google_credential" -> handleSaveGoogleCredential(result)
+                    }
+                } catch (e: Exception) {
+                    result.error("204", "Login failed", e.localizedMessage)
+                }
+            }
+        }
+    }
+    private fun handleInitMethod(call: MethodCall, result: Result) {
+        val preferImmediatelyAvailableCredentials: Boolean =
+            call.argument("prefer_immediately_available_credentials") ?: true
+        val googleClientId: String? = call.argument("google_client_id")
 
-      }
+        val (exception: CredentialManagerExceptions?, message: String) =
+            utils.initialize(preferImmediatelyAvailableCredentials, googleClientId, currentContext)
+
+        if (exception != null) {
+            result.error(exception.code.toString(), exception.details, exception.message)
+        } else {
+            result.success(message)
+        }
+    }
+    private suspend fun handleSavePasswordCredentials(call: MethodCall, result: Result) {
+        val username: String? = call.argument("username")
+        val password: String? = call.argument("password")
+
+        if (username == null || password == null) {
+            result.error("302", "Missing required fields", "Username and password are required")
+        } else {
+            val (exception: CredentialManagerExceptions?, message: String) =
+                utils.savePasswordCredentials(username = username, password = password, context = currentContext)
+
+            if (exception != null) {
+                result.error(exception.code.toString(), exception.details, exception.message)
+            } else {
+                result.success(message)
+            }
+        }
     }
 
-  }
+    private suspend fun handleGetPasswordCredentials(result: Result) {
+        val (exception: CredentialManagerExceptions?, credentials: Pair<PasswordCredentials?, GoogleIdTokenCredential?>?) =
+            utils.getPasswordCredentials(context = currentContext)
 
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
-  }
+        if (exception != null) {
+            result.error(exception.code.toString(), exception.details, exception.message)
+        } else {
+            val resultMap = if (credentials.first != null) {
+                mapOf("type" to "PasswordCredentials","data" to mapOf("username" to credentials.first?.username, "password" to credentials.first?.password))
+            } else {
+                mapOf("type" to "GoogleCredentials","data" to  mapOf(
+                    "id" to credentials.second?.id,
+                    "idToken" to credentials.second?.idToken,
+                    "displayName" to credentials.second?.displayName,
+                    "givenName" to credentials.second?.givenName,
+                    "familyName" to credentials.second?.familyName,
+                    "phoneNumber" to credentials.second?.phoneNumber,
+                    "profilePictureUri" to credentials.second?.profilePictureUri.toString()
+                ))
+            }
 
-  override fun onAttachedToActivity(p0: ActivityPluginBinding) {
-    activity = p0.activity
-  }
+            result.success(resultMap)
+        }
+    }
 
-  override fun onDetachedFromActivityForConfigChanges() {
-    activity = null
-  }
+    private suspend fun handleSaveGoogleCredential(result: Result) {
+        val (exception: CredentialManagerExceptions?, credential: GoogleIdTokenCredential?) =
+            utils.saveGoogleCredentials(context = currentContext)
 
-  override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {
-    activity = p0.activity
-  }
+        if (exception != null) {
+            result.error(exception.code.toString(), exception.details, exception.message)
+        } else {
+            val credentialMap = mapOf(
+                "id" to credential?.id,
+                "idToken" to credential?.idToken,
+                "displayName" to credential?.displayName,
+                "givenName" to credential?.givenName,
+                "familyName" to credential?.familyName,
+                "phoneNumber" to credential?.phoneNumber,
+                "profilePictureUri" to credential?.profilePictureUri.toString()
+            )
 
-  override fun onDetachedFromActivity() {
-    activity = null
-  }
+
+            result.success(credentialMap)
+        }
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+    }
+
+    override fun onAttachedToActivity(p0: ActivityPluginBinding) {
+        activity = p0.activity
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {
+        activity = p0.activity
+    }
+
+    override fun onDetachedFromActivity() {
+        activity = null
+    }
 }

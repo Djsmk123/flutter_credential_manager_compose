@@ -1,13 +1,18 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // Create an instance of CredentialManager for managing credentials
 CredentialManager credentialManager = CredentialManager();
 
+//Google Client Id for google login
+
+const String googleClientId = String.fromEnvironment("Google-web-client-id");
 // Main entry point of the application
 Future<void> main() async {
   // Ensure that the Flutter app is initialized
@@ -15,7 +20,10 @@ Future<void> main() async {
 
   // Initialize CredentialManager if the platform is supported
   if (credentialManager.isSupportedPlatform) {
-    await credentialManager.init(preferImmediatelyAvailableCredentials: true);
+    await credentialManager.init(
+        preferImmediatelyAvailableCredentials: true,
+        //optional perameter for integrate google signing
+        googleClientId: googleClientId);
   }
 
   // Run the app
@@ -165,6 +173,31 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
+
+                    //Google Sign In
+                    MaterialButton(
+                      onPressed: () async {
+                        try {
+                          final res =
+                              await credentialManager.saveGoogleCredential();
+                          if (kDebugMode) {
+                            print(res?.toJson());
+                          }
+                        } on CredentialException catch (e) {
+                          log(e.message);
+                        }
+                      },
+                      color: Colors.red,
+                      minWidth: MediaQuery.of(context).size.width / 2,
+                      height: 40,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Text(
+                        "Google Sign In",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -189,21 +222,27 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       // Retrieve encrypted credentials and show a dialog on success
-      PasswordCredential credential = await credentialManager
-          .getEncryptedCredentials(secretKey: secretKey, ivKey: ivKey);
+      Credentials credential = await credentialManager.getEncryptedCredentials(
+          secretKey: secretKey, ivKey: ivKey);
+      bool isPasswordBasedCredentials = credential.passwordCredential != null;
+      var message =
+          "Credential Type:${isPasswordBasedCredentials ? "Password" : "Google base"}, ";
+      if (isPasswordBasedCredentials) {
+        message += credential.passwordCredential!.toJson().toString();
+      } else {
+        message += credential.googleIdTokenCredential!.toJson().toString();
+      }
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Successfully retrieved credential")));
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text("Login success"),
-          content: Text(
-            "Username:${credential.username}\nPassword:${credential.password}",
-          ),
+          content: Text(message),
         ),
       );
     } on CredentialException catch (e) {
-      // Show a snackbar on exception
+      // Show a snack bar on exception
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message.toString())));
     } finally {
@@ -232,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
         const SnackBar(content: Text("Successfully saved credential")),
       );
     } on CredentialException catch (e) {
-      // Show a snackbar on exception
+      // Show a snack-bar on exception
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message.toString())));
     } finally {
