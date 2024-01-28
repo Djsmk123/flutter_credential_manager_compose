@@ -224,7 +224,6 @@ if any exception occurs it throws `CredentialException` which has field  `int co
 | 302  | Create Credentials failed   | Failed to create new credentials.                   |
 | 401  | Encryption failed   | Failed to encrypt value.                   |
 | 402  | Decryption failed   | Failed to decrypt value.                   |
-
 | 501  | Received an invalid google id token response | Bad response received from  Custom Credentials |
 | 502  | Invalid request | Invalid request has been made while saving google credentials |
 | 503  | Google client is not initialized yet | Google Web token Id is invalid or not missing |
