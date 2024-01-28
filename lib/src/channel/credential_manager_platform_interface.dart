@@ -1,7 +1,6 @@
-import 'package:credential_manager/src/Models/password_credentials.dart';
+import 'package:credential_manager/credential_manager.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'credential_manager_method_channel.dart';
 
 /// A platform-agnostic interface for managing credentials.
 abstract class CredentialManagerPlatform extends PlatformInterface {
@@ -26,8 +25,12 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   }
 
   /// Initializes the credential manager with the option to prefer immediately available credentials.
-  Future<void> init(bool preferImmediatelyAvailableCredentials) {
-    return _instance.init(preferImmediatelyAvailableCredentials);
+  Future<void> init(
+    bool preferImmediatelyAvailableCredentials,
+    String? googleClientId,
+  ) {
+    return _instance.init(
+        preferImmediatelyAvailableCredentials, googleClientId);
   }
 
   /// Saves password credentials.
@@ -46,7 +49,7 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   }
 
   /// Retrieves encrypted credentials using the provided secret key and initialization vector (IV).
-  Future<PasswordCredential> getEncryptedCredentials({
+  Future<Credentials> getEncryptedCredentials({
     required String secretKey,
     required String ivKey,
   }) async {
@@ -55,12 +58,16 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   }
 
   /// Retrieves password credentials.
-  Future<PasswordCredential> getPasswordCredentials() async {
+  Future<Credentials> getPasswordCredentials() async {
     return _instance.getPasswordCredentials();
   }
 
   /// Retrieves the platform version information.
   Future<String?> getPlatformVersion() {
     return _instance.getPlatformVersion();
+  }
+
+  Future<GoogleIdTokenCredential?> saveGoogleCredential() async {
+    return _instance.saveGoogleCredential();
   }
 }

@@ -34,4 +34,9 @@ class CredentialException implements Exception {
 
   401   Encryption failed
   402   Decryption failed
+
+  501  Received an invalid google id token response
+  502  Invalid request
+  503  Google client is not initialized yet
+  504  Credentials operation failed
 */
