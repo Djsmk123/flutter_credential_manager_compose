@@ -19,6 +19,7 @@ Furthermore, for users, Credential Manager unifies the sign-in interface across 
    ```
    flutter pub get credential_manager
    ```
+
 ## [Setup android](https://developer.android.com/training/sign-in/passkeys)
 - Add proguard rules
 if `proguard-rules.pro` is not exist in `android/app` then create new file with same name 
@@ -100,13 +101,11 @@ await credentialManager.savePasswordCredentials(
 final GoogleIdTokenCredential? gCredential= await credentialManager.saveGoogleCredential();
 
 ```
-<img src="https://i.ibb.co/CtK7ffZ/1.jpg" alt="Save Credential 1" width="80" height="150">
+<img src="https://i.ibb.co/X2YVw1B/IMG-20240128-164412.jpg" alt="Get Google/Password Saved Credential " width="300" height="300">
+<img src="https://i.ibb.co/HgYkBgM/IMG-20240128-164512.jpg" alt="Get Google/Password Saved Credential Success" width="300" height="300">
 
-<img src="https://i.ibb.co/qyGGv37/2.jpg" alt="Save Credential 2" width="80" height="150">
 
-<img src="https://i.ibb.co/vZmbsXL/3.jpg" alt="Save Credential 3" width="80" height="150">
 
-<img src="https://i.ibb.co/NsTFTVB/4.jpg" alt="Save Credential 4" width="80" height="150">
 
 
 
@@ -118,10 +117,8 @@ final GoogleIdTokenCredential? gCredential= await credentialManager.saveGoogleCr
 ```
  Credentials credential =await credentialManager.getPasswordCredentials();
 ```
-<img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="80" height="150">
-
-<img src="https://i.ibb.co/3ChSstH/6.jpg" alt="Get Credential 2" width="80" height="150">
-
+<img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="300" height="300">
+<img src="https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg" alt="Google Save Credential 1" width="300" height="300">
 
 ## Encrypt Your credentials
 To ensure the security of credentials, we will encrypt the password field using the [encrypt](https://pub.dev/packages/encrypt) library and store the encrypted information in a credential manager. This approach reduces the risk of exposing sensitive information, such as passwords.
@@ -157,14 +154,14 @@ await credentialManager.saveEncryptedCredentials(
 
 ## Properties and Methods
 
-| Method                                                                                | Type                       | Description                                                                                                                                                                                                                                                                                                                                          |
-|---------------------------------------------------------------------------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| isSupportedPlatform                                                                   | boolean                    | Check if targeted platform supported or not(Only Android supported)                                                                                                                                                                                                                                                                                  |  
-| init(bool preferImmediatelyAvailableCredentials)                                      | Future(void)               | To initialize credential Manager,preferImmediatelyAvailableCredentials,If the call to Credential Manager was triggered by an explicit user action, credential will be available immediately after saving if `true`(by default) or user will not able to get credential as soon as possible(May throw error if fetched just after saving credentials) |
-| savePasswordCredentials(PasswordCredential credential)                                | Future(void)               | To save credentials in credential Manager                                                                                                                                                                                                                                                                                                            |
-| saveEncryptedCredentials(PasswordCredential credential,String secretKey,String ivKey) | Future(void)               | To save credentials in credential Manager with encryption                                                                                                                                                                                                                                                                                            |
-| getPasswordCredentials()                                                              | Future(PasswordCredential) | return `PasswordCredential` object which has username,password fields                                                                                                                                                                                                                                                                                |
-| getEncryptedCredentials(String secretKey,String ivKey)                                | Future(PasswordCredential) | return `PasswordCredential` object which has username,password fields and decrypt the encrypted data                                                                                                                                                                                                                                                 |
+| Method                                                                                | Type                | Description                                                                                                                                                                                                                                                                                                                                                                                                                |
+|---------------------------------------------------------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| isSupportedPlatform                                                                   | boolean             | Check if targeted platform supported or not(Only Android supported)                                                                                                                                                                                                                                                                                                                                                        |  
+| init(bool preferImmediatelyAvailableCredentials,googleClientId)                       | Future(void)        | To initialize credential Manager,preferImmediatelyAvailableCredentials,If the call to Credential Manager was triggered by an explicit user action, credential will be available immediately after saving if `true`(by default) or user will not able to get credential as soon as possible(May throw error if fetched just after saving credentials)<br/> googleClientId(optional) required when google sign-in is enabled |
+| savePasswordCredentials(PasswordCredential credential)                                | Future(void)        | To save credentials in credential Manager                                                                                                                                                                                                                                                                                                                                                                                  |
+| saveEncryptedCredentials(PasswordCredential credential,String secretKey,String ivKey) | Future(void)        | To save credentials in credential Manager with encryption                                                                                                                                                                                                                                                                                                                                                                  |
+| getPasswordCredentials()                                                              | Future(Credential)  | return `Credential` object which has either `GoogleIdTokenCredential` or `PasswordCredential` at time, other would have null value.                                                                                                                                                                                                                                                                                        |
+| getEncryptedCredentials(String secretKey,String ivKey)                                | Future(Credential ) | which has either `GoogleIdTokenCredential` or `PasswordCredential` at time, other would have null value. if  `PasswordCredential` is not null then password will be return as decrypted values.                                                                                                                                                                                                                            |
 
 ## About `PasswordCredential()`
 
