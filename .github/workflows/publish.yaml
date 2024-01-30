@@ -20,11 +20,7 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: dart pub get
-
-      # Custom steps can be added here
-      # - name: Generate code
-      #   run: dart tool/generate-code.dart
+        run: flutter pub get
 
       # Publish to pub.dev
       - name: Publish
