@@ -1,7 +1,6 @@
 import 'package:credential_manager/credential_manager.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-
 /// A platform-agnostic interface for managing credentials.
 abstract class CredentialManagerPlatform extends PlatformInterface {
   /// Constructs a [CredentialManagerPlatform].

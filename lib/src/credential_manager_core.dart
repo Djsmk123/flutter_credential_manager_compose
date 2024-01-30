@@ -1,4 +1,3 @@
-
 import 'package:credential_manager/credential_manager.dart';
 
 /// A class that provides a high-level interface for interacting with the Credential Manager.
