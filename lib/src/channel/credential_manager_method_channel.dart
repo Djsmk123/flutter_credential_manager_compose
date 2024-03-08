@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:credential_manager/credential_manager.dart';
-
 import 'package:flutter/services.dart';
 
 class MethodChannelCredentialManager extends CredentialManagerPlatform {
@@ -48,7 +47,7 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
       throw CredentialException(
           code: 302, message: "Create Credentials failed", details: null);
     } on PlatformException catch (e) {
-      handlePlatformException(e, false);
+      throw (handlePlatformException(e, false));
     }
   }
 
