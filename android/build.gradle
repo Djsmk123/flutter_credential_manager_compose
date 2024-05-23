@@ -2,14 +2,14 @@ group 'com.smkwinner.cred_manager.credential_manager'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.9.22'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -24,21 +24,20 @@ allprojects {
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-
 android {
     if (project.android.hasProperty("namespace")) {
         namespace 'com.smkwinner.cred_manager.credential_manager'
     }
 
-    compileSdkVersion 34
+    compileSdk 34
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
@@ -47,14 +46,13 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         multiDexEnabled true
-
     }
 
     dependencies {
         testImplementation 'org.jetbrains.kotlin:kotlin-test'
-        testImplementation 'org.mockito:mockito-core:5.0.0'
+        testImplementation 'org.mockito:mockito-core:5.10.0'
     }
 
     testOptions {
@@ -62,32 +60,23 @@ android {
             useJUnitPlatform()
 
             testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
             }
         }
     }
 }
 
 dependencies {
-
-    implementation 'androidx.annotation:annotation:1.7.1'
-
+    implementation 'androidx.annotation:annotation:1.8.0'
     //jetpack credential Manager
     implementation "androidx.credentials:credentials:1.2.2"
-
     // optional - needed for credentials support from play services, for devices running
     // Android 13 and below.
     implementation "androidx.credentials:credentials-play-services-auth:1.2.2"
-
-
     //For google sign in
     implementation "com.google.android.libraries.identity.googleid:googleid:1.1.0"
-
     //Co-routine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-
-
-
 }
