@@ -68,7 +68,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             utils.initialize(preferImmediatelyAvailableCredentials, googleClientId, currentContext)
 
         if (exception != null) {
-            result.error(exception.code.toString(), exception.details, exception.message)
+            result.error(exception.code.toString(), exception.message, exception.details)
         } else {
             result.success(message)
         }
@@ -84,7 +84,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 utils.savePasswordCredentials(username = username, password = password, context = currentContext)
 
             if (exception != null) {
-                result.error(exception.code.toString(), exception.details, exception.message)
+                result.error(exception.code.toString(), exception.message, exception.details)
             } else {
                 result.success(message)
             }
@@ -96,7 +96,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             utils.getPasswordCredentials(context = currentContext)
 
         if (exception != null) {
-            result.error(exception.code.toString(), exception.details, exception.message)
+            result.error(exception.code.toString(), exception.message, exception.details)
         } else {
             val resultMap = if (credentials.first != null) {
                 mapOf("type" to "PasswordCredentials","data" to mapOf("username" to credentials.first?.username, "password" to credentials.first?.password))
@@ -121,7 +121,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             utils.saveGoogleCredentials(context = currentContext)
 
         if (exception != null) {
-            result.error(exception.code.toString(), exception.details, exception.message)
+            result.error(exception.code.toString(), exception.message, exception.details)
         } else {
             val credentialMap = mapOf(
                 "id" to credential?.id,
