@@ -151,12 +151,24 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
                 : "Login cancelled",
             details: e.details);
       case "202":
-        return CredentialException(
-            code: 202,
-            message: isGoogleCredentials
-                ? "No Google credentials found"
-                : "No credentials found",
-            details: e.details);
+        // Android returns a 202 for two separate cases:
+        // 1) [28433] Cannot find a matching credential
+        // 2) [28436] Caller has been temporarily blocked due to too many
+        // canceled sign-in prompts.
+        if (e.details?.toString().contains('[28436]') == true) {
+          return CredentialException(
+            code: 205,
+            message: "Temporarily blocked",
+            details: e.details,
+          );
+        } else {
+          return CredentialException(
+              code: 202,
+              message: isGoogleCredentials
+                  ? "No Google credentials found"
+                  : "No credentials found",
+              details: e.details);
+        }
       case "203":
         return CredentialException(
             code: 203,
