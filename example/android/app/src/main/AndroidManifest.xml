@@ -29,6 +29,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
     </application>
 
 </manifest>

@@ -20,9 +20,10 @@ Future<void> main() async {
   // Initialize CredentialManager if the platform is supported
   if (credentialManager.isSupportedPlatform) {
     await credentialManager.init(
-        preferImmediatelyAvailableCredentials: true,
-        //optional parameter for integrate google signing
-        googleClientId: googleClientId.isEmpty?null:googleClientId,);
+      preferImmediatelyAvailableCredentials: true,
+      //optional parameter for integrate google signing
+      googleClientId: googleClientId.isEmpty ? null : googleClientId,
+    );
   }
 
   // Run the app
@@ -156,6 +157,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
+                    MaterialButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          onRegisterWithPassKey();
+                        }
+                      },
+                      color: Colors.red,
+                      minWidth: MediaQuery.of(context).size.width / 2,
+                      height: 40,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Text(
+                        "Register with pass key",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
                     // Login button
                     MaterialButton(
                       onPressed: () async {
@@ -179,10 +197,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         try {
                           final credential =
                               await credentialManager.saveGoogleCredential();
-                          String message = credential?.toJson().toString() ?? "";
+                          String message =
+                              credential?.toJson().toString() ?? "";
 
                           ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Successfully retrieved credential")));
+                              const SnackBar(
+                                  content: Text(
+                                      "Successfully retrieved credential")));
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -230,12 +251,22 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       // Retrieve encrypted credentials and show a dialog on success
       Credentials credential = await credentialManager.getEncryptedCredentials(
-          secretKey: secretKey, ivKey: ivKey);
+          secretKey: secretKey,
+          ivKey: ivKey,
+          passKeyOption: CredentialLoginOptions(
+            challenge: EncryptData.getEncodedChallenge(),
+            rpId:
+                "https://credentialmanger-a1hh5u861-djsmk123s-projects.vercel.app",
+            userVerification: "required",
+          ));
       bool isPasswordBasedCredentials = credential.passwordCredential != null;
+      bool isPublicKeyBasedCredentials = credential.publicKeyCredential != null;
       var message =
-          "Credential Type:${isPasswordBasedCredentials ? "Password" : "Google base"}, ";
+          "Credential Type:${isPasswordBasedCredentials ? "Password" : isPublicKeyBasedCredentials ? "Passkey" : "Google base"}, ";
       if (isPasswordBasedCredentials) {
         message += credential.passwordCredential!.toJson().toString();
+      } else if (isPublicKeyBasedCredentials) {
+        message += credential.publicKeyCredential!.toJson().toString();
       } else {
         message += credential.googleIdTokenCredential!.toJson().toString();
       }
@@ -279,6 +310,58 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } on CredentialException catch (e) {
       // Show a snack-bar on exception
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message.toString())));
+    } finally {
+      // Update the loading state
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  onRegisterWithPassKey() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      // Save encrypted credentials and show a snackbar on success
+      await credentialManager.savePasskeyCredentials(
+          request: CredentialCreationOptions.fromJson({
+        "challenge": EncryptData.getEncodedChallenge(),
+        "rp": {
+          "name": "Credential test",
+          "id":
+              "https://credentialmanger-a1hh5u861-djsmk123s-projects.vercel.app"
+        },
+        "user": {
+          "id": EncryptData.getEncodedUserId(),
+          "name": username,
+          "displayName": username,
+        },
+        "pubKeyCredParams": [
+          {"type": "public-key", "alg": -7},
+          {"type": "public-key", "alg": -257}
+        ],
+        "timeout": 1800000,
+        "attestation": "none",
+        "excludeCredentials": [
+          {"id": "ghi789", "type": "public-key"},
+          {"id": "jkl012", "type": "public-key"}
+        ],
+        "authenticatorSelection": {
+          "authenticatorAttachment": "platform",
+          "residentKey": "required"
+        }
+      }));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Successfully saved credential")),
+      );
+    } on CredentialException catch (e) {
+      // Show a snack-bar on exception
+      log("Error: ${e.message} ${e.code} ${e.details}");
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.message.toString())));
     } finally {
