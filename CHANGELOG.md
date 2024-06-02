@@ -16,3 +16,9 @@
 
 - Migrate to latest version of jetpack library [https://developer.android.com/jetpack/androidx/releases/credentials#groovy](https://developer.android.com/jetpack/androidx/releases/credentials#groovy)
 - Google Sign in with Credential Manager 
+
+# 0.0.5
+
+- Update all dependencies to latest version Thanks to [@jlafazia-figure](https://github.com/jlafazia-figure)
+- Bug fixes and improvements in example application
+- Update README.md with latest information

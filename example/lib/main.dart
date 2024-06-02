@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:credential_manager/credential_manager.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // Create an instance of CredentialManager for managing credentials
@@ -22,8 +21,8 @@ Future<void> main() async {
   if (credentialManager.isSupportedPlatform) {
     await credentialManager.init(
         preferImmediatelyAvailableCredentials: true,
-        //optional perameter for integrate google signing
-        googleClientId: googleClientId);
+        //optional parameter for integrate google signing
+        googleClientId: googleClientId.isEmpty?null:googleClientId,);
   }
 
   // Run the app
@@ -178,11 +177,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     MaterialButton(
                       onPressed: () async {
                         try {
-                          final res =
+                          final credential =
                               await credentialManager.saveGoogleCredential();
-                          if (kDebugMode) {
-                            print(res?.toJson());
-                          }
+                          String message = credential?.toJson().toString() ?? "";
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Successfully retrieved credential")));
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Login success"),
+                              content: Text(message),
+                            ),
+                          );
                         } on CredentialException catch (e) {
                           log(e.message);
                         }
