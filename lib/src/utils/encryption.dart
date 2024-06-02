@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:credential_manager/credential_manager.dart';
 import 'package:encrypt/encrypt.dart';
@@ -46,5 +48,23 @@ class EncryptData {
       throw CredentialException(
           code: 402, message: "Decryption failed", details: e.toString());
     }
+  }
+
+  static String getEncodedUserId() {
+    final random = Random.secure();
+    final bytes = Uint8List(64);
+    for (int i = 0; i < bytes.length; i++) {
+      bytes[i] = random.nextInt(256);
+    }
+    return base64UrlEncode(bytes).replaceAll('=', '');
+  }
+
+  static String getEncodedChallenge() {
+    final random = Random.secure();
+    final bytes = Uint8List(32);
+    for (int i = 0; i < bytes.length; i++) {
+      bytes[i] = random.nextInt(256);
+    }
+    return base64UrlEncode(bytes).replaceAll('=', '');
   }
 }

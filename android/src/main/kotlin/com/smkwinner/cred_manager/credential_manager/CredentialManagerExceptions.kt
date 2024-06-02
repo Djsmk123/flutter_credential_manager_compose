@@ -1,6 +1,13 @@
 package com.smkwinner.cred_manager.credential_manager
 
-class CredentialManagerExceptions(val code:Int,val message:String, val details:String?)
+/**
+ * Class representing exceptions thrown by the Credential Manager.
+ * @property code The error code associated with the exception.
+ * @property message A descriptive message explaining the exception.
+ * @property details Additional details about the exception (optional).
+ */
+class CredentialManagerExceptions(val code: Int, val message: String, val details: String?)
+
 
 /*  code  message
   101   initialization failure
@@ -16,4 +23,5 @@ class CredentialManagerExceptions(val code:Int,val message:String, val details:S
   302   Create Credentials failed
 
   401  Create PublicKey Credential Dom Exception
+
 */
