@@ -1,0 +1,17 @@
+## Setup Google Sign In (optional)
+- [Google Cloud Console Set Up](https://console.cloud.google.com/)
+-  Go to Google Could Console
+- Create a project if you haven’t yet. 
+- Find the search bar (top center) and type “Credentials” and select Credentials under “Product & Pages”. 
+- Find the “Create Credentials” button and click it!
+- Click on “OAuth client ID” from the pop-up window. 
+- We have to select an “Application Type”.
+- Add package ID and Get debug SHA-1 and release SHA-1
+   - `cd android`
+   - `./gradlew signInReport`
+- Add SHA-1 to google cloud console 
+- Go to the Credentials page.
+- Click Create credentials > OAuth client ID.
+- Select the Web application type.
+- You can ignore the "Authorized JavaScript Origins" and "Authorized redirect URIs" fields for now.
+- Copy `Client ID(from web Application)`.

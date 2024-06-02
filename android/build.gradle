@@ -79,4 +79,5 @@ dependencies {
     implementation "com.google.android.libraries.identity.googleid:googleid:1.1.0"
     //Co-routine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    //implementation files('/Users/mobin/development/flutter/bin/flutter/bin/cache/artifacts/engine/android-arm64/flutter.jar')
 }

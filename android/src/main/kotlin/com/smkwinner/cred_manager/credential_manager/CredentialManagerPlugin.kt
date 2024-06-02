@@ -2,6 +2,7 @@ package com.smkwinner.cred_manager.credential_manager
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -50,8 +51,10 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                     // Handling other credential-related methods
                     when (call.method) {
                         "save_password_credentials" -> handleSavePasswordCredentials(call, result)
-                        "get_password_credentials" -> handleGetPasswordCredentials(result)
+                        "get_password_credentials" -> handleGetPasswordCredentials(call,result)
                         "save_google_credential" -> handleSaveGoogleCredential(result)
+                        "save_public_key_credential" -> handleSavePublicKeyCredential(call, result)
+                        else -> result.notImplemented()
                     }
                 } catch (e: Exception) {
                     result.error("204", "Login failed", e.localizedMessage)
@@ -91,30 +94,54 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         }
     }
 
-    private suspend fun handleGetPasswordCredentials(result: Result) {
-        val (exception: CredentialManagerExceptions?, credentials: Pair<PasswordCredentials?, GoogleIdTokenCredential?>?) =
-            utils.getPasswordCredentials(context = currentContext)
+    private suspend fun handleGetPasswordCredentials(call: MethodCall, result: Result) {
+        val requestJson: String? = call.argument("passKeyOption")
+        val (exception: CredentialManagerExceptions?, credentials: CredentialManagerResponse?) =
+            utils.getPasswordCredentials(context = currentContext, requestJson = requestJson)
 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)
         } else {
-            val resultMap = if (credentials.first != null) {
-                mapOf("type" to "PasswordCredentials","data" to mapOf("username" to credentials.first?.username, "password" to credentials.first?.password))
-            } else {
-                mapOf("type" to "GoogleCredentials","data" to  mapOf(
-                    "id" to credentials.second?.id,
-                    "idToken" to credentials.second?.idToken,
-                    "displayName" to credentials.second?.displayName,
-                    "givenName" to credentials.second?.givenName,
-                    "familyName" to credentials.second?.familyName,
-                    "phoneNumber" to credentials.second?.phoneNumber,
-                    "profilePictureUri" to credentials.second?.profilePictureUri.toString()
-                ))
+            val resultMap = when (credentials?.type) {
+                CredentialType.PasswordCredentials -> {
+                    mapOf(
+                        "type" to "PasswordCredentials",
+                        "data" to mapOf(
+                            "username" to credentials.passwordCredentials?.username,
+                            "password" to credentials.passwordCredentials?.password
+                        )
+                    )
+                }
+                CredentialType.GoogleCredentials -> {
+                    mapOf(
+                        "type" to "GoogleCredentials",
+                        "data" to mapOf(
+                            "id" to credentials.googleCredentials?.id,
+                            "idToken" to credentials.googleCredentials?.idToken,
+                            "displayName" to credentials.googleCredentials?.displayName,
+                            "givenName" to credentials.googleCredentials?.givenName,
+                            "familyName" to credentials.googleCredentials?.familyName,
+                            "phoneNumber" to credentials.googleCredentials?.phoneNumber,
+                            "profilePictureUri" to credentials.googleCredentials?.profilePictureUri.toString()
+                        )
+                    )
+                }
+                CredentialType.PublicKeyCredentials -> {
+                    mapOf(
+                        "type" to "PublicKeyCredentials",
+                        "data" to credentials.publicKeyCredentials
+                    )
+                }
+                else -> {
+                    result.error("UnknownType", "Unknown credential type received", null)
+                    return
+                }
             }
 
             result.success(resultMap)
         }
     }
+
 
     private suspend fun handleSaveGoogleCredential(result: Result) {
         val (exception: CredentialManagerExceptions?, credential: GoogleIdTokenCredential?) =
@@ -135,6 +162,22 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
 
             result.success(credentialMap)
+        }
+
+    }
+    private suspend fun handleSavePublicKeyCredential(call: MethodCall, result: Result) {
+        val requestJson: String? = call.argument("requestJson")
+        if (requestJson == null) {
+            result.error("604", "Create PublicKey Credential Dom Exception", "Request is required")
+        } else {
+            val (exception: CredentialManagerExceptions?, message: String) = utils.savePasskeyCredentials(context=currentContext,requestJson=requestJson.toString())
+
+            if (exception != null) {
+                Log.d("Error in savepasskey" ,"${exception.code}, ${exception.details}, ${exception.message}")
+                result.error(exception.code.toString(), exception.message, exception.details)
+            } else {
+                result.success(message)
+            }
         }
     }
 

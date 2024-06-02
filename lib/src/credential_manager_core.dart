@@ -32,11 +32,23 @@ class CredentialManager {
         .savePasswordCredentials(credential);
   }
 
+  /// Save credentials using passkey
+  ///
+  /// [CredentialCreationOptions] - The credentials to be saved.
+  /// Returns a [Future] that completes when the credentials are successfully saved.
+  Future<PublicKeyCredential> savePasskeyCredentials(
+      {required CredentialCreationOptions request}) async {
+    return CredentialManagerPlatform.instance
+        .savePasskeyCredentials(request: request);
+  }
+
   /// Gets plain text password credentials.
   ///
   /// Returns a [Future] that completes with [PasswordCredential] representing the retrieved credentials.
-  Future<Credentials> getPasswordCredentials() async {
-    return CredentialManagerPlatform.instance.getPasswordCredentials();
+  Future<Credentials> getPasswordCredentials(
+      {CredentialLoginOptions? passKeyOption}) async {
+    return CredentialManagerPlatform.instance
+        .getPasswordCredentials(passKeyOption: passKeyOption);
   }
 
   /// Saves encrypted password credentials.
@@ -59,12 +71,15 @@ class CredentialManager {
   /// [secretKey] - The secret key used for decryption.
   ///
   /// Returns a [Future] that completes with [PasswordCredential] representing the decrypted credentials.
-  Future<Credentials> getEncryptedCredentials({
-    required String secretKey,
-    required String ivKey,
-  }) {
-    return CredentialManagerPlatform.instance
-        .getEncryptedCredentials(secretKey: secretKey, ivKey: ivKey);
+  Future<Credentials> getEncryptedCredentials(
+      {required String secretKey,
+      required String ivKey,
+      CredentialLoginOptions? passKeyOption}) {
+    return CredentialManagerPlatform.instance.getEncryptedCredentials(
+      secretKey: secretKey,
+      ivKey: ivKey,
+      passKeyOption: passKeyOption,
+    );
   }
 
   /// Returns a [Future] that completes when the credentials are successfully saved.
