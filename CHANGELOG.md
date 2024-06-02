@@ -22,3 +22,10 @@
 - Update all dependencies to latest version Thanks to [@jlafazia-figure](https://github.com/jlafazia-figure)
 - Bug fixes and improvements in example application
 - Update README.md with latest information
+
+
+# 1.0.0
+
+- Added Passkey support.
+- Autofill from website.
+- Fix bugs and improve code.

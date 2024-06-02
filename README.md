@@ -156,7 +156,6 @@ More info about error handing codes and messages: [Error Handler](./errors.md)
 
 ## Upcoming
 - iOS Support
-- Passkey extension for flawless integration with web
 
 ## Contributing
 - Fork it
