@@ -67,6 +67,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final secretKey = '1234567812345678'; // Use a secure key here
   final ivKey = "xfpkDQJXIfb3mcnb";
   bool createPassKey = false;
+  CredentialLoginOptions? passKeyLoginOption = CredentialLoginOptions(
+    challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
+    rpId: "credential-manager-app-test.glitch.me",
+    userVerification: "required",
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -261,11 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Credentials credential = await credentialManager.getEncryptedCredentials(
           secretKey: secretKey,
           ivKey: ivKey,
-          passKeyOption: CredentialLoginOptions(
-            challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
-            rpId: "credential-manager-app-test.glitch.me",
-            userVerification: "required",
-          ));
+          passKeyOption: passKeyLoginOption);
       bool isPasswordBasedCredentials = credential.passwordCredential != null;
       bool isPublicKeyBasedCredentials = credential.publicKeyCredential != null;
       var message =
