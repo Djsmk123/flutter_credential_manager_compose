@@ -11,7 +11,8 @@ import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-
+import java.security.SecureRandom
+import android.util.Base64
 class CredentialManagerUtils {
 
     private lateinit var credentialManager: CredentialManager
@@ -109,9 +110,19 @@ class CredentialManagerUtils {
      * @return A Pair containing either null and deserialized password credentials
      * or CredentialManagerExceptions and null if no credentials are found or an error occurs.
      */
-    suspend fun getPasswordCredentials(context: Context): Pair<CredentialManagerExceptions?, Pair<PasswordCredentials?, GoogleIdTokenCredential?>> {
+    suspend fun getPasswordCredentials(
+        context: Context,
+        requestJson: String?
+    ): Pair<CredentialManagerExceptions?, CredentialManagerResponse?> {
         return try {
             var getCredRequest = GetCredentialRequest(listOf(GetPasswordOption()))
+            if (requestJson != null) {
+                getCredRequest = GetCredentialRequest.Builder()
+                    .addCredentialOption(GetPasswordOption())
+                    .addCredentialOption(GetPublicKeyCredentialOption(requestJson))
+                    .build()
+            }
+
             if (this::serverClientID.isInitialized) {
                 val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
@@ -119,8 +130,16 @@ class CredentialManagerUtils {
                     .setServerClientId(serverClientID)
                     .build()
                 getCredRequest = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption).addCredentialOption(GetPasswordOption())
+                    .addCredentialOption(googleIdOption)
+                    .addCredentialOption(GetPasswordOption())
                     .build()
+                if (requestJson != null) {
+                    getCredRequest = GetCredentialRequest.Builder()
+                        .addCredentialOption(googleIdOption)
+                        .addCredentialOption(GetPasswordOption())
+                        .addCredentialOption(GetPublicKeyCredentialOption(requestJson))
+                        .build()
+                }
             }
 
             val credentialResponse = credentialManager.getCredential(
@@ -128,58 +147,65 @@ class CredentialManagerUtils {
                 context = context
             )
 
-            val pair = when (val response = credentialResponse.credential) {
+            val response = when (val credential = credentialResponse.credential) {
                 is PasswordCredential -> {
-                    // Deserialize the data into PasswordCredentials
-                    val cred = PasswordCredentials(username = response.id, password = response.password)
-                    Pair(null, Pair(cred, null))
+                    val cred = PasswordCredentials(username = credential.id, password = credential.password)
+                    CredentialManagerResponse(
+                        type = CredentialType.PasswordCredentials,
+                        passwordCredentials = cred
+                    )
                 }
                 is CustomCredential -> {
-                    if (response.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                         try {
-                            // Use googleIdTokenCredential and extract id to validate and
-                            // authenticate on your server.
-                            val googleIdTokenCredential = GoogleIdTokenCredential
-                                .createFrom(response.data)
-                            Pair(null, Pair(null, googleIdTokenCredential))
-
+                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                            CredentialManagerResponse(
+                                type = CredentialType.GoogleCredentials,
+                                googleCredentials = googleIdTokenCredential
+                            )
                         } catch (e: GoogleIdTokenParsingException) {
                             return Pair(
                                 CredentialManagerExceptions(
                                     code = 501,
                                     message = "Received an invalid google id token response",
                                     details = e.localizedMessage,
-                                ), Pair(null, null)
+                                ), null
                             )
                         }
                     } else {
-                        Pair(
+                        return Pair(
                             CredentialManagerExceptions(
                                 code = 202,
                                 message = "No credentials found",
                                 details = null
-                            ), Pair(null, null)
+                            ), null
                         )
                     }
                 }
+                is PublicKeyCredential -> {
+                    CredentialManagerResponse(
+                        type = CredentialType.PublicKeyCredentials,
+                        publicKeyCredentials = credential.authenticationResponseJson
+                    )
+                }
                 else -> {
-                    Pair(
+                    return Pair(
                         CredentialManagerExceptions(
                             code = 202,
                             message = "No credentials found",
                             details = null
-                        ), Pair(null, null)
+                        ), null
                     )
                 }
             }
-            pair
+            Pair(null, response)
         } catch (e: GetCredentialCancellationException) {
             Pair(
                 CredentialManagerExceptions(
                     code = 201,
                     message = "Login canceled",
                     details = e.localizedMessage
-                ), Pair(null, null)
+                ), null
             )
         } catch (e: NoCredentialException) {
             Pair(
@@ -187,7 +213,7 @@ class CredentialManagerUtils {
                     code = 202,
                     message = "No credentials found",
                     details = e.localizedMessage
-                ), Pair(null, null)
+                ), null
             )
         } catch (e: GetCredentialException) {
             Pair(
@@ -195,7 +221,7 @@ class CredentialManagerUtils {
                     code = 204,
                     message = "Login failed",
                     details = e.localizedMessage
-                ), Pair(null, null)
+                ), null
             )
         } catch (e: Exception) {
             Pair(
@@ -203,10 +229,11 @@ class CredentialManagerUtils {
                     code = 204,
                     message = "Login failed",
                     details = e.localizedMessage
-                ), Pair(null, null)
+                ), null
             )
         }
     }
+
 
     /**
      * Save Google credentials.
@@ -271,4 +298,49 @@ class CredentialManagerUtils {
             ), null
         )
     }
+
+    suspend fun savePasskeyCredentials(context: Context, requestJson: String): Pair<CredentialManagerExceptions?, String> {
+        return try {
+            Log.v("CredentialTest", "RequestJson $requestJson")
+            val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
+                requestJson = requestJson
+            )
+            val result = credentialManager.createCredential(
+                request = createPublicKeyCredentialRequest,
+                context = context
+            ) as CreatePublicKeyCredentialResponse
+
+            Log.v("CredentialTest", "Passkey credentials successfully added $result")
+            Pair(null, result.registrationResponseJson)
+
+        } catch (e: CreateCredentialCancellationException) {
+            Pair(
+                CredentialManagerExceptions(
+                    code = 601,
+                    message = "Save credentials operation was cancelled",
+                    details = e.localizedMessage
+                ), ""
+            )
+        } catch (e: CreateCredentialException) {
+            Pair(
+                CredentialManagerExceptions(
+                    code = 602,
+                    message = "Failed to create passkey credentials",
+                    details = e.localizedMessage
+                ), ""
+            )
+        } catch (e: Exception) {
+            Pair(
+                CredentialManagerExceptions(
+                    code = 603,
+                    message = "Failed to fetch passkey",
+                    details = e.localizedMessage
+                ), ""
+            )
+        }
+    }
+
+
+
+
 }

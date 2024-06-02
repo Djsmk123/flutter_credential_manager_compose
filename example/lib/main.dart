@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final secretKey = '1234567812345678'; // Use a secure key here
   final ivKey = "xfpkDQJXIfb3mcnb";
-
+  bool createPassKey = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,38 +112,47 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    // Password input field
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      child: TextFormField(
-                        onChanged: (value) {
-                          if (value.isNotEmpty) {
-                            password = value;
-                          }
-                        },
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Please enter a password";
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          hintText: "password",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(
-                              color: Colors.blueAccent,
+                    if (createPassKey)
+                      // Password input field
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        child: TextFormField(
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              password = value;
+                            }
+                          },
+                          validator: createPassKey == true
+                              ? (value) {
+                                  if (value!.isEmpty) {
+                                    return "Please enter a password";
+                                  }
+                                  return null;
+                                }
+                              : null,
+                          decoration: InputDecoration(
+                            hintText: "password",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: const BorderSide(
+                                color: Colors.blueAccent,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
                     // Register button
                     MaterialButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          onRegister();
+                          if (!createPassKey) {
+                            setState(() {
+                              createPassKey = true;
+                            });
+                          } else {
+                            onRegister();
+                          }
                         }
                       },
                       color: Colors.red,
@@ -174,23 +183,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
-                    // Login button
-                    MaterialButton(
-                      onPressed: () async {
-                        onLogin();
-                      },
-                      color: Colors.red,
-                      minWidth: MediaQuery.of(context).size.width / 2,
-                      height: 40,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Text(
-                        "Login in with saved credentials",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-
                     //Google Sign In
                     MaterialButton(
                       onPressed: () async {
@@ -222,7 +214,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Text(
-                        "Google Sign In",
+                        "Register with Google Sign In",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                    // Login button
+                    MaterialButton(
+                      onPressed: () async {
+                        onLogin();
+                      },
+                      color: Colors.red,
+                      minWidth: MediaQuery.of(context).size.width / 2,
+                      height: 40,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Text(
+                        "Login(Password, Passkey, Google)",
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
@@ -254,9 +262,8 @@ class _LoginScreenState extends State<LoginScreen> {
           secretKey: secretKey,
           ivKey: ivKey,
           passKeyOption: CredentialLoginOptions(
-            challenge: EncryptData.getEncodedChallenge(),
-            rpId:
-                "https://credentialmanger-a1hh5u861-djsmk123s-projects.vercel.app",
+            challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
+            rpId: "credential-manager-app-test.glitch.me",
             userVerification: "required",
           ));
       bool isPasswordBasedCredentials = credential.passwordCredential != null;
@@ -328,13 +335,12 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       // Save encrypted credentials and show a snackbar on success
-      await credentialManager.savePasskeyCredentials(
+      final res = await credentialManager.savePasskeyCredentials(
           request: CredentialCreationOptions.fromJson({
-        "challenge": EncryptData.getEncodedChallenge(),
+        "challenge": "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
         "rp": {
-          "name": "Credential test",
-          "id":
-              "https://credentialmanger-a1hh5u861-djsmk123s-projects.vercel.app"
+          "name": "CredMan App Test",
+          "id": "credential-manager-app-test.glitch.me"
         },
         "user": {
           "id": EncryptData.getEncodedUserId(),
@@ -358,6 +364,13 @@ class _LoginScreenState extends State<LoginScreen> {
       }));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Successfully saved credential")),
+      );
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Pass key created successfully"),
+          content: Text("Response: ${res.toJson()}"),
+        ),
       );
     } on CredentialException catch (e) {
       // Show a snack-bar on exception

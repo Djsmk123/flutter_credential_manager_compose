@@ -23,6 +23,10 @@
 ///    503   Google client is not initialized yet
 ///    504   Credentials operation failed
 ///    505   Google credential decode error
+///
+///    601   User can cancel passkey operation
+///    602   Passkey creation failed
+///    603   Passkey failed to fetch
 /// ```
 class CredentialException implements Exception {
   /// A numeric code identifying the specific error.
