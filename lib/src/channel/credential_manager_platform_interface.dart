@@ -48,17 +48,18 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   }
 
   /// Retrieves encrypted credentials using the provided secret key and initialization vector (IV).
-  Future<Credentials> getEncryptedCredentials({
-    required String secretKey,
-    required String ivKey,
-  }) async {
+  Future<Credentials> getEncryptedCredentials(
+      {required String secretKey,
+      required String ivKey,
+      CredentialLoginOptions? passKeyOption}) async {
     return _instance.getEncryptedCredentials(
-        secretKey: secretKey, ivKey: ivKey);
+        secretKey: secretKey, ivKey: ivKey, passKeyOption: passKeyOption);
   }
 
   /// Retrieves password credentials.
-  Future<Credentials> getPasswordCredentials() async {
-    return _instance.getPasswordCredentials();
+  Future<Credentials> getPasswordCredentials(
+      {CredentialLoginOptions? passKeyOption}) async {
+    return _instance.getPasswordCredentials(passKeyOption: passKeyOption);
   }
 
   /// Retrieves the platform version information.
@@ -68,5 +69,11 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
 
   Future<GoogleIdTokenCredential?> saveGoogleCredential() async {
     return _instance.saveGoogleCredential();
+  }
+
+  Future<PublicKeyCredential> savePasskeyCredentials(
+      {required CredentialCreationOptions request}) async {
+    return CredentialManagerPlatform.instance
+        .savePasskeyCredentials(request: request);
   }
 }
