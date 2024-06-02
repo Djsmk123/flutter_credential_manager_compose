@@ -54,7 +54,12 @@ buildTypes {
 - Add package ID and Get debug SHA-1 and release SHA-1
    - `cd android`
    - `./gradlew signInReport`
-- Copy `WebClient(auto created by google)`
+- Add SHA-1 to google cloud console 
+- Go to the Credentials page.
+- Click Create credentials > OAuth client ID.
+- Select the Web application type.
+- You can ignore the "Authorized JavaScript Origins" and "Authorized redirect URIs" fields for now.
+- Copy `Client ID(from web Application)`.
 
 ## Usage in flutter
 - import the package
