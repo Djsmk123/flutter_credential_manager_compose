@@ -29,3 +29,8 @@
 - Added Passkey support.
 - Autofill from website.
 - Fix bugs and improve code.
+
+# 1.0.1
+
+- Fix Example application(package Id).
+- Provided rpId for testing purpose.
