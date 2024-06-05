@@ -67,11 +67,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final secretKey = '1234567812345678'; // Use a secure key here
   final ivKey = "xfpkDQJXIfb3mcnb";
   bool createPassKey = false;
-  CredentialLoginOptions? passKeyLoginOption = CredentialLoginOptions(
-    challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
-    rpId: "credential-manager-app-test.glitch.me",
-    userVerification: "required",
-  );
+  String rpId =
+      "blogs-deeplink-example.vercel.app"; // rpID <domain.com> for passkey,use this domain for testing
+  CredentialLoginOptions? passKeyLoginOption;
+  @override
+  void initState() {
+    passKeyLoginOption = CredentialLoginOptions(
+      challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
+      rpId: rpId,
+      userVerification: "required",
+    );
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -270,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
       bool isPasswordBasedCredentials = credential.passwordCredential != null;
       bool isPublicKeyBasedCredentials = credential.publicKeyCredential != null;
       var message =
-          "Credential Type:${isPasswordBasedCredentials ? "Password" : isPublicKeyBasedCredentials ? "Passkey" : "Google base"}, ";
+          "Credential Type:${isPasswordBasedCredentials ? "Password" : isPublicKeyBasedCredentials ? "Passkey" : "Google"}, ";
       if (isPasswordBasedCredentials) {
         message += credential.passwordCredential!.toJson().toString();
       } else if (isPublicKeyBasedCredentials) {
@@ -341,7 +349,7 @@ class _LoginScreenState extends State<LoginScreen> {
         "challenge": "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
         "rp": {
           "name": "CredMan App Test",
-          "id": "credential-manager-app-test.glitch.me"
+          "id": rpId,
         },
         "user": {
           "id": EncryptData.getEncodedUserId(),
