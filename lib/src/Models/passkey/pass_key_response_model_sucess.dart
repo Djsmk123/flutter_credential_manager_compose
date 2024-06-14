@@ -66,6 +66,8 @@ class Response {
   String? authenticatorData;
   String? publicKey;
   List<String>? transports;
+  String? signature;
+  String? userHandle;
 
   /// Constructor for Response.
   Response({
@@ -74,6 +76,8 @@ class Response {
     this.authenticatorData,
     this.publicKey,
     this.transports,
+    this.signature,
+    this.userHandle,
   });
 
   /// Construct Response from JSON.
@@ -86,6 +90,8 @@ class Response {
       transports: json['transports'] != null
           ? List<String>.from(json['transports'])
           : null,
+      signature: json['signature'],
+      userHandle: json['userHandle'],
     );
   }
 
@@ -97,6 +103,8 @@ class Response {
       'authenticatorData': authenticatorData,
       'publicKey': publicKey,
       'transports': transports,
+      'signature': signature,
+      'userHandle': userHandle,
     };
   }
 }
