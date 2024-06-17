@@ -34,3 +34,7 @@
 
 - Fix Example application(package Id).
 - Provided rpId for testing purpose.
+
+# 1.0.2
+
+- Add missing fields `Response` Object for `PublicKeyCredential`
