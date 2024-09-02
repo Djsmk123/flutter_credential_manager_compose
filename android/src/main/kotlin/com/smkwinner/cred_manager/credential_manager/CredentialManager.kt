@@ -242,7 +242,7 @@ class CredentialManagerUtils {
      * @return A Pair containing either null and deserialized GoogleIdTokenCredential
      * or CredentialManagerExceptions and null if an error occurs.
      */
-    suspend fun saveGoogleCredentials(context: Context): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
+    suspend fun saveGoogleCredentials(useButtonFlow: Boolean, context: Context): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
         if (!this::serverClientID.isInitialized) {
             return Pair(
                 CredentialManagerExceptions(
@@ -253,14 +253,21 @@ class CredentialManagerUtils {
             )
         }
 
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            .setNonce(System.currentTimeMillis().toString())
-            .setServerClientId(serverClientID)
-            .build()
+        val googleCredentialOption = if (useButtonFlow) {
+            GetSignInWithGoogleOption.Builder()
+                .setNonce(System.currentTimeMillis().toString())
+                .setServerClientId(serverClientID)
+                .build()
+        } else {
+            GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(false)
+                .setNonce(System.currentTimeMillis().toString())
+                .setServerClientId(serverClientID)
+                .build()
+        }
 
         val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
+            .addCredentialOption(googleCredentialOption)
             .build()
 
         Log.d("CredentialManager", "$request")
