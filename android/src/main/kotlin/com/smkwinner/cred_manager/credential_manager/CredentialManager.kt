@@ -255,10 +255,7 @@ class CredentialManagerUtils {
         }
 
         val googleCredentialOption = if (useButtonFlow) {
-            GetSignInWithGoogleOption.Builder()
-                .setNonce(System.currentTimeMillis().toString())
-                .setServerClientId(serverClientID)
-                .build()
+            GetSignInWithGoogleOption(serverClientId = serverClientID, nonce = System.currentTimeMillis().toString())
         } else {
             GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
