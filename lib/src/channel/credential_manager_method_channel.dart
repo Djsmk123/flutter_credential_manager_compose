@@ -154,10 +154,13 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
 
   /// Saves Google ID token credential.
   @override
-  Future<GoogleIdTokenCredential?> saveGoogleCredential() async {
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(useButtonFlow) async {
     try {
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
         'save_google_credential',
+        {
+          "useButtonFlow": useButtonFlow,
+        },
       );
       if (res == null) {
         throw CredentialException(
