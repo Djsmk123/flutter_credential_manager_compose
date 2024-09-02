@@ -52,7 +52,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                     when (call.method) {
                         "save_password_credentials" -> handleSavePasswordCredentials(call, result)
                         "get_password_credentials" -> handleGetPasswordCredentials(call,result)
-                        "save_google_credential" -> handleSaveGoogleCredential(result)
+                        "save_google_credential" -> handleSaveGoogleCredential(call, result)
                         "save_public_key_credential" -> handleSavePublicKeyCredential(call, result)
                         else -> result.notImplemented()
                     }
@@ -143,9 +143,11 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
 
 
-    private suspend fun handleSaveGoogleCredential(result: Result) {
+    private suspend fun handleSaveGoogleCredential(call: MethodCall, result: Result) {
+        val useButtonFlow: Boolean = call.argument("useButtonFlow") ?: false
+
         val (exception: CredentialManagerExceptions?, credential: GoogleIdTokenCredential?) =
-            utils.saveGoogleCredentials(context = currentContext)
+            utils.saveGoogleCredentials(useButtonFlow = useButtonFlow,context = currentContext)
 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)
@@ -159,7 +161,6 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 "phoneNumber" to credential?.phoneNumber,
                 "profilePictureUri" to credential?.profilePictureUri.toString()
             )
-
 
             result.success(credentialMap)
         }
