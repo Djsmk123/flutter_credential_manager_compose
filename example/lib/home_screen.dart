@@ -88,7 +88,7 @@ class HomeScreen extends StatelessWidget {
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Logout Confirmation'),
         content: const Text(
-          'Are you sure you want to logout? This will delete your credential from the Google Account Manager.',
+          'Are you sure you want to logout?.',
         ),
         actions: <Widget>[
           TextButton(
