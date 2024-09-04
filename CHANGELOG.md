@@ -42,3 +42,7 @@
 # 1.0.3
 
 - Add google button flow for google login,Thanks to @[wildsylvan](https://github.com/wildsylvan)
+
+# 1.0.4
+
+- Add logout functionality using clearCredential(), example application, documentation and dependencies update.
