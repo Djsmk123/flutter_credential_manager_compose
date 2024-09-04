@@ -54,6 +54,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                         "get_password_credentials" -> handleGetPasswordCredentials(call,result)
                         "save_google_credential" -> handleSaveGoogleCredential(call, result)
                         "save_public_key_credential" -> handleSavePublicKeyCredential(call, result)
+                        "logout" -> handleLogout(result)
                         else -> result.notImplemented()
                     }
                 } catch (e: Exception) {
@@ -181,6 +182,15 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             }
         }
     }
+    private suspend fun handleLogout(result: Result) {
+        val (exception: CredentialManagerExceptions?, message: String) = utils.logout()
+        if (exception != null) {
+            result.error(exception.code.toString(), exception.message, exception.details)
+        } else {
+            result.success(message)
+        }
+    }
+
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)

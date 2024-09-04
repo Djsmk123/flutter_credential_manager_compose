@@ -353,4 +353,18 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
       throw handlePlatformException(e, CredentialType.publicKeyCredentials);
     }
   }
+
+  //Logout
+  @override
+  Future<void> logout() async {
+    final res = await methodChannel.invokeMethod<String>('logout');
+    if (res != null && res == "Logout successful") {
+      return;
+    }
+    throw CredentialException(
+      code: 504,
+      message: "Logout failed",
+      details: null,
+    );
+  }
 }
