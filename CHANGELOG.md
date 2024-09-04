@@ -38,3 +38,7 @@
 # 1.0.2
 
 - Add missing fields `Response` Object for `PublicKeyCredential`
+
+# 1.0.3
+
+- Add google button flow for google login,Thanks to @[wildsylvan](https://github.com/wildsylvan)
