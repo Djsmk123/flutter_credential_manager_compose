@@ -6,103 +6,114 @@
 
 ## Steps:
 
-- Create a Digital Asset Links JSON file (assetlinks.json):
-  - Open a text editor and create a new file named assetlinks.json.
-  - Paste the following content into the file, replacing the placeholders with your specific information:
+1. Create a Digital Asset Links JSON file (assetlinks.json):
+   - Open a text editor and create a new file named `assetlinks.json`.
+   - Paste the following content into the file, replacing the placeholders with your specific information:
 
-```
-[
-  {
-    "relation" : [
-      "delegate_permission/common.handle_all_urls",
-      "delegate_permission/common.get_login_creds"
-    ],
-    "target" : {
-      "namespace" : "android_app",
-      "package_name" : "com.example.android",
-      "sha256_cert_fingerprints" : [
-        SHA_HEX_VALUE
-      ]
-    }
-  }
-] 
-```
+   ```json
+   [
+     {
+       "relation": [
+         "delegate_permission/common.handle_all_urls",
+         "delegate_permission/common.get_login_creds"
+       ],
+       "target": {
+         "namespace": "android_app",
+         "package_name": "com.example.android",
+         "sha256_cert_fingerprints": [
+           "SHA_HEX_VALUE"
+         ]
+       }
+     }
+   ] 
+   ```
 
-- Host the Digital Assets Link JSON file at the following location on the sign-in domain:
+2. Host the Digital Asset Links JSON file:
+   - Place the file at the following location on your sign-in domain:
+     `https://domain[:optional_port]/.well-known/assetlinks.json`
 
-`https://domain[:optional_port]/.well-known/assetlinks.json`
+3. Configure your host:
+   - Ensure that your host permits Google to retrieve your Digital Asset Link file.
+   - If you have a `robots.txt` file, it must allow the Googlebot agent to retrieve `/.well-known/assetlinks.json`.
+   - Most sites can use the following configuration:
 
-- Ensure that your host permits Google to retrieve your Digital Asset Link file. If you have a robots.txt file, it must allow the Googlebot agent to retrieve /.well-known/assetlinks.json. Most sites can allow any automated agent to retrieve files in the /.well-known/ path so that other services can access the metadata in those files:
-
-```
-User-agent: *
-Allow: /.well-known/
-```
+   ```
+   User-agent: *
+   Allow: /.well-known/
+   ```
 
 ## Create Passkey 
 
+Use the following code to save passkey credentials:
 
 ```
- // Save encrypted credentials and show a snackbar on success
-      final res = await credentialManager.savePasskeyCredentials(
-          request: CredentialCreationOptions.fromJson({
-        "challenge": EncryptData.getEncodedChallenge(),
-        "rp": {
-          "name": "CredMan App Test",
-          "id": <domain.com>
-        },
-        "user": {
-          "id": EncryptData.getEncodedUserId(),
-          "name": <username>,
-          "displayName": <username>,
-        },
-        "pubKeyCredParams": [
-          {"type": "public-key", "alg": -7},
-          {"type": "public-key", "alg": -257}
-        ],
-        "timeout": 1800000,
-        "attestation": "none",
-        "excludeCredentials": [
-          {"id": "ghi789", "type": "public-key"},
-          {"id": "jkl012", "type": "public-key"}
-        ],
-        "authenticatorSelection": {
-          "authenticatorAttachment": "platform",
-          "residentKey": "required"
-        }
-      }));
+dart
+final res = await credentialManager.savePasskeyCredentials(
+  request: CredentialCreationOptions(
+    challenge: EncryptData.getEncodedChallenge(),
+    rp: RelyingParty(
+      name: "CredMan App Test",
+      id: "<domain.com>"
+    ),
+    user: User(
+      id: EncryptData.getEncodedUserId(),
+      name: "<username>",
+      displayName: "<username>"
+    ),
+    pubKeyCredParams: [
+      PublicKeyCredentialParameters(type: "public-key", alg: -7),
+      PublicKeyCredentialParameters(type: "public-key", alg: -257)
+    ],
+    timeout: 1800000,
+    attestation: "none",
+    excludeCredentials: [
+      ExcludeCredential(id: "ghi789", type: "public-key"),
+      ExcludeCredential(id: "jkl012", type: "public-key")
+    ],
+    authenticatorSelection: AuthenticatorSelectionCriteria(
+      authenticatorAttachment: "platform",
+      residentKey: "required"
+    )
+  )
+);
 ```
 
-> Note: This payload should receive from backend services
 
-[Read more about payload here](https://github.com/android/identity-samples/tree/main/CredentialManager)
+> Note: This payload should be received from backend services.
 
+[Read more about the payload here](https://github.com/android/identity-samples/tree/main/CredentialManager)
 
-## Fetch generated Passkey:
-- Create pass request object
-```
-CredentialLoginOptions? passKeyLoginOption = CredentialLoginOptions(
-    challenge: "<>"
-    rpId: "<domain.com>"
-    userVerification: "required",
-  );
-```
-- pass this object to `getEncryptedCredentials` or `getPasswordCredentials` for fetching pass key in list of login options.
+## Fetch Generated Passkey:
 
+1. Create a pass request object:
+   ```dart
+   CredentialLoginOptions? passKeyLoginOption = CredentialLoginOptions(
+     challenge: "<challenge>",
+     rpId: "<domain.com>",
+     userVerification: "required",
+   );
+   ```
 
-```
- Credentials credential = await credentialManager.getEncryptedCredentials(
-          secretKey: secretKey,
-          ivKey: ivKey,
-          passKeyOption: passKeyLoginOption);
-```
+2. Pass this object to `getEncryptedCredentials` or `getPasswordCredentials` for fetching the passkey in the list of login options:
+   ```dart
+   Credentials credential = await credentialManager.getEncryptedCredentials(
+     secretKey: secretKey,
+     ivKey: ivKey,
+     passKeyOption: passKeyLoginOption
+   );
+   ```
 
-- Check if getting response is success or failure:
-```
-bool isPublicKeyBasedCredentials = credential.publicKeyCredential != null;
- ```
+3. Check if the response is successful:
+   ```dart
+   bool isPublicKeyBasedCredentials = credential.publicKeyCredential != null;
+   ```
+
+## Visual Examples
+
+Passkey Creation:
+
 ![flutter-pass-key-creation](https://i.ibb.co/XCLvkB3/Whats-App-Image-2024-06-02-at-21-46-17.jpg)
 
+Passkey Success:
+
 ![flutter-pass-key-success](https://i.ibb.co/0JKNDff/Whats-App-Image-2024-06-02-at-21-46-17-1.jpg)
-
-
