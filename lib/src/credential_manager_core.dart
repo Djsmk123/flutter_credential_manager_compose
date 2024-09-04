@@ -89,6 +89,11 @@ class CredentialManager {
         .saveGoogleCredential(useButtonFlow);
   }
 
+  //Logout
+  Future<void> logout() async {
+    return CredentialManagerPlatform.instance.logout();
+  }
+
   /// Checks if the Credential Manager is supported on the current platform.
   bool get isSupportedPlatform => Platform.isAndroid;
 }

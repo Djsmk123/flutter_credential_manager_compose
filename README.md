@@ -145,6 +145,12 @@ await credentialManager.saveEncryptedCredentials(
           .getEncryptedCredentials(secretKey: secretKey, ivKey: ivKey);
 ```
 
+## Logout
+
+```
+await credentialManager.logout();
+```
+
 
 
 
