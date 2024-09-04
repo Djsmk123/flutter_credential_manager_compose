@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'package:credential_manager/credential_manager.dart';
+import 'package:credential_manager_example/home_screen.dart';
 import 'package:flutter/material.dart';
 
-const String googleClientId = "";
+const String googleClientId =
+    "492037512529-nbcdejpkq19ad1fos6ninmlh3990km3i.apps.googleusercontent.com";
 const String secretKey = '1234567812345678'; // Use a secure key here
 const String ivKey = "xfpkDQJXIfb3mcnb";
 const String rpId = "blogs-deeplink-example.vercel.app";
-
+final CredentialManager credentialManager = CredentialManager();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final credentialManager = CredentialManager();
 
   if (credentialManager.isSupportedPlatform) {
     await credentialManager.init(
@@ -44,7 +45,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final credentialManager = CredentialManager();
   bool isLoading = false;
   bool createPassKey = false;
   String? username;
@@ -141,6 +141,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ivKey: ivKey,
           );
           _showSnackBar("Successfully saved credential");
+          _navigateToHomeScreen(Credential.password,
+              passwordCredential: PasswordCredential(
+                username: username,
+                password: password,
+              ));
         });
       }
     }
@@ -175,8 +180,9 @@ class _LoginScreenState extends State<LoginScreen> {
           }),
         );
         _showSnackBar("Successfully saved credential");
-        _showDialog(
-            "Pass key created successfully", "Response: ${res.toJson()}");
+        _navigateToHomeScreen(Credential.passkey, publicKeyCredential: res);
+        // _showDialog(
+        //     "Pass key created successfully", "Response: ${res.toJson()}");
       });
     }
   }
@@ -184,9 +190,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> onGoogleSignIn() async {
     await _performAction(() async {
       final credential = await credentialManager.saveGoogleCredential();
-      String message = credential?.toJson().toString() ?? "";
       _showSnackBar("Successfully retrieved credential");
-      _showDialog("Login success", message);
+      _navigateToHomeScreen(Credential.google,
+          googleIdTokenCredential: credential);
     });
   }
 
@@ -217,25 +223,36 @@ class _LoginScreenState extends State<LoginScreen> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _showDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (context) =>
-          AlertDialog(title: Text(title), content: Text(content)),
-    );
-  }
-
   void _showLoginSuccessDialog(Credentials credential) {
     bool isPasswordBasedCredentials = credential.passwordCredential != null;
     bool isPublicKeyBasedCredentials = credential.publicKeyCredential != null;
-    var message =
-        "Credential Type: ${isPasswordBasedCredentials ? "Password" : isPublicKeyBasedCredentials ? "Passkey" : "Google"}, ";
-    message += isPasswordBasedCredentials
-        ? credential.passwordCredential!.toJson().toString()
-        : isPublicKeyBasedCredentials
-            ? credential.publicKeyCredential!.toJson().toString()
-            : credential.googleIdTokenCredential!.toJson().toString();
     _showSnackBar("Successfully retrieved credential");
-    _showDialog("Login success", message);
+    _navigateToHomeScreen(
+      isPasswordBasedCredentials
+          ? Credential.password
+          : isPublicKeyBasedCredentials
+              ? Credential.passkey
+              : Credential.google,
+      googleIdTokenCredential: credential.googleIdTokenCredential,
+      passwordCredential: credential.passwordCredential,
+      publicKeyCredential: credential.publicKeyCredential,
+    );
+  }
+
+  void _navigateToHomeScreen(Credential credentialType,
+      {GoogleIdTokenCredential? googleIdTokenCredential,
+      PasswordCredential? passwordCredential,
+      PublicKeyCredential? publicKeyCredential}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeScreen(
+          credentialType: credentialType,
+          passwordCredential: passwordCredential,
+          publicKeyCredential: publicKeyCredential,
+          googleIdTokenCredential: googleIdTokenCredential,
+        ),
+      ),
+    );
   }
 }

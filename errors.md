@@ -22,3 +22,4 @@ if any exception occurs it throws `CredentialException` which has field  `int co
 | 601  | User can cancel passkey operation                          | The user can cancel the passkey operation.                    |
 | 602  | Passkey creation failed                                    | Failed to create passkey.                                     |
 | 603  | Passkey failed to fetch with these                         | Passkey failed to fetch with these.                           |
+| 701  | Logout failed                                             | Error occured while calling `clearCredentialState()` on android.                                                |
