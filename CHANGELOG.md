@@ -46,3 +46,14 @@
 # 1.0.4
 
 - Add logout functionality using clearCredential(), example application, documentation and dependencies update.
+
+# 1.0.4+1
+
+- Update documentation
+- Update example application
+- Update dependencies
+- Update README.md
+- Update CHANGELOG.md
+- Update LICENSE
+- Update pubspec.yaml
+- Update errors.md
