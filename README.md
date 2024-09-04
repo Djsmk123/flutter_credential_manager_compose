@@ -101,6 +101,7 @@ final GoogleIdTokenCredential? gCredential= await credentialManager.saveGoogleCr
 
 
 
+Note: Want to use google button flow in login use `await credentialManager.saveGoogleCredential(useButtonFlow:true);` Thanks to @[wildsylvan](https://github.com/wildsylvan)
 
 
 
