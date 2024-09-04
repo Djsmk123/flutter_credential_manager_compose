@@ -67,8 +67,8 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
     return _instance.getPlatformVersion();
   }
 
-  Future<GoogleIdTokenCredential?> saveGoogleCredential() async {
-    return _instance.saveGoogleCredential();
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow) async {
+    return _instance.saveGoogleCredential(useButtonFlow);
   }
 
   Future<PublicKeyCredential> savePasskeyCredentials(

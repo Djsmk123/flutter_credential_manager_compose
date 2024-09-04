@@ -83,8 +83,8 @@ class CredentialManager {
   }
 
   /// Returns a [Future] that completes when the credentials are successfully saved.
-  Future<GoogleIdTokenCredential?> saveGoogleCredential() async {
-    return CredentialManagerPlatform.instance.saveGoogleCredential();
+  Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false}) async {
+    return CredentialManagerPlatform.instance.saveGoogleCredential(useButtonFlow);
   }
 
   /// Checks if the Credential Manager is supported on the current platform.

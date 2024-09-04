@@ -9,6 +9,7 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import java.security.SecureRandom
@@ -242,7 +243,7 @@ class CredentialManagerUtils {
      * @return A Pair containing either null and deserialized GoogleIdTokenCredential
      * or CredentialManagerExceptions and null if an error occurs.
      */
-    suspend fun saveGoogleCredentials(context: Context): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
+    suspend fun saveGoogleCredentials(useButtonFlow: Boolean, context: Context): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
         if (!this::serverClientID.isInitialized) {
             return Pair(
                 CredentialManagerExceptions(
@@ -253,14 +254,20 @@ class CredentialManagerUtils {
             )
         }
 
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            .setNonce(System.currentTimeMillis().toString())
-            .setServerClientId(serverClientID)
-            .build()
+        val googleCredentialOption = if (useButtonFlow) {
+            GetSignInWithGoogleOption.Builder(serverClientID)
+                .setNonce(System.currentTimeMillis().toString())
+                .build()
+        } else {
+            GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(false)
+                .setNonce(System.currentTimeMillis().toString())
+                .setServerClientId(serverClientID)
+                .build()
+        }
 
         val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
+            .addCredentialOption(googleCredentialOption)
             .build()
 
         Log.d("CredentialManager", "$request")
