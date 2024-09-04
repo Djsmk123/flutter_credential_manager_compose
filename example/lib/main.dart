@@ -3,8 +3,7 @@ import 'package:credential_manager/credential_manager.dart';
 import 'package:credential_manager_example/home_screen.dart';
 import 'package:flutter/material.dart';
 
-const String googleClientId =
-    "492037512529-nbcdejpkq19ad1fos6ninmlh3990km3i.apps.googleusercontent.com";
+const String googleClientId = "";
 const String secretKey = '1234567812345678'; // Use a secure key here
 const String ivKey = "xfpkDQJXIfb3mcnb";
 const String rpId = "blogs-deeplink-example.vercel.app";
