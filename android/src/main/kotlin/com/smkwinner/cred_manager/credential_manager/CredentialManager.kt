@@ -12,8 +12,6 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import java.security.SecureRandom
-import android.util.Base64
 class CredentialManagerUtils {
 
     private lateinit var credentialManager: CredentialManager
@@ -346,6 +344,31 @@ class CredentialManagerUtils {
             )
         }
     }
+
+    /**
+     * Logout the user.
+     *
+     * @return A Pair containing either null and a success message or CredentialManagerExceptions and an empty string.
+     */
+    suspend fun logout(): Pair<CredentialManagerExceptions?, String> {
+        return try {
+            credentialManager.clearCredentialState(
+                ClearCredentialStateRequest(
+
+                )
+            )
+            Pair(null, "Logout successful")
+        } catch (e: Exception) {
+            Pair(
+                CredentialManagerExceptions(
+                    code = 701,
+                    message = "Logout failed",
+                    details = e.localizedMessage
+                ), ""
+            )
+        }
+    }
+
 
 
 

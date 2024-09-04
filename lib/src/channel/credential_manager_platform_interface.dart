@@ -74,7 +74,11 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
 
   Future<PublicKeyCredential> savePasskeyCredentials(
       {required CredentialCreationOptions request}) async {
-    return CredentialManagerPlatform.instance
-        .savePasskeyCredentials(request: request);
+    return _instance.savePasskeyCredentials(request: request);
+  }
+
+  //Logout
+  Future<void> logout() async {
+    return _instance.logout();
   }
 }
