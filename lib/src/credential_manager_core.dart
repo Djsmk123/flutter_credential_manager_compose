@@ -45,41 +45,10 @@ class CredentialManager {
   /// Gets plain text password credentials.
   ///
   /// Returns a [Future] that completes with [PasswordCredential] representing the retrieved credentials.
-  Future<Credentials> getPasswordCredentials(
+  Future<Credentials> getCredentials(
       {CredentialLoginOptions? passKeyOption}) async {
     return CredentialManagerPlatform.instance
-        .getPasswordCredentials(passKeyOption: passKeyOption);
-  }
-
-  /// Saves encrypted password credentials.
-  ///
-  /// [credential] - The password credentials to be saved.
-  /// [secretKey] - The secret key used for encryption.
-  ///
-  /// Returns a [Future] that completes when the encrypted credentials are successfully saved.
-  Future<void> saveEncryptedCredentials({
-    required PasswordCredential credential,
-    required String secretKey,
-    required String ivKey,
-  }) {
-    return CredentialManagerPlatform.instance.saveEncryptedCredentials(
-        credential: credential, secretKey: secretKey, ivKey: ivKey);
-  }
-
-  /// Gets encrypted password credentials.
-  ///
-  /// [secretKey] - The secret key used for decryption.
-  ///
-  /// Returns a [Future] that completes with [PasswordCredential] representing the decrypted credentials.
-  Future<Credentials> getEncryptedCredentials(
-      {required String secretKey,
-      required String ivKey,
-      CredentialLoginOptions? passKeyOption}) {
-    return CredentialManagerPlatform.instance.getEncryptedCredentials(
-      secretKey: secretKey,
-      ivKey: ivKey,
-      passKeyOption: passKeyOption,
-    );
+        .getCredentials(passKeyOption: passKeyOption);
   }
 
   /// Returns a [Future] that completes when the credentials are successfully saved.
@@ -95,5 +64,5 @@ class CredentialManager {
   }
 
   /// Checks if the Credential Manager is supported on the current platform.
-  bool get isSupportedPlatform => Platform.isAndroid;
+  bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
 }

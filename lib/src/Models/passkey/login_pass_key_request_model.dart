@@ -12,6 +12,8 @@ class CredentialLoginOptions {
   /// The time, in milliseconds, allowed for the user to complete the operation.
   /// Defaults to 30 minutes (1800000 milliseconds).
   final int timeout;
+  //only available on ios
+  final bool conditionalUI;
 
   /// Constructs a new [CredentialLoginOptions] instance.
   ///
@@ -25,6 +27,7 @@ class CredentialLoginOptions {
     required this.rpId,
     required this.userVerification,
     this.timeout = 1800000,
+    this.conditionalUI = false,
   });
 
   /// Constructs a [CredentialLoginOptions] instance from a JSON object.
@@ -41,6 +44,7 @@ class CredentialLoginOptions {
       rpId: json['rpId'],
       userVerification: json['userVerification'],
       timeout: json['timeout'] ?? 1800000,
+      conditionalUI: json['conditionalUI'] ?? false,
     );
   }
 
@@ -57,6 +61,7 @@ class CredentialLoginOptions {
       'rpId': rpId,
       'userVerification': userVerification,
       'timeout': timeout,
+      'conditionalUI': conditionalUI,
     };
   }
 }

@@ -57,7 +57,9 @@ class HomeScreen extends StatelessWidget {
         return _buildInfoText(
             'Password Credential: ${passwordCredential?.username}');
       case Credential.passkey:
-        return _buildInfoText('Passkey Credential: ${publicKeyCredential?.id}');
+        return Center(
+            child: _buildInfoText(
+                'Passkey Credential: ${publicKeyCredential?.id}'));
       case Credential.google:
         return Column(
           children: [
@@ -83,28 +85,35 @@ class HomeScreen extends StatelessWidget {
   }
 
   Future<void> _handleLogout(BuildContext context) async {
-    final bool? shouldLogout = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Logout Confirmation'),
-        content: const Text(
-          'Are you sure you want to logout?.',
+    if (Platform.isAndroid) {
+      final bool? shouldLogout = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Logout Confirmation'),
+          content: const Text(
+            'Are you sure you want to logout?.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text('Logout'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
         ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          TextButton(
-            child: const Text('Logout'),
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
-    );
+      );
 
-    if (shouldLogout == true) {
-      await credentialManager.logout();
+      if (shouldLogout == true) {
+        await credentialManager.logout();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Logged out successfully')),
+        );
+        Navigator.of(context).pop();
+      }
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Logged out successfully')),
       );

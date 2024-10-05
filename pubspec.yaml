@@ -39,6 +39,8 @@ flutter:
       android:
         package: com.smkwinner.cred_manager.credential_manager
         pluginClass: CredentialManagerPlugin
+      ios:
+        pluginClass: CredentialManagerPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

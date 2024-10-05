@@ -78,12 +78,18 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
       {CredentialLoginOptions? passKeyOption}) async {
     CredentialType credentialType = CredentialType.passwordCredentials;
     try {
+      String? methodname = "get_password_credentials";
+      var methodParams = {};
+      bool isIos = Platform.isIOS;
+      if (isIos && passKeyOption != null) {
+        methodname = "get_passkey_credentials";
+        methodParams = {
+          "passKeyOption": passKeyOption.toJson(),
+        };
+      }
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
-        'get_password_credentials',
-        {
-          "passKeyOption":
-              passKeyOption == null ? null : jsonEncode(passKeyOption.toJson()),
-        },
+        methodname,
+        methodParams,
       );
 
       if (res != null) {
@@ -109,46 +115,6 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
       );
     } on PlatformException catch (e) {
       throw handlePlatformException(e, credentialType);
-    }
-  }
-
-  /// Saves encrypted password credentials.
-  @override
-  Future<void> saveEncryptedCredentials({
-    required PasswordCredential credential,
-    required String secretKey,
-    required String ivKey,
-  }) async {
-    credential.password =
-        EncryptData.encode(credential.password!.toString(), secretKey, ivKey);
-    return savePasswordCredentials(credential);
-  }
-
-  /// Retrieves and decrypts password credentials.
-  @override
-  Future<Credentials> getEncryptedCredentials({
-    required String secretKey,
-    required String ivKey,
-    CredentialLoginOptions? passKeyOption,
-  }) async {
-    try {
-      Credentials credential =
-          await getPasswordCredentials(passKeyOption: passKeyOption);
-      if (credential.passwordCredential != null) {
-        var password = EncryptData.decode(
-          credential.passwordCredential!.password.toString(),
-          secretKey,
-          ivKey,
-        );
-        var passwordCredential = credential.passwordCredential;
-        passwordCredential!.password = password;
-        credential =
-            credential.copyWith(passwordCredential: passwordCredential);
-      }
-
-      return credential;
-    } catch (e) {
-      rethrow;
     }
   }
 

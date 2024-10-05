@@ -57,6 +57,8 @@ class _LoginScreenState extends State<LoginScreen> {
       challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
       rpId: rpId,
       userVerification: "required",
+      //only for ios, true only when we want to show the passkey popup on keyboard otherwise false
+      conditionalUI: false,
     );
   }
 
@@ -82,15 +84,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     _buildButton("Register", onRegister),
                     _buildButton(
                         "Register with pass key", onRegisterWithPassKey),
-                    _buildButton(
-                        "Register with Google Sign In", onGoogleSignIn),
-                    _buildButton("Login (Password, Passkey, Google)", onLogin),
+                    if (Platform.isAndroid)
+                      _buildButton(
+                          "Register with Google Sign In", onGoogleSignIn)
+                    else
+                      _buildButton("Login with Apple Sign In", onLogin),
+                    if (Platform.isAndroid)
+                      _buildButton("Login (Password, Passkey, Google)", onLogin)
+                    else
+                      _buildButton("Login Passkey", onLogin)
                   ],
                 ),
               ),
             ),
           ),
-          if (isLoading) const Center(child: CircularProgressIndicator()),
+          if (isLoading)
+            const Center(child: CircularProgressIndicator.adaptive()),
         ],
       ),
     );
@@ -103,6 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: TextFormField(
         onChanged: onChanged,
         obscureText: isPassword,
+        autofillHints: const [AutofillHints.username],
         validator: (value) => value!.isEmpty ? "Please enter a $hint" : null,
         decoration: InputDecoration(
           hintText: hint,
@@ -133,11 +143,8 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() => createPassKey = true);
       } else {
         await _performAction(() async {
-          await credentialManager.saveEncryptedCredentials(
-            credential:
-                PasswordCredential(username: username, password: password),
-            secretKey: secretKey,
-            ivKey: ivKey,
+          await credentialManager.savePasswordCredentials(
+            PasswordCredential(username: username, password: password),
           );
           _showSnackBar("Successfully saved credential");
           _navigateToHomeScreen(Credential.password,
@@ -153,15 +160,18 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> onRegisterWithPassKey() async {
     if (_formKey.currentState!.validate()) {
       await _performAction(() async {
-        final res = await credentialManager.savePasskeyCredentials(
-          request: CredentialCreationOptions.fromJson({
-            "challenge": "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
-            "rp": {"name": "CredMan App Test", "id": rpId},
-            "user": {
-              "id": EncryptData.getEncodedUserId(),
-              "name": username,
-              "displayName": username,
-            },
+        final credentialCreationOptions = {
+          "challenge": "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
+          "rp": {"name": "CredMan App Test", "id": rpId},
+          "user": {
+            "id": EncryptData.getEncodedUserId(),
+            "name": username,
+            "displayName": username,
+          },
+        };
+
+        if (Platform.isAndroid) {
+          credentialCreationOptions.addAll({
             "pubKeyCredParams": [
               {"type": "public-key", "alg": -7},
               {"type": "public-key", "alg": -257}
@@ -176,7 +186,12 @@ class _LoginScreenState extends State<LoginScreen> {
               "authenticatorAttachment": "platform",
               "residentKey": "required"
             }
-          }),
+          });
+        }
+
+        final res = await credentialManager.savePasskeyCredentials(
+          request:
+              CredentialCreationOptions.fromJson(credentialCreationOptions),
         );
         _showSnackBar("Successfully saved credential");
         _navigateToHomeScreen(Credential.passkey, publicKeyCredential: res);
@@ -197,9 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> onLogin() async {
     await _performAction(() async {
-      Credentials credential = await credentialManager.getEncryptedCredentials(
-        secretKey: secretKey,
-        ivKey: ivKey,
+      Credentials credential = await credentialManager.getCredentials(
         passKeyOption: passKeyLoginOption,
       );
       _showLoginSuccessDialog(credential);
