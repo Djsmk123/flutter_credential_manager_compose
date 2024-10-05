@@ -57,3 +57,9 @@
 - Update LICENSE
 - Update pubspec.yaml
 - Update errors.md
+
+# 2.0.0
+
+- Add Password Credentials and Passkey Credentials support for iOS
+- Breaking changes in android
+- Removed Encrypted Credentials password based from both platforms
