@@ -114,7 +114,10 @@ class _LoginScreenState extends State<LoginScreen> {
       child: TextFormField(
         onChanged: onChanged,
         obscureText: isPassword,
-        autofillHints: const [AutofillHints.username],
+        autofillHints: isPassword
+            ? const [AutofillHints.password]
+            : const [AutofillHints.username],
+        keyboardType: isPassword ? TextInputType.visiblePassword : null,
         validator: (value) => value!.isEmpty ? "Please enter a $hint" : null,
         decoration: InputDecoration(
           hintText: hint,
@@ -144,6 +147,14 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!createPassKey) {
         setState(() => createPassKey = true);
       } else {
+        if (Platform.isIOS) {
+          _navigateToHomeScreen(Credential.password,
+              passwordCredential: PasswordCredential(
+                username: username,
+                password: password,
+              ));
+          return;
+        }
         await _performAction(() async {
           await credentialManager.savePasswordCredentials(
             PasswordCredential(username: username, password: password),
@@ -197,8 +208,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         _showSnackBar("Successfully saved credential");
         _navigateToHomeScreen(Credential.passkey, publicKeyCredential: res);
-        // _showDialog(
-        //     "Pass key created successfully", "Response: ${res.toJson()}");
       });
     }
   }

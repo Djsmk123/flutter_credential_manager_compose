@@ -25,9 +25,6 @@ public class CredentialManagerPlugin: NSObject, FlutterPlugin{
             savePassKeyCredentials(call: call, result: result)
         case "get_passkey_credentials":
             getPasskeyCredentials(call: call, result: result)
-//        case "get_password_credentials":
-//            getPasswordCredentials(call: call,result: result)
-            
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -48,10 +45,7 @@ public class CredentialManagerPlugin: NSObject, FlutterPlugin{
             result(FlutterError(code: String(describing: CustomErrors.unsupportedPlatform), message: "Passkey is not supported on this platform", details: nil))
         }
     }
-//    private func getPasswordCredentials(call: FlutterMethodCall, result: @escaping FlutterResult){
-//        
-//        result(FlutterError(code: String(describing: CustomErrors.unsupportedPlatform), message: "Passkey is not supported on this platform", details: nil))
-//    }
+    
 
     private func initialize(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
