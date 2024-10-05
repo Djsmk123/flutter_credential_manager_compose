@@ -74,26 +74,28 @@ class _LoginScreenState extends State<LoginScreen> {
               opacity: isLoading ? 0.5 : 1,
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildInputField("Username", (value) => username = value),
-                    if (createPassKey)
-                      _buildInputField("Password", (value) => password = value,
-                          isPassword: true),
-                    _buildButton("Register", onRegister),
-                    _buildButton(
-                        "Register with pass key", onRegisterWithPassKey),
-                    if (Platform.isAndroid)
+                child: AutofillGroup(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildInputField("Username", (value) => username = value),
+                      if (createPassKey)
+                        _buildInputField(
+                            "Password", (value) => password = value,
+                            isPassword: true),
+                      _buildButton("Register", onRegister),
                       _buildButton(
-                          "Register with Google Sign In", onGoogleSignIn)
-                    else
-                      _buildButton("Login with Apple Sign In", onLogin),
-                    if (Platform.isAndroid)
-                      _buildButton("Login (Password, Passkey, Google)", onLogin)
-                    else
-                      _buildButton("Login Passkey", onLogin)
-                  ],
+                          "Register with pass key", onRegisterWithPassKey),
+                      if (Platform.isAndroid)
+                        _buildButton(
+                            "Register with Google Sign In", onGoogleSignIn),
+                      if (Platform.isAndroid)
+                        _buildButton(
+                            "Login (Password, Passkey, Google)", onLogin)
+                      else
+                        _buildButton("Login Passkey", onLogin)
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -168,6 +170,10 @@ class _LoginScreenState extends State<LoginScreen> {
             "name": username,
             "displayName": username,
           },
+          "excludeCredentials": [
+            {"id": "ghi789", "type": "public-key"},
+            {"id": "jkl012", "type": "public-key"}
+          ],
         };
 
         if (Platform.isAndroid) {
@@ -178,10 +184,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
             "timeout": 1800000,
             "attestation": "none",
-            "excludeCredentials": [
-              {"id": "ghi789", "type": "public-key"},
-              {"id": "jkl012", "type": "public-key"}
-            ],
             "authenticatorSelection": {
               "authenticatorAttachment": "platform",
               "residentKey": "required"
