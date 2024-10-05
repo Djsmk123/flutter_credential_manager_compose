@@ -239,6 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
     bool isPasswordBasedCredentials = credential.passwordCredential != null;
     bool isPublicKeyBasedCredentials = credential.publicKeyCredential != null;
     _showSnackBar("Successfully retrieved credential");
+
     _navigateToHomeScreen(
       isPasswordBasedCredentials
           ? Credential.password
