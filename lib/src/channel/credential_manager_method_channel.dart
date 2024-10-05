@@ -74,7 +74,7 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
 
   /// Retrieves password credentials from the native platform.
   @override
-  Future<Credentials> getPasswordCredentials(
+  Future<Credentials> getCredentials(
       {CredentialLoginOptions? passKeyOption}) async {
     CredentialType credentialType = CredentialType.passwordCredentials;
     try {
