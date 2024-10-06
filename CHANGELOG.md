@@ -63,3 +63,7 @@
 - Add Password Credentials and Passkey Credentials support for iOS
 - Breaking changes in android
 - Removed Encrypted Credentials password based from both platforms
+
+# 2.0.1
+
+- Fixed Example application (enableInlineAutofill) for iOS by Default.
