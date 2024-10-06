@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 
 /** CredentialManagerPlugin */
@@ -97,8 +98,23 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
     private suspend fun handleGetPasswordCredentials(call: MethodCall, result: Result) {
         val requestJson: String? = call.argument("passKeyOption")
+        val fetchOptionsJson: String? = call.argument("fetchOptions")
+        val fetchOptions: FetchOptions? = fetchOptionsJson?.let {
+            val jsonObject = JSONObject(it)
+            FetchOptions(
+                passKeyOption = jsonObject.optBoolean("passKey", true),
+                googleCredential = jsonObject.optBoolean("googleCredential", true),
+                passwordCredential = jsonObject.optBoolean("passwordCredential", true)
+            )
+        }
+        //throw error if fetchOptions is null
+        if (fetchOptions == null) {
+            result.error("604", "FetchOptions is null", "FetchOptions is required")
+            return
+        }
+        
         val (exception: CredentialManagerExceptions?, credentials: CredentialManagerResponse?) =
-            utils.getPasswordCredentials(context = currentContext, requestJson = requestJson)
+            utils.getPasswordCredentials(context = currentContext, requestJson = requestJson,fetchOptions=fetchOptions)
 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)
@@ -115,7 +131,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 }
                 CredentialType.GoogleCredentials -> {
                     mapOf(
-                        "type" to "GoogleCredentials",
+                        "type" to "GoogleIdTokenCredentials",
                         "data" to mapOf(
                             "id" to credentials.googleCredentials?.id,
                             "idToken" to credentials.googleCredentials?.idToken,
