@@ -148,12 +148,24 @@ Wrap your TextFields using `AutoFillGroup`, after action it give you option to s
    ```
 > **Note:**
 > `fetchOptions` is only for android, it is not supported in ios. if use want specify which credential to be fetched then use `fetchOptions` and set values to `true` for respective credentials, otherwise if you want to fetch all credential then don't pass this parameter.
+## ![Android](https://img.shields.io/badge/AutoFillService-Android-green)
+   <img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="300">
+   <img src="https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg" alt="Google Save Credential 1" width="300">
 
-   <img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="300" height="300">
-   <img src="https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg" alt="Google Save Credential 1" width="300" height="300">
+## ![iOS](https://img.shields.io/badge/AutoFillService-iOS-blue)
+
+<img src="https://i.postimg.cc/rz6STZXV/Whats-App-Image-2024-10-06-at-12-04-23.jpg" alt="Get Credential 1" width="300">
+<img src="https://i.postimg.cc/kM2znV3z/Whats-App-Image-2024-10-06-at-12-04-43.jpg" alt="Get Credential 1" width="300" >
+
+
+
+
+
 
 > **Note:**
 >  In Android, you can pass perameter which type of credential you want either it could be `PasswordBasedCredential`,`GoogleIdTokenCredential` or `PasskeyCredential` but in ios it will be only `PasskeyCredential`.
+
+
 
 8. Logout (Only Android):
 
@@ -336,16 +348,21 @@ final res = await credentialManager.savePasskeyCredentials(
 
 ## Visual Examples
 
-Passkey Creation:
-- Android ![Android](https://img.shields.io/badge/Platforms-Android-green)
-![flutter-pass-key-creation](https://i.ibb.co/XCLvkB3/Whats-App-Image-2024-06-02-at-21-46-17.jpg)
-- iOS ![iOS](https://img.shields.io/badge/Platforms-iOS-blue)
+- ![Android](https://img.shields.io/badge/Passkey-Android-green)
+   1. Passkey Creation:
 
-Passkey Fetching:
-- Android
-![flutter-pass-key-fetching](https://i.ibb.co/fCs0kqV/5.jpg)
-- iOS
-![flutter-pass-key-fetching](https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg)
+   ![flutter-pass-key-creation](https://i.ibb.co/XCLvkB3/Whats-App-Image-2024-06-02-at-21-46-17.jpg)
+
+   2. Passkey Success:
+
+   ![flutter-pass-key-success](https://i.ibb.co/0JKNDff/Whats-App-Image-2024-06-02-at-21-46-17-1.jpg)
+
+- ![iOS](https://img.shields.io/badge/Passkey-iOS-blue)
+
+   [![Credential Manager Demo](https://img.youtube.com/vi/T6COr7pH5rQ/0.jpg)](https://www.youtube.com/watch?v=T6COr7pH5rQ)
+
+
+
 
 
 
