@@ -12,6 +12,7 @@ class CredentialManager {
   /// Initializes the Credential Manager.
   ///
   /// [preferImmediatelyAvailableCredentials] - Whether to prefer only locally-available credentials.
+  /// [googleClientId] - The Google client ID to be used for Google credentials.
   ///
   /// Returns a [Future] that completes when initialization is successful.
   Future<void> init({
@@ -32,37 +33,50 @@ class CredentialManager {
         .savePasswordCredentials(credential);
   }
 
-  /// Save credentials using passkey
+  /// Saves credentials using passkey.
   ///
-  /// [CredentialCreationOptions] - The credentials to be saved.
-  /// Returns a [Future] that completes when the credentials are successfully saved.
+  /// [request] - The credentials to be saved.
+  ///
+  /// Returns a [Future] that completes with [PublicKeyCredential] representing the saved credentials.
   Future<PublicKeyCredential> savePasskeyCredentials(
       {required CredentialCreationOptions request}) async {
     return CredentialManagerPlatform.instance
         .savePasskeyCredentials(request: request);
   }
 
-  /// Gets plain text password credentials.
+  /// Gets credentials.
   ///
-  /// Returns a [Future] that completes with [PasswordCredential] representing the retrieved credentials.
+  /// [passKeyOption] - Options for passkey login.
+  /// [fetchOptions] - Options for fetching specific types of credentials.
+  ///
+  /// Returns a [Future] that completes with [Credentials] representing the retrieved credentials.
   Future<Credentials> getCredentials(
-      {CredentialLoginOptions? passKeyOption}) async {
-    return CredentialManagerPlatform.instance
-        .getCredentials(passKeyOption: passKeyOption);
+      {CredentialLoginOptions? passKeyOption,
+      FetchOptionsAndroid? fetchOptions}) async {
+    return CredentialManagerPlatform.instance.getCredentials(
+        passKeyOption: passKeyOption, fetchOptions: fetchOptions);
   }
 
-  /// Returns a [Future] that completes when the credentials are successfully saved.
+  /// Saves Google credentials.
+  ///
+  /// [useButtonFlow] - Whether to use the button flow for saving Google credentials.
+  ///
+  /// Returns a [Future] that completes with [GoogleIdTokenCredential] representing the saved Google credentials.
   Future<GoogleIdTokenCredential?> saveGoogleCredential(
       {bool useButtonFlow = false}) async {
     return CredentialManagerPlatform.instance
         .saveGoogleCredential(useButtonFlow);
   }
 
-  //Logout
+  /// Logs out the user.
+  ///
+  /// Returns a [Future] that completes when the user is successfully logged out.
   Future<void> logout() async {
     return CredentialManagerPlatform.instance.logout();
   }
 
   /// Checks if the Credential Manager is supported on the current platform.
+  ///
+  /// Returns `true` if the platform is supported, otherwise `false`.
   bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
 }
