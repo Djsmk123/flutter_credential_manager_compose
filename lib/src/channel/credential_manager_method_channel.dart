@@ -72,39 +72,57 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
     }
   }
 
-  /// Retrieves password credentials from the native platform.
+  /// Retrieves credentials from the native platform.
   @override
-  Future<Credentials> getCredentials(
-      {CredentialLoginOptions? passKeyOption}) async {
+  Future<Credentials> getCredentials({
+    CredentialLoginOptions? passKeyOption,
+    FetchOptionsAndroid? fetchOptions,
+  }) async {
     CredentialType credentialType = CredentialType.passwordCredentials;
     try {
-      String? methodname = "get_password_credentials";
+      String methodName = "get_password_credentials";
       var methodParams = {};
       bool isIos = Platform.isIOS;
-      if (isIos && passKeyOption != null) {
-        methodname = "get_passkey_credentials";
-        methodParams = {
-          "passKeyOption": passKeyOption.toJson(),
-        };
+
+      if (passKeyOption != null) {
+        methodParams = isIos
+            ? {"passKeyOption": passKeyOption.toJson()}
+            : {"passKeyOption": jsonEncode(passKeyOption.toJson())};
       }
+
+      if (isIos) {
+        methodName = "get_passkey_credentials";
+      } else if (Platform.isAndroid) {
+        fetchOptions ??= FetchOptionsAndroid.all();
+        methodParams
+            .addAll({"fetchOptions": jsonEncode(fetchOptions.toJson())});
+      }
+
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
-        methodname,
+        methodName,
         methodParams,
       );
 
       if (res != null) {
         var data = jsonDecode(jsonEncode(res));
-        if (data['type'] == 'PasswordCredentials') {
-          return Credentials(
-              passwordCredential: PasswordCredential.fromJson(data['data']));
-        } else if (data['type'] == 'PublicKeyCredentials') {
-          return Credentials(
-              publicKeyCredential:
-                  PublicKeyCredential.fromJson(jsonDecode(data['data'])));
-        } else {
-          return Credentials(
-              googleIdTokenCredential:
-                  GoogleIdTokenCredential.fromJson(data['data']));
+        switch (data['type']) {
+          case 'PasswordCredentials':
+            return Credentials(
+                passwordCredential: PasswordCredential.fromJson(data['data']));
+          case 'PublicKeyCredentials':
+            return Credentials(
+                publicKeyCredential:
+                    PublicKeyCredential.fromJson(jsonDecode(data['data'])));
+          case 'GoogleIdTokenCredentials':
+            return Credentials(
+                googleIdTokenCredential:
+                    GoogleIdTokenCredential.fromJson(data['data']));
+          default:
+            throw CredentialException(
+              code: 204,
+              message: "Login failed",
+              details: null,
+            );
         }
       }
 
@@ -120,14 +138,14 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
 
   /// Saves Google ID token credential.
   @override
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(useButtonFlow) async {
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(
+      bool useButtonFlow) async {
     try {
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
         'save_google_credential',
-        {
-          "useButtonFlow": useButtonFlow,
-        },
+        {"useButtonFlow": useButtonFlow},
       );
+
       if (res == null) {
         throw CredentialException(
           code: 505,
@@ -295,14 +313,13 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
 
   /// Saves passkey credentials to the native platform.
   @override
-  Future<PublicKeyCredential> savePasskeyCredentials(
-      {required CredentialCreationOptions request}) async {
+  Future<PublicKeyCredential> savePasskeyCredentials({
+    required CredentialCreationOptions request,
+  }) async {
     try {
       final res = await methodChannel.invokeMethod<String>(
         'save_public_key_credential',
-        {
-          "requestJson": jsonEncode(request.toJson()),
-        },
+        {"requestJson": jsonEncode(request.toJson())},
       );
 
       if (res != null) {
@@ -320,7 +337,7 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
     }
   }
 
-  //Logout
+  /// Logs out the user.
   @override
   Future<void> logout() async {
     final res = await methodChannel.invokeMethod<String>('logout');

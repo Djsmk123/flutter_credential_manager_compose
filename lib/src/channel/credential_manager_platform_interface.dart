@@ -39,8 +39,10 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
 
   /// Retrieves password credentials.
   Future<Credentials> getCredentials(
-      {CredentialLoginOptions? passKeyOption}) async {
-    return _instance.getCredentials(passKeyOption: passKeyOption);
+      {CredentialLoginOptions? passKeyOption,
+      FetchOptionsAndroid? fetchOptions}) async {
+    return _instance.getCredentials(
+        passKeyOption: passKeyOption, fetchOptions: fetchOptions);
   }
 
   /// Retrieves the platform version information.

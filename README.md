@@ -138,11 +138,16 @@ Wrap your TextFields using `AutoFillGroup`, after action it give you option to s
 
 7. Get saved credentials:
 
-   ```dart
+   ```dart 
    Credentials credential = await credentialManager.getCredentials(
-     
+      //passkey request data, if passkey is needed to be fetched
+              passKeyOption: passKeyLoginOption,
+      //only for android
+      fetchOptions: FetchOptionsAndroid.all(),
    );
    ```
+> **Note:**
+> `fetchOptions` is only for android, it is not supported in ios. if use want specify which credential to be fetched then use `fetchOptions` and set values to `true` for respective credentials, otherwise if you want to fetch all credential then don't pass this parameter.
 
    <img src="https://i.ibb.co/fCs0kqV/5.jpg" alt="Get Credential 1" width="300" height="300">
    <img src="https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg" alt="Google Save Credential 1" width="300" height="300">

@@ -64,7 +64,7 @@ class HomeScreen extends StatelessWidget {
         return Column(
           children: [
             _buildInfoText(
-                'Google Credential: ${googleIdTokenCredential?.displayName}'),
+                'Google Credential: ${googleIdTokenCredential?.email}'),
             const SizedBox(height: 10),
             if (googleIdTokenCredential?.profilePictureUri != null)
               Image.network(

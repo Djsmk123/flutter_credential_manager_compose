@@ -4,10 +4,9 @@ import 'package:credential_manager_example/home_screen.dart';
 import 'package:flutter/material.dart';
 
 const String googleClientId = "";
-const String secretKey = '1234567812345678'; // Use a secure key here
-const String ivKey = "xfpkDQJXIfb3mcnb";
 const String rpId = "blogs-deeplink-example.vercel.app";
 final CredentialManager credentialManager = CredentialManager();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -197,7 +196,8 @@ class _LoginScreenState extends State<LoginScreen> {
             "attestation": "none",
             "authenticatorSelection": {
               "authenticatorAttachment": "platform",
-              "residentKey": "required"
+              "residentKey": "required",
+              "userVerification": "required"
             }
           });
         }
@@ -225,6 +225,12 @@ class _LoginScreenState extends State<LoginScreen> {
     await _performAction(() async {
       Credentials credential = await credentialManager.getCredentials(
         passKeyOption: passKeyLoginOption,
+        //only for android
+        fetchOptions: FetchOptionsAndroid(
+          passKey: true,
+          passwordCredential: true,
+          googleCredential: true,
+        ),
       );
       _showLoginSuccessDialog(credential);
     });
