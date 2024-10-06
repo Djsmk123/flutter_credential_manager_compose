@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  bool enableInlineAutofill = false;
+  bool enableInlineAutofill = Platform.isIOS;
 
   Widget _buildInputField(String hint, Function(String) onChanged,
       {bool isPassword = false}) {
