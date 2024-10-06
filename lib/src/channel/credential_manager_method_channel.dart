@@ -120,8 +120,8 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
           default:
             throw CredentialException(
               code: 204,
-              message: "Login failed",
-              details: null,
+              message: "Login failed ",
+              details: "Expected Credential Type not found in native platform",
             );
         }
       }
@@ -129,7 +129,7 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
       throw CredentialException(
         code: 204,
         message: "Login failed",
-        details: null,
+        details: "Expected a response from the native platform but got null",
       );
     } on PlatformException catch (e) {
       throw handlePlatformException(e, credentialType);

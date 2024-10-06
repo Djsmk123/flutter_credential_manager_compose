@@ -131,7 +131,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 }
                 CredentialType.GoogleCredentials -> {
                     mapOf(
-                        "type" to "GoogleCredentials",
+                        "type" to "GoogleIdTokenCredentials",
                         "data" to mapOf(
                             "id" to credentials.googleCredentials?.id,
                             "idToken" to credentials.googleCredentials?.idToken,
