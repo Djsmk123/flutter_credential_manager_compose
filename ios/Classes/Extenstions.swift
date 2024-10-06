@@ -48,7 +48,6 @@ public extension String {
 extension Data {
     func toBase64URL() -> String {
         let current = self
-        
         var result = current.base64EncodedString()
         result = result.replacingOccurrences(of: "+", with: "-")
         result = result.replacingOccurrences(of: "/", with: "_")
