@@ -71,7 +71,8 @@ class CredentialManagerUtils {
                     password = password,
                     preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
                 ),
-                context = context
+                context = context,
+
             )
             Log.v("CredentialTest", "Credentials successfully added")
             Pair(null, "Credentials saved")
@@ -111,36 +112,63 @@ class CredentialManagerUtils {
      */
     suspend fun getPasswordCredentials(
         context: Context,
-        requestJson: String?
+        requestJson: String?,
+        fetchOptions: FetchOptions
     ): Pair<CredentialManagerExceptions?, CredentialManagerResponse?> {
         return try {
-            var getCredRequest = GetCredentialRequest(listOf(GetPasswordOption()))
-            if (requestJson != null) {
-                getCredRequest = GetCredentialRequest.Builder()
-                    .addCredentialOption(GetPasswordOption())
-                    .addCredentialOption(GetPublicKeyCredentialOption(requestJson))
-                    .build()
+            // Check if all fetch options are disabled
+            if (!isAnyOptionEnabled(fetchOptions)) {
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 206,
+                        message = "Credential fetch options are not enabled",
+                        details = "Enable at least one credential fetch option (passkey, Google, or password)."
+                    ), null
+                )
+            }
+            val googleClientId = if (this::serverClientID.isInitialized) serverClientID else ""
+            // Validate serverClientID if Google sign-in is enabled
+            if (fetchOptions.googleCredential && googleClientId.isEmpty()) {
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 503,
+                        message = "Google client not initialized",
+                        details = "Ensure Google credentials are provided."
+                    ), null
+                )
             }
 
-            if (this::serverClientID.isInitialized) {
-                val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setNonce(System.currentTimeMillis().toString())
-                    .setServerClientId(serverClientID)
-                    .build()
-                getCredRequest = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
-                    .addCredentialOption(GetPasswordOption())
-                    .build()
-                if (requestJson != null) {
-                    getCredRequest = GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
-                        .addCredentialOption(GetPasswordOption())
-                        .addCredentialOption(GetPublicKeyCredentialOption(requestJson))
-                        .build()
+            // Validate requestJson for Passkey or Google Sign-In
+            if (fetchOptions.passKeyOption && requestJson == null) {
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 207,
+                        message = "RequestJson is required",
+                        details = "Provide requestJson for passkey."
+                    ), null
+                )
+            }
+
+            // Build the credential request based on enabled options
+            val getCredRequest = GetCredentialRequest.Builder().apply {
+                if (fetchOptions.passwordCredential) {
+                    addCredentialOption(GetPasswordOption())
                 }
-            }
+                if (fetchOptions.passKeyOption && requestJson != null) {
+                    addCredentialOption(GetPublicKeyCredentialOption(requestJson))
+                }
+                if (fetchOptions.googleCredential) {
+                    addCredentialOption(
+                        GetGoogleIdOption.Builder()
+                            .setFilterByAuthorizedAccounts(false)
+                            .setNonce(System.currentTimeMillis().toString())
+                            .setServerClientId(serverClientID)
+                            .build()
+                    )
+                }
+            }.build()
 
+            // Fetch credentials using the credentialManager
             val credentialResponse = credentialManager.getCredential(
                 request = getCredRequest,
                 context = context
@@ -218,16 +246,16 @@ class CredentialManagerUtils {
             Pair(
                 CredentialManagerExceptions(
                     code = 204,
-                    message = "Login failed",
-                    details = e.localizedMessage
+                    message = "Login failed ${e.localizedMessage}",
+                    details = e.stackTraceToString(),
                 ), null
             )
         } catch (e: Exception) {
             Pair(
                 CredentialManagerExceptions(
                     code = 204,
-                    message = "Login failed",
-                    details = e.localizedMessage
+                    message = "Login failed ${e.localizedMessage}",
+                    details = e.stackTraceToString(),
                 ), null
             )
         }
@@ -307,9 +335,22 @@ class CredentialManagerUtils {
     suspend fun savePasskeyCredentials(context: Context, requestJson: String): Pair<CredentialManagerExceptions?, String> {
         return try {
             Log.v("CredentialTest", "RequestJson $requestJson")
+
+            //check for if android is  android 9
+            if(android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.Q){
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 603,
+                        message = "Passkey is not supported on this device",
+                        details = "Android version is less than 10"
+                    ), ""
+                )
+            }
+
             val createPublicKeyCredentialRequest = CreatePublicKeyCredentialRequest(
                 requestJson = requestJson
             )
+
             val result = credentialManager.createCredential(
                 request = createPublicKeyCredentialRequest,
                 context = context
@@ -319,6 +360,7 @@ class CredentialManagerUtils {
             Pair(null, result.registrationResponseJson)
 
         } catch (e: CreateCredentialCancellationException) {
+            Log.d("CredentialTest", "Exception $e")
             Pair(
                 CredentialManagerExceptions(
                     code = 601,
@@ -327,6 +369,7 @@ class CredentialManagerUtils {
                 ), ""
             )
         } catch (e: CreateCredentialException) {
+            Log.d("CredentialTest", "Exception $e")
             Pair(
                 CredentialManagerExceptions(
                     code = 602,
@@ -335,6 +378,7 @@ class CredentialManagerUtils {
                 ), ""
             )
         } catch (e: Exception) {
+            Log.d("CredentialTest", "Exception $e")
             Pair(
                 CredentialManagerExceptions(
                     code = 603,
@@ -353,9 +397,7 @@ class CredentialManagerUtils {
     suspend fun logout(): Pair<CredentialManagerExceptions?, String> {
         return try {
             credentialManager.clearCredentialState(
-                ClearCredentialStateRequest(
-
-                )
+                ClearCredentialStateRequest()
             )
             Pair(null, "Logout successful")
         } catch (e: Exception) {
@@ -367,6 +409,16 @@ class CredentialManagerUtils {
                 ), ""
             )
         }
+    }
+    /**
+     * Checks if at least one credential option is enabled.
+     *
+     * @return Boolean indicating if any option is enabled.
+     */
+    private fun isAnyOptionEnabled(
+        fetchOptions: FetchOptions
+    ): Boolean {
+        return fetchOptions.googleCredential || fetchOptions.passwordCredential || fetchOptions.passKeyOption
     }
 
 

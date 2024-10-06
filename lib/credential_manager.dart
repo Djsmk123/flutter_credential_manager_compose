@@ -11,3 +11,4 @@ export 'package:credential_manager/src/utils/encryption.dart';
 export 'package:credential_manager/src/Models/passkey/create_pass_key_request_model.dart';
 export 'package:credential_manager/src/Models/passkey/login_pass_key_request_model.dart';
 export 'package:credential_manager/src/Models/passkey/pass_key_response_model_sucess.dart';
+export 'package:credential_manager/src/Models/fetch_options.dart';

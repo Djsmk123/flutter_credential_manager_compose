@@ -1,7 +1,7 @@
 // Dart class representing a Google Id Token Credential
 class GoogleIdTokenCredential {
   // Properties of the GoogleIdTokenCredential
-  final String id;
+  final String email;
   final String idToken;
   final String? displayName;
   final String? familyName;
@@ -11,7 +11,7 @@ class GoogleIdTokenCredential {
 
   // Constructor for creating an instance of GoogleIdTokenCredential
   GoogleIdTokenCredential({
-    required this.id,
+    required this.email,
     required this.idToken,
     this.displayName,
     this.familyName,
@@ -23,7 +23,7 @@ class GoogleIdTokenCredential {
   // Method to convert the GoogleIdTokenCredential object to a JSON-serializable map
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': email,
       'idToken': idToken,
       'displayName': displayName,
       'familyName': familyName,
@@ -36,7 +36,7 @@ class GoogleIdTokenCredential {
   // Factory method to create a GoogleIdTokenCredential object from a JSON-serializable map
   factory GoogleIdTokenCredential.fromJson(Map<String, dynamic> json) {
     return GoogleIdTokenCredential(
-      id: json['id'],
+      email: json['id'],
       idToken: json['idToken'],
       displayName: json['displayName'],
       familyName: json['familyName'],

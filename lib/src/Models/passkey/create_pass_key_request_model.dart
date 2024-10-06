@@ -298,16 +298,22 @@ class CredentialCreationOptions {
       challenge: json['challenge'],
       rp: Rp.fromJson(json['rp']),
       user: User.fromJson(json['user']),
-      pubKeyCredParams: (json['pubKeyCredParams'] as List)
-          .map((i) => PublicKeyCredentialParameters.fromJson(i))
-          .toList(),
+      pubKeyCredParams: json['pubKeyCredParams'] != null
+          ? (json['pubKeyCredParams'] as List)
+              .map((i) => PublicKeyCredentialParameters.fromJson(i))
+              .toList()
+          : [],
       timeout: json['timeout'] ?? 1800000,
       attestation: json['attestation'] ?? 'none',
-      excludeCredentials: (json['excludeCredentials'] as List)
-          .map((i) => ExcludeCredential.fromJson(i))
-          .toList(),
-      authenticatorSelection: AuthenticatorSelectionCriteria.fromJson(
-          json['authenticatorSelection']),
+      excludeCredentials: json['excludeCredentials'] != null
+          ? (json['excludeCredentials'] as List)
+              .map((i) => ExcludeCredential.fromJson(i))
+              .toList()
+          : [],
+      authenticatorSelection: json['authenticatorSelection'] != null
+          ? AuthenticatorSelectionCriteria.fromJson(
+              json['authenticatorSelection'])
+          : AuthenticatorSelectionCriteria(),
     );
   }
 

@@ -37,29 +37,12 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
     return _instance.savePasswordCredentials(credential);
   }
 
-  /// Saves encrypted credentials using the provided secret key and initialization vector (IV).
-  Future<void> saveEncryptedCredentials({
-    required PasswordCredential credential,
-    required String secretKey,
-    required String ivKey,
-  }) async {
-    return _instance.saveEncryptedCredentials(
-        credential: credential, secretKey: secretKey, ivKey: ivKey);
-  }
-
-  /// Retrieves encrypted credentials using the provided secret key and initialization vector (IV).
-  Future<Credentials> getEncryptedCredentials(
-      {required String secretKey,
-      required String ivKey,
-      CredentialLoginOptions? passKeyOption}) async {
-    return _instance.getEncryptedCredentials(
-        secretKey: secretKey, ivKey: ivKey, passKeyOption: passKeyOption);
-  }
-
   /// Retrieves password credentials.
-  Future<Credentials> getPasswordCredentials(
-      {CredentialLoginOptions? passKeyOption}) async {
-    return _instance.getPasswordCredentials(passKeyOption: passKeyOption);
+  Future<Credentials> getCredentials(
+      {CredentialLoginOptions? passKeyOption,
+      FetchOptionsAndroid? fetchOptions}) async {
+    return _instance.getCredentials(
+        passKeyOption: passKeyOption, fetchOptions: fetchOptions);
   }
 
   /// Retrieves the platform version information.
