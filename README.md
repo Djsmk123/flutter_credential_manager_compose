@@ -290,7 +290,8 @@ if (Platform.isAndroid) {
     "attestation": "none",
     "authenticatorSelection": {
       "authenticatorAttachment": "platform",
-      "residentKey": "required"
+      "residentKey": "required",
+      "userVerification": "required"
     }
   });
 }
