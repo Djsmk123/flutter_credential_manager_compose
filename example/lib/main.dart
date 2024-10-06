@@ -61,6 +61,15 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Widget _buildAutofillGroup(Widget child) {
+    if (enableInlineAutofill) {
+      return AutofillGroup(
+        child: child,
+      );
+    }
+    return child;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,9 +80,9 @@ class _LoginScreenState extends State<LoginScreen> {
             absorbing: isLoading,
             child: Opacity(
               opacity: isLoading ? 0.5 : 1,
-              child: Form(
-                key: _formKey,
-                child: AutofillGroup(
+              child: _buildAutofillGroup(
+                Form(
+                  key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -106,6 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  bool enableInlineAutofill = false;
+
   Widget _buildInputField(String hint, Function(String) onChanged,
       {bool isPassword = false}) {
     return Padding(
@@ -113,9 +124,11 @@ class _LoginScreenState extends State<LoginScreen> {
       child: TextFormField(
         onChanged: onChanged,
         obscureText: isPassword,
-        autofillHints: isPassword
-            ? const [AutofillHints.password]
-            : const [AutofillHints.username],
+        autofillHints: enableInlineAutofill
+            ? (isPassword
+                ? const [AutofillHints.password]
+                : const [AutofillHints.username])
+            : [],
         keyboardType: isPassword ? TextInputType.visiblePassword : null,
         validator: (value) => value!.isEmpty ? "Please enter a $hint" : null,
         decoration: InputDecoration(
@@ -146,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!createPassKey) {
         setState(() => createPassKey = true);
       } else {
-        if (Platform.isIOS) {
+        if (enableInlineAutofill) {
           _navigateToHomeScreen(Credential.password,
               passwordCredential: PasswordCredential(
                 username: username,
@@ -154,10 +167,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ));
           return;
         }
+
         await _performAction(() async {
           await credentialManager.savePasswordCredentials(
             PasswordCredential(username: username, password: password),
           );
+
           _showSnackBar("Successfully saved credential");
           _navigateToHomeScreen(Credential.password,
               passwordCredential: PasswordCredential(

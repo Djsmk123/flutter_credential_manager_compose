@@ -71,7 +71,8 @@ class CredentialManagerUtils {
                     password = password,
                     preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
                 ),
-                context = context
+                context = context,
+
             )
             Log.v("CredentialTest", "Credentials successfully added")
             Pair(null, "Credentials saved")
@@ -125,9 +126,9 @@ class CredentialManagerUtils {
                     ), null
                 )
             }
-
+            val googleClientId = if (this::serverClientID.isInitialized) serverClientID else ""
             // Validate serverClientID if Google sign-in is enabled
-            if (fetchOptions.googleCredential && !this::serverClientID.isInitialized) {
+            if (fetchOptions.googleCredential && googleClientId.isEmpty()) {
                 return Pair(
                     CredentialManagerExceptions(
                         code = 503,
@@ -143,7 +144,7 @@ class CredentialManagerUtils {
                     CredentialManagerExceptions(
                         code = 207,
                         message = "RequestJson is required",
-                        details = "Provide requestJson for passkey or Google sign-in."
+                        details = "Provide requestJson for passkey."
                     ), null
                 )
             }
@@ -245,16 +246,16 @@ class CredentialManagerUtils {
             Pair(
                 CredentialManagerExceptions(
                     code = 204,
-                    message = "Login failed",
-                    details = e.localizedMessage
+                    message = "Login failed ${e.localizedMessage}",
+                    details = e.stackTraceToString(),
                 ), null
             )
         } catch (e: Exception) {
             Pair(
                 CredentialManagerExceptions(
                     code = 204,
-                    message = "Login failed",
-                    details = e.localizedMessage
+                    message = "Login failed ${e.localizedMessage}",
+                    details = e.stackTraceToString(),
                 ), null
             )
         }
