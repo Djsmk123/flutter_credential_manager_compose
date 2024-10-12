@@ -70,3 +70,8 @@
 # 2.0.1
 
 - Fixed Example application (enableInlineAutofill) for iOS by Default.
+
+
+# 2.0.2
+
+- Update Documentation
