@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:credential_manager/src/utils/parser.dart';
 import 'package:flutter/services.dart';
 
 /// Enum representing the different types of credentials.
@@ -324,7 +325,18 @@ class MethodChannelCredentialManager extends CredentialManagerPlatform {
 
       if (res != null) {
         var data = res.toString();
-        return PublicKeyCredential.fromJson(jsonDecode(data));
+        final credential = PublicKeyCredential.fromJson(jsonDecode(data));
+        if (Platform.isIOS) {
+          final authData = AttestationParser.parseAttestationObject(
+              credential.response!.attestationObject!);
+          return credential.copyWith(
+            response: credential.response?.copyWith(
+              publicKey: authData.$2,
+              authenticatorData: authData.$1,
+            ),
+          );
+        }
+        return credential;
       }
 
       throw CredentialException(
