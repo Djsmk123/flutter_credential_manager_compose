@@ -27,8 +27,8 @@ class PublicKeyCredential {
   factory PublicKeyCredential.fromJson(Map<String, dynamic> json) {
     return PublicKeyCredential(
       rawId: json['rawId'],
-      authenticatorAttachment: json['authenticatorAttachment'],
-      type: json['type'],
+      authenticatorAttachment: json['authenticatorAttachment'] ?? 'platform',
+      type: json['type'] ?? 'public-key',
       id: json['id'],
       response:
           json['response'] != null ? Response.fromJson(json['response']) : null,
@@ -56,6 +56,33 @@ class PublicKeyCredential {
       'publicKeyAlgorithm': publicKeyAlgorithm,
       'publicKey': publicKey,
     };
+  }
+
+  /// CopyWith method for PublicKeyCredential.
+  PublicKeyCredential copyWith({
+    String? rawId,
+    String? authenticatorAttachment,
+    String? type,
+    String? id,
+    Response? response,
+    List<String>? transports,
+    ClientExtensionResults? clientExtensionResults,
+    int? publicKeyAlgorithm,
+    String? publicKey,
+  }) {
+    return PublicKeyCredential(
+      rawId: rawId ?? this.rawId,
+      authenticatorAttachment:
+          authenticatorAttachment ?? this.authenticatorAttachment,
+      type: type ?? this.type,
+      id: id ?? this.id,
+      response: response ?? this.response,
+      transports: transports ?? this.transports,
+      clientExtensionResults:
+          clientExtensionResults ?? this.clientExtensionResults,
+      publicKeyAlgorithm: publicKeyAlgorithm ?? this.publicKeyAlgorithm,
+      publicKey: publicKey ?? this.publicKey,
+    );
   }
 }
 
@@ -107,6 +134,27 @@ class Response {
       'userHandle': userHandle,
     };
   }
+
+  /// CopyWith method for Response.
+  Response copyWith({
+    String? clientDataJSON,
+    String? attestationObject,
+    String? authenticatorData,
+    String? publicKey,
+    List<String>? transports,
+    String? signature,
+    String? userHandle,
+  }) {
+    return Response(
+      clientDataJSON: clientDataJSON ?? this.clientDataJSON,
+      attestationObject: attestationObject ?? this.attestationObject,
+      authenticatorData: authenticatorData ?? this.authenticatorData,
+      publicKey: publicKey ?? this.publicKey,
+      transports: transports ?? this.transports,
+      signature: signature ?? this.signature,
+      userHandle: userHandle ?? this.userHandle,
+    );
+  }
 }
 
 /// Class representing client extension results.
@@ -133,6 +181,15 @@ class ClientExtensionResults {
       'credProps': credProps?.toJson(),
     };
   }
+
+  /// CopyWith method for ClientExtensionResults.
+  ClientExtensionResults copyWith({
+    CredProps? credProps,
+  }) {
+    return ClientExtensionResults(
+      credProps: credProps ?? this.credProps,
+    );
+  }
 }
 
 /// Class representing credential properties.
@@ -156,5 +213,14 @@ class CredProps {
     return {
       'rk': rk,
     };
+  }
+
+  /// CopyWith method for CredProps.
+  CredProps copyWith({
+    bool? rk,
+  }) {
+    return CredProps(
+      rk: rk ?? this.rk,
+    );
   }
 }
