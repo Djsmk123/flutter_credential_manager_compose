@@ -48,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? username;
   String? password;
   late CredentialLoginOptions passKeyLoginOption;
+  bool isGoogleEnabled = false;
 
   @override
   void initState() {
@@ -59,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
       //only for ios, true only when we want to show the passkey popup on keyboard otherwise false
       conditionalUI: false,
     );
+    isGoogleEnabled = googleClientId.isNotEmpty;
   }
 
   Widget _buildAutofillGroup(Widget child) {
@@ -244,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
         fetchOptions: FetchOptionsAndroid(
           passKey: true,
           passwordCredential: true,
-          googleCredential: true,
+          googleCredential: isGoogleEnabled,
         ),
       );
       _showLoginSuccessDialog(credential);
