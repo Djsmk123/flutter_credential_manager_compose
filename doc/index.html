@@ -10,8 +10,53 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-dark-mode@latest/dist/style.min.css" />
 
+  <style>
+    :root {
+      --theme-color: #42b983;
+    }
 
+    /* Almond Dark Theme */
+    [data-theme="dark"] {
+      --bg-color: #2e1d14;
+      --text-color: #f3e5d8;
+      --code-bg-color: #3b2a20;
+      --border-color: #d4a373;
+      --sidebar-bg-color: #2e1d14;
+      --sidebar-text-color: #f3e5d8;
+      --sidebar-active-color: #d4a373;
+      --navbar-bg-color: #2e1d14;
+      --navbar-text-color: #f3e5d8;
+    }
 
+    .sidebar,
+    .sidebar-toggle {
+      background-color: var(--sidebar-bg-color) !important;
+      color: var(--sidebar-text-color) !important;
+    }
+
+    .markdown-section {
+      background-color: var(--bg-color) !important;
+      color: var(--text-color) !important;
+    }
+
+    .markdown-section pre {
+      background: var(--code-bg-color) !important;
+      color: var(--text-color) !important;
+    }
+
+    .sidebar ul li a {
+      color: var(--sidebar-text-color) !important;
+    }
+
+    .sidebar ul li.active>a {
+      color: var(--sidebar-active-color) !important;
+    }
+
+    .app-nav {
+      background-color: var(--navbar-bg-color) !important;
+      color: var(--navbar-text-color) !important;
+    }
+  </style>
 
 </head>
 
@@ -25,12 +70,15 @@
       subMaxLevel: 10,
       search: 'auto',
       themeColor: '#42b983',
+      darkMode: {
+        default: true, // Enable dark mode by default
+        dark: 'Almond Dark', // Custom theme name
+      },
       progress: {
         position: "top",
         color: "var(--theme-color,#42b983)",
         height: "3px",
       },
-
       alias: { '/.*/_sidebar.md': '_sidebar.md' },
       footer: {
         copy: '<span>Credential Manager &copy; 2024 </span>',
@@ -39,24 +87,19 @@
         style: 'text-align: right;',
         class: 'className',
       },
-
     };
   </script>
 
-  <!-- Docsify v4 -->
+  <!-- Docsify Scripts -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-sidebar@1"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
-
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-dark-mode@latest/dist/index.min.js"></script>
   <script src="//unpkg.com/docsify-footer-enh/dist/docsify-footer-enh.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify-progress@latest/dist/progress.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/codeblock-iframe@latest/dist/index.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-codeblock-iframe@latest/dist/index.min.js"></script>
-
-
-
 
 </body>
 
