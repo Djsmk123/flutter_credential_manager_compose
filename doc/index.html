@@ -16,16 +16,22 @@
     }
 
     /* Almond Dark Theme */
+    html.dark-mode,
     [data-theme="dark"] {
-      --bg-color: #2e1d14;
-      --text-color: #f3e5d8;
-      --code-bg-color: #3b2a20;
-      --border-color: #d4a373;
-      --sidebar-bg-color: #2e1d14;
-      --sidebar-text-color: #f3e5d8;
-      --sidebar-active-color: #d4a373;
-      --navbar-bg-color: #2e1d14;
-      --navbar-text-color: #f3e5d8;
+      --bg-color: #2e1d14 !important;
+      --text-color: #f3e5d8 !important;
+      --code-bg-color: #3b2a20 !important;
+      --border-color: #d4a373 !important;
+      --sidebar-bg-color: #2e1d14 !important;
+      --sidebar-text-color: #f3e5d8 !important;
+      --sidebar-active-color: #d4a373 !important;
+      --navbar-bg-color: #2e1d14 !important;
+      --navbar-text-color: #f3e5d8 !important;
+    }
+
+    body {
+      background-color: var(--bg-color) !important;
+      color: var(--text-color) !important;
     }
 
     .sidebar,
@@ -88,6 +94,12 @@
         class: 'className',
       },
     };
+
+    // Force Dark Mode on Load
+    document.addEventListener("DOMContentLoaded", function () {
+      document.documentElement.classList.add("dark-mode");
+      document.documentElement.setAttribute("data-theme", "dark");
+    });
   </script>
 
   <!-- Docsify Scripts -->
