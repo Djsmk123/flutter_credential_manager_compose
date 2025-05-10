@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 0.5rem;
+    
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-primary: 221.2 83.2% 53.3%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-ring: 221.2 83.2% 53.3%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+    
+    --sidebar-background: 222.2 47.4% 11.2%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply scroll-mt-20;
+  }
+}
+
+/* Prism.js theme overrides for dark mode */
+.dark pre[class*="language-"],
+.dark code[class*="language-"] {
+  @apply text-gray-100 !bg-gray-950;
+}
+
+.dark pre[class*="language-"] .token.comment,
+.dark code[class*="language-"] .token.comment,
+.dark pre[class*="language-"] .token.prolog,
+.dark code[class*="language-"] .token.prolog,
+.dark pre[class*="language-"] .token.doctype,
+.dark code[class*="language-"] .token.doctype,
+.dark pre[class*="language-"] .token.cdata,
+.dark code[class*="language-"] .token.cdata {
+  @apply text-gray-500;
+}
+
+.dark pre[class*="language-"] .token.punctuation,
+.dark code[class*="language-"] .token.punctuation {
+  @apply text-gray-400;
+}
+
+.dark pre[class*="language-"] .token.property,
+.dark code[class*="language-"] .token.property,
+.dark pre[class*="language-"] .token.tag,
+.dark code[class*="language-"] .token.tag,
+.dark pre[class*="language-"] .token.boolean,
+.dark code[class*="language-"] .token.boolean,
+.dark pre[class*="language-"] .token.number,
+.dark code[class*="language-"] .token.number {
+  @apply text-orange-300;
+}
+
+.dark pre[class*="language-"] .token.selector,
+.dark code[class*="language-"] .token.selector,
+.dark pre[class*="language-"] .token.attr-name,
+.dark code[class*="language-"] .token.attr-name,
+.dark pre[class*="language-"] .token.string,
+.dark code[class*="language-"] .token.string,
+.dark pre[class*="language-"] .token.char,
+.dark code[class*="language-"] .token.char,
+.dark pre[class*="language-"] .token.builtin,
+.dark code[class*="language-"] .token.builtin {
+  @apply text-green-300;
+}
+
+.dark pre[class*="language-"] .token.operator,
+.dark code[class*="language-"] .token.operator,
+.dark pre[class*="language-"] .token.entity,
+.dark code[class*="language-"] .token.entity,
+.dark pre[class*="language-"] .token.url,
+.dark code[class*="language-"] .token.url,
+.dark pre[class*="language-"] .language-css .token.string,
+.dark code[class*="language-"] .language-css .token.string,
+.dark pre[class*="language-"] .style .token.string,
+.dark code[class*="language-"] .style .token.string {
+  @apply text-yellow-300;
+}
+
+.dark pre[class*="language-"] .token.atrule,
+.dark code[class*="language-"] .token.atrule,
+.dark pre[class*="language-"] .token.attr-value,
+.dark code[class*="language-"] .token.attr-value,
+.dark pre[class*="language-"] .token.keyword,
+.dark code[class*="language-"] .token.keyword {
+  @apply text-blue-300;
+}
+
+.dark pre[class*="language-"] .token.function,
+.dark code[class*="language-"] .token.function {
+  @apply text-pink-300;
+}
+
+.dark pre[class*="language-"] .token.regex,
+.dark code[class*="language-"] .token.regex,
+.dark pre[class*="language-"] .token.important,
+.dark code[class*="language-"] .token.important,
+.dark pre[class*="language-"] .token.variable,
+.dark code[class*="language-"] .token.variable {
+  @apply text-red-300;
+}
+
+/* Custom utility classes */
+.glass-effect {
+  @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border border-white/20 dark:border-gray-800/50;
+}
+
+.prose :where(pre):not(:where([class~="not-prose"] *)) {
+  @apply bg-gray-950 text-gray-50 border border-gray-800 rounded-md shadow-md;
+}
+
+/* Dark mode improvements */
+.dark .doc-content {
+  @apply text-gray-200;
+}
+
+.dark .doc-content h1,
+.dark .doc-content h2,
+.dark .doc-content h3,
+.dark .doc-content h4,
+.dark .doc-content h5,
+.dark .doc-content h6 {
+  @apply text-gray-100;
+}
+
+.dark .doc-content a:not(.no-underline) {
+  @apply text-blue-400 hover:text-blue-300;
+}
+
+.dark .doc-content p,
+.dark .doc-content li {
+  @apply text-gray-300;
+}
+
+.dark .doc-content blockquote {
+  @apply border-blue-700 bg-blue-900/20 text-gray-300;
+}
+
+.dark .bg-doc-bg {
+  @apply bg-gray-950;
+}
+
+.dark .bg-doc-sidebar {
+  @apply bg-gray-900;
+}
+
+.dark .border-doc-border {
+  @apply border-gray-800;
+}
+
+.dark .text-doc-text {
+  @apply text-gray-200;
+}
+
+.dark .text-doc-primary {
+  @apply text-blue-400;
+}
