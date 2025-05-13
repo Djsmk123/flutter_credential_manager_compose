@@ -10,7 +10,7 @@ import Flutter
 import AuthenticationServices
 
 @available(iOS 16.0, *)
-extension FlutterError: @retroactive Error {
+extension FlutterError: Error {
     convenience init(from error: ASAuthorizationError) {
         var code = ""
         switch (error.code) {

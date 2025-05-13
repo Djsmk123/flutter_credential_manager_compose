@@ -19,10 +19,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  credential_manager: feb21034894e469e3686461dc96fb24bb7d350e4
+  credential_manager: 92e5d5c0efed60c1c0efdf796a4c754fb974519d
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
