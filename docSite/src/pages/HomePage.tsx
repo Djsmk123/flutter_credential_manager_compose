@@ -1,6 +1,7 @@
 'use client';
 
 import { useGitHubRepoStats } from '@/lib/useGithHubRepoState';
+import ImageViewer from '@/components/ImageViewer';
 import { motion } from 'framer-motion';
 
 const fadeIn = {
@@ -165,10 +166,9 @@ const HomePage = () => {
           rel="noopener noreferrer"
           className="inline-block"
         >
-          <img
-            src="https://contrib.rocks/image?repo=Djsmk123/flutter_credential_manager_compose"
-            alt="Contributors"
-            className="rounded-md"
+          <ImageViewer 
+            imageUrls={["https://contrib.rocks/image?repo=Djsmk123/flutter_credential_manager_compose"]} 
+            height="300" 
           />
         </a>
       </motion.div>

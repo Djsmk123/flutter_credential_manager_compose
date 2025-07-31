@@ -1,5 +1,6 @@
 import CodeBlock from "@/components/CodeBlock";
 import ImageViewer from "@/components/ImageViewer";
+import { getAssetPath } from "@/lib/utils";
 
 const UsagePage = () => {
   return (
@@ -146,7 +147,7 @@ const UsagePage = () => {
       <div className="my-4">
         <p className="mb-2 font-medium">iOS Password Autofill:</p>
         <div className="border border-gray-300 rounded-lg p-2 inline-block">
-          <ImageViewer imageUrls={["/assets/save_password_ios.jpg"]} height="300" />
+          <ImageViewer imageUrls={[getAssetPath("assets/save_password_ios.jpg")]} height="300" />
         </div>
       </div>
 
@@ -160,7 +161,7 @@ const UsagePage = () => {
       <div className="my-4">
         <p className="mb-2 font-medium">iOS Password Autofill on Retrieval:</p>
         <div className="border border-gray-300 rounded-lg p-2 inline-block">
-          <ImageViewer imageUrls={["/assets/get_password_ios.jpg"]} height="300" />
+          <ImageViewer imageUrls={[getAssetPath("assets/get_password_ios.jpg")]} height="300" />
         </div>
       </div>
 
@@ -223,7 +224,7 @@ const UsagePage = () => {
       <div className="my-4">
         <p className="mb-2 font-medium">Google Cloud Console:</p>
         <div className="border border-gray-300 rounded-lg p-2 inline-block">
-          <ImageViewer imageUrls={["/assets/0AuthConsent.jpg"]} height="300" />
+          <ImageViewer imageUrls={[getAssetPath("assets/0AuthConsent.jpg")]} height="300" />
         </div>
       </div>
 

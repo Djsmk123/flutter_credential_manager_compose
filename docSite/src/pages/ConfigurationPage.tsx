@@ -1,5 +1,6 @@
 import CodeBlock from '@/components/CodeBlock';
 import ImageViewer from '@/components/ImageViewer';
+import { getAssetPath } from '@/lib/utils';
 
 const ConfigurationPage = () => {
   return (
@@ -119,7 +120,7 @@ Allow: /.well-known/`}
         <li className="mb-2">Click "+" and select <strong>Associated Domains</strong>.</li>
         <li className="mb-2">Add domains like <code>applinks:yourdomain.com</code> and <code>webcredentials:yourdomain.com</code>.</li>
         <li className="mb-2">
-          <ImageViewer imageUrls={["/assets/associated_domain.png"]} height="300" />
+          <ImageViewer imageUrls={[getAssetPath("assets/associated_domain.png")]} height="300" />
           Ensure your website hosts an <code>apple-app-site-association</code> file at the root with:
           <CodeBlock
             code={`{   
@@ -153,7 +154,7 @@ Allow: /.well-known/`}
       </ul>
 
       {/* Update ImageViewer reference */}
-      <ImageViewer imageUrls={["/assets/keychain.png"]} />
+      <ImageViewer imageUrls={[getAssetPath("assets/keychain.png")]} height="300" />
 
       <h3 className="mt-6 mb-2">Apple App Site Association File Example</h3>
 
