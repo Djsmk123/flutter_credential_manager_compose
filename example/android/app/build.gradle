@@ -12,7 +12,6 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
@@ -28,14 +27,16 @@ if (flutterMinSdkVersion == null) {
     flutterMinSdkVersion = '24'
 }
 
+// Set the highest required target and compile SDK versions
 def flutterTargetSdkVersion = localProperties.getProperty('flutter.targetSdkVersion')
 if (flutterTargetSdkVersion == null) {
-    flutterTargetSdkVersion = '34'
+    flutterTargetSdkVersion = '36'
 }
+def flutterCompileSdkVersion = 36
 
 android {
     namespace "com.smkwinner.cred_manager.credential_manager_example"
-    compileSdk 34
+    compileSdk flutterCompileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -62,15 +63,12 @@ android {
         versionName flutterVersionName
     }
 
-
     buildTypes {
-        buildTypes {
-            release {
-                // Signing with the debug keys for now, so `flutter run --release` works.
-                signingConfig signingConfigs.debug
-                minifyEnabled true
-                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            }
+        release {
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
