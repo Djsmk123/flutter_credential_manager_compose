@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import DocLayout from "./components/DocLayout";
 import HomePage from "./pages/HomePage";
 import InstallationPage from "./pages/InstallationPage";
@@ -28,7 +28,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <HashRouter>
           <Routes>
             <Route path="/" element={<DocLayout><HomePage /></DocLayout>} />
             <Route path="/installation" element={<DocLayout><InstallationPage /></DocLayout>} />
@@ -44,7 +44,7 @@ const App = () => (
             <Route path="/react-native" element={<DocLayout><ReactNativePage /></DocLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

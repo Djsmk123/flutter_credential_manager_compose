@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: '/',
+  base: '/flutter_credential_manager_compose/',
   server: {
     host: "::",
     port: 8080,
