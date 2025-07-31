@@ -67,14 +67,28 @@ class AuthenticateController: NSObject, ASAuthorizationControllerDelegate, ASAut
         }
     }
 
+ 
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        let delegate = UIApplication.shared.delegate
-
-        if let flutterDelegate = delegate as? FlutterAppDelegate {
-            return flutterDelegate.window
+        guard let delegate = UIApplication.shared.delegate else {
+            fatalError("Unable to find UIApplication delegate for presentationAnchor")
         }
-
-        return (delegate?.window!!)!
+        
+        if let flutterDelegate = delegate as? FlutterAppDelegate, let window = flutterDelegate.window {
+            return window
+        }
+        
+        // Try to get window from the app delegate using key-value coding
+        if let appDelegate = delegate as? NSObject, let window = appDelegate.value(forKey: "window") as? UIWindow {
+            return window
+        }
+        
+        // Fallback: try to get the first window from the scene
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            return window
+        }
+        
+        fatalError("Unable to find a valid UIWindow for presentationAnchor")
     }
     
     func cancel() {
