@@ -43,7 +43,6 @@ const HomePage = () => {
           <span>⭐ Stars: {stats.stars}</span>
           <span>🍴 Forks: {stats.forks}</span>
           <span>🕒 Last Commit: {new Date(stats.lastCommitDate).toLocaleDateString()}</span>
-          <span>📌 Total Commits: {stats.totalCommits}</span>
         </motion.div>
       )}
 
