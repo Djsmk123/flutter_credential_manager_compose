@@ -18,7 +18,7 @@ const HomePage = () => {
 
   return (
     <motion.div
-      className="p-6 md:p-8 max-w-4xl mx-auto"
+      className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto"
       initial="hidden"
       animate="visible"
       variants={{
@@ -27,7 +27,7 @@ const HomePage = () => {
       }}
     >
       <motion.h1
-        className="text-3xl font-bold mb-8 text-gray-900 dark:text-white"
+        className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-gray-900 dark:text-white"
         variants={fadeIn}
         custom={0}
       >
@@ -36,7 +36,7 @@ const HomePage = () => {
 
       {stats && (
         <motion.div
-          className="mb-8 text-gray-800 dark:text-gray-300 flex flex-col sm:flex-row gap-4 text-sm"
+          className="mb-6 sm:mb-8 text-gray-800 dark:text-gray-300 flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs sm:text-sm"
           variants={fadeIn}
           custom={1}
         >
@@ -47,11 +47,11 @@ const HomePage = () => {
         </motion.div>
       )}
 
-      <motion.div className="flex gap-2 mb-8" variants={fadeIn} custom={2}>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+      <motion.div className="flex gap-2 mb-6 sm:mb-8" variants={fadeIn} custom={2}>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs sm:text-sm font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
           Android
         </span>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs sm:text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
           iOS
         </span>
       </motion.div>
@@ -64,7 +64,7 @@ const HomePage = () => {
       ].map((text, idx) => (
         <motion.p
           key={idx}
-          className="mb-6 text-lg text-gray-800 dark:text-gray-300"
+          className="mb-4 sm:mb-6 text-base sm:text-lg text-gray-800 dark:text-gray-300"
           variants={fadeIn}
           custom={3 + idx}
         >
@@ -111,21 +111,21 @@ const HomePage = () => {
 
       {/* Support section */}
       <motion.div
-        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-8"
+        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8"
         variants={fadeIn}
         custom={7}
       >
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">
           Support the Project
         </h2>
-        <p className="mb-4 text-gray-700 dark:text-gray-300">
+        <p className="mb-3 sm:mb-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
           If you find this library useful and would like to support its development, consider buying me a coffee:
         </p>
         <a
           href="https://www.buymeacoffee.com/smkwinner"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded transition-colors"
+          className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded transition-colors text-sm sm:text-base"
         >
           ☕ Buy Me a Coffee
         </a>
@@ -133,14 +133,14 @@ const HomePage = () => {
 
       {/* Maintainers section */}
       <motion.div
-        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-8"
+        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8"
         variants={fadeIn}
         custom={8}
       >
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">
           Looking for Maintainers
         </h2>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
           We are looking for maintainers to help us keep this library up-to-date and implement new features. If you are interested in contributing, please reach out via{' '}
           <a
             href="https://github.com/Djsmk123/flutter_credential_manager_compose"
@@ -155,9 +155,9 @@ const HomePage = () => {
       </motion.div>
 
       {/* Contributors */}
-      <motion.div className="mt-8" variants={fadeIn} custom={9}>
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Contributors</h2>
-        <p className="mb-4 text-gray-800 dark:text-gray-300">
+      <motion.div className="mt-6 sm:mt-8" variants={fadeIn} custom={9}>
+        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">Contributors</h2>
+        <p className="mb-3 sm:mb-4 text-sm sm:text-base text-gray-800 dark:text-gray-300">
           Thanks to all the contributors who have helped make this library better!
         </p>
         <a
@@ -168,7 +168,7 @@ const HomePage = () => {
         >
           <ImageViewer 
             imageUrls={["https://contrib.rocks/image?repo=Djsmk123/flutter_credential_manager_compose"]} 
-            height="300" 
+            height="200" 
           />
         </a>
       </motion.div>
