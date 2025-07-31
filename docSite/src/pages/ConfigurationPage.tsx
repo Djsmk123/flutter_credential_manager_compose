@@ -5,7 +5,7 @@ import { getAssetPath } from '@/lib/utils';
 const ConfigurationPage = () => {
   return (
     <div>
-      <h1>Configuration</h1>
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">Configuration</h1>
 
       <p className="my-4">
         It is recommended to use the latest version of Android Studio and Xcode to ensure compatibility with the latest Android and iOS SDKs.

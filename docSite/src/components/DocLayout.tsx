@@ -50,23 +50,23 @@ const DocLayout = ({ children }: DocLayoutProps) => {
         <DocSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         
         <div className="flex-1 flex flex-col min-w-0">
-          <main className="flex-grow mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+          <main className="flex-grow mx-auto w-full max-w-5xl px-3 sm:px-4 lg:px-8 py-4 sm:py-8">
             <div className={cn(
-              "bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 sm:p-8 mb-8",
+              "bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8",
               "doc-content prose prose-blue dark:prose-invert max-w-none",
               "animate-fade-in"
             )}>
               {children}
 
               {/* Previous/Next navigation */}
-              <div className="mt-16 border-t border-gray-200 dark:border-gray-800 pt-6 flex justify-between">
+              <div className="mt-12 sm:mt-16 border-t border-gray-200 dark:border-gray-800 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-between gap-4">
                 {prevPage ? (
                   <Link
                     to={prevPage.path}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 no-underline group transition-all duration-200"
+                    className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 no-underline group transition-all duration-200 text-sm sm:text-base"
                   >
-                    <ChevronLeft size={20} className="mr-1 group-hover:-translate-x-1 transition-transform duration-200" />
-                    <span>{prevPage.title}</span>
+                    <ChevronLeft size={18} className="mr-1 group-hover:-translate-x-1 transition-transform duration-200" />
+                    <span className="truncate">{prevPage.title}</span>
                   </Link>
                 ) : (
                   <div />
@@ -75,10 +75,10 @@ const DocLayout = ({ children }: DocLayoutProps) => {
                 {nextPage ? (
                   <Link
                     to={nextPage.path}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 no-underline group transition-all duration-200"
+                    className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 no-underline group transition-all duration-200 text-sm sm:text-base"
                   >
-                    <span>{nextPage.title}</span>
-                    <ChevronRight size={20} className="ml-1 group-hover:translate-x-1 transition-transform duration-200" />
+                    <span className="truncate">{nextPage.title}</span>
+                    <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform duration-200" />
                   </Link>
                 ) : (
                   <div />

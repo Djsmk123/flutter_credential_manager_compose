@@ -4,14 +4,14 @@ import { getAssetPath } from "@/lib/utils";
 
 const UsagePage = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4">
-      <h1 className="text-4xl font-bold mb-6">Usage</h1>
+    <div className="max-w-4xl mx-auto px-3 sm:px-4">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">Usage</h1>
 
-      <p className="mb-6">
+      <p className="mb-4 sm:mb-6 text-sm sm:text-base">
         Let's see how to use Credential Manager in your app and how to integrate it with other services including Google Sign-In, Passkey and Password based authentication.
       </p>
 
-      <h2 className="text-2xl font-semibold mb-4">Initialize Credential Manager</h2>
+      <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">Initialize Credential Manager</h2>
 
       <p className="mb-4">
         Create an instance of <strong>CredentialManager</strong> object:
