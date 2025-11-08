@@ -1,6 +1,10 @@
 import 'dart:convert';
 
-import 'package:credential_manager/credential_manager.dart';
+import '../exceptions/exceptions.dart';
+import '../models/credentials.dart';
+import '../models/google_user_model.dart';
+import '../models/passkey/pass_key_response_model_sucess.dart';
+import '../models/password_credentials.dart';
 
 /// Utility class for parsing credential responses from platform channels.
 class CredentialResponseParser {
@@ -26,8 +30,8 @@ class CredentialResponseParser {
       default:
         throw CredentialException(
           code: 204,
-          message: "Login failed",
-          details: "Expected Credential Type not found in native platform",
+          message: 'Login failed',
+          details: 'Expected Credential Type not found in native platform',
         );
     }
   }

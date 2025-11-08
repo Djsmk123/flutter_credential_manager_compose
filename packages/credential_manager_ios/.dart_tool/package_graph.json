@@ -8,7 +8,6 @@
       "version": "2.0.5",
       "dependencies": [
         "cbor",
-        "credential_manager",
         "credential_manager_platform_interface",
         "flutter",
         "plugin_platform_interface"
@@ -64,22 +63,9 @@
       ]
     },
     {
-      "name": "credential_manager",
-      "version": "2.0.5",
-      "dependencies": [
-        "cbor",
-        "credential_manager_android",
-        "credential_manager_ios",
-        "credential_manager_platform_interface",
-        "flutter",
-        "plugin_platform_interface"
-      ]
-    },
-    {
       "name": "credential_manager_platform_interface",
       "version": "2.0.5",
       "dependencies": [
-        "credential_manager",
         "flutter",
         "plugin_platform_interface"
       ]
@@ -214,16 +200,6 @@
       "version": "1.4.0",
       "dependencies": [
         "collection"
-      ]
-    },
-    {
-      "name": "credential_manager_android",
-      "version": "2.0.5",
-      "dependencies": [
-        "credential_manager",
-        "credential_manager_platform_interface",
-        "flutter",
-        "plugin_platform_interface"
       ]
     },
     {

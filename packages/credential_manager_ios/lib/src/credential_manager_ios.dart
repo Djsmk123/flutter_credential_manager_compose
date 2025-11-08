@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:cbor/cbor.dart';
-import 'package:credential_manager/credential_manager.dart'
-    hide CredentialManagerPlatform;
 import 'package:credential_manager_platform_interface/credential_manager_platform_interface.dart';
 import 'package:flutter/services.dart';
 

@@ -44,18 +44,6 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "credential_manager",
-      "rootUri": "../../credential_manager",
-      "packageUri": "lib/",
-      "languageVersion": "3.1"
-    },
-    {
-      "name": "credential_manager_android",
-      "rootUri": "../../credential_manager_android",
-      "packageUri": "lib/",
-      "languageVersion": "3.1"
-    },
-    {
       "name": "credential_manager_platform_interface",
       "rootUri": "../../credential_manager_platform_interface",
       "packageUri": "lib/",

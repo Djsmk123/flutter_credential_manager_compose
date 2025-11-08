@@ -11,3 +11,9 @@ export 'src/models/passkey/create_pass_key_request_model.dart';
 export 'src/models/passkey/login_pass_key_request_model.dart';
 export 'src/models/passkey/pass_key_response_model_sucess.dart';
 
+// Export exceptions and utilities
+export 'src/exceptions/exceptions.dart';
+export 'src/utils/credential_type.dart';
+export 'src/utils/platform_exception_handler.dart';
+export 'src/utils/credential_response_parser.dart';
+

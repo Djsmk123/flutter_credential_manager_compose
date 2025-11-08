@@ -13,8 +13,6 @@ dependencies:
     sdk: flutter
   credential_manager_platform_interface:
     path: ../credential_manager_platform_interface
-  credential_manager:
-    path: ../credential_manager
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
