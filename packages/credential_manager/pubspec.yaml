@@ -13,12 +13,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  credential_manager_platform_interface:
-    path: ../credential_manager_platform_interface
-  credential_manager_android:
-    path: ../credential_manager_android
-  credential_manager_ios:
-    path: ../credential_manager_ios
+  credential_manager_platform_interface: ^2.0.6
+  credential_manager_android: ^2.0.5
+  credential_manager_ios: ^2.0.5
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
