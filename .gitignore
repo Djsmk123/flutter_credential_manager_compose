@@ -1,13 +1,9 @@
+# IDE
 .idea/
 .vscode/
-.flutter-plugins-dependencies
-.flutter-plugins
-.metadata
-.packages
-.flutter-plugins-dependencies
-.flutter-plugins
-.metadata
-.packages
+
+# Flutter/Dart
+.dart_tool/
 .flutter-plugins-dependencies
 .flutter-plugins
 .metadata
