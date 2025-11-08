@@ -1,5 +1,13 @@
-import 'package:credential_manager/credential_manager.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+// Import models from this package
+import 'models/credentials.dart';
+import 'models/fetch_options.dart';
+import 'models/google_user_model.dart';
+import 'models/passkey/create_pass_key_request_model.dart';
+import 'models/passkey/login_pass_key_request_model.dart';
+import 'models/password_credentials.dart';
+import 'models/passkey/pass_key_response_model_sucess.dart';
 
 /// A platform-agnostic interface for managing credentials.
 abstract class CredentialManagerPlatform extends PlatformInterface {

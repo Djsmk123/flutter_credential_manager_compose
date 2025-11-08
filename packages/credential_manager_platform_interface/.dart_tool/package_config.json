@@ -14,12 +14,6 @@
       "languageVersion": "3.1"
     },
     {
-      "name": "cbor",
-      "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/cbor-6.3.7",
-      "packageUri": "lib/",
-      "languageVersion": "3.7"
-    },
-    {
       "name": "characters",
       "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/characters-1.4.0",
       "packageUri": "lib/",
@@ -36,30 +30,6 @@
       "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/collection-1.19.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
-    },
-    {
-      "name": "convert",
-      "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/convert-3.1.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "credential_manager",
-      "rootUri": "../../credential_manager",
-      "packageUri": "lib/",
-      "languageVersion": "3.1"
-    },
-    {
-      "name": "credential_manager_android",
-      "rootUri": "../../credential_manager_android",
-      "packageUri": "lib/",
-      "languageVersion": "3.1"
-    },
-    {
-      "name": "credential_manager_ios",
-      "rootUri": "../../credential_manager_ios",
-      "packageUri": "lib/",
-      "languageVersion": "3.1"
     },
     {
       "name": "fake_async",
@@ -84,18 +54,6 @@
       "rootUri": "file:///Users/smkwinner/fvm/versions/3.35.0/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.8"
-    },
-    {
-      "name": "hex",
-      "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/hex-0.2.0",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
-    },
-    {
-      "name": "ieee754",
-      "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/ieee754-1.0.3",
-      "packageUri": "lib/",
-      "languageVersion": "2.14"
     },
     {
       "name": "leak_tracker",
@@ -190,12 +148,6 @@
     {
       "name": "test_api",
       "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/test_api-0.7.6",
-      "packageUri": "lib/",
-      "languageVersion": "3.5"
-    },
-    {
-      "name": "typed_data",
-      "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/typed_data-1.4.0",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },

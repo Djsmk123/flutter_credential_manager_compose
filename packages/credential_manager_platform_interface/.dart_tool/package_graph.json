@@ -7,7 +7,6 @@
       "name": "credential_manager_platform_interface",
       "version": "2.0.5",
       "dependencies": [
-        "credential_manager",
         "flutter",
         "plugin_platform_interface"
       ],
@@ -39,18 +38,6 @@
         "stream_channel",
         "test_api",
         "vector_math"
-      ]
-    },
-    {
-      "name": "credential_manager",
-      "version": "2.0.5",
-      "dependencies": [
-        "cbor",
-        "credential_manager_android",
-        "credential_manager_ios",
-        "credential_manager_platform_interface",
-        "flutter",
-        "plugin_platform_interface"
       ]
     },
     {
@@ -162,40 +149,6 @@
       ]
     },
     {
-      "name": "cbor",
-      "version": "6.3.7",
-      "dependencies": [
-        "characters",
-        "collection",
-        "convert",
-        "hex",
-        "ieee754",
-        "meta",
-        "typed_data"
-      ]
-    },
-    {
-      "name": "credential_manager_ios",
-      "version": "2.0.5",
-      "dependencies": [
-        "cbor",
-        "credential_manager",
-        "credential_manager_platform_interface",
-        "flutter",
-        "plugin_platform_interface"
-      ]
-    },
-    {
-      "name": "credential_manager_android",
-      "version": "2.0.5",
-      "dependencies": [
-        "credential_manager",
-        "credential_manager_platform_interface",
-        "flutter",
-        "plugin_platform_interface"
-      ]
-    },
-    {
       "name": "sky_engine",
       "version": "0.0.0",
       "dependencies": []
@@ -267,32 +220,6 @@
       "dependencies": [
         "source_span",
         "string_scanner"
-      ]
-    },
-    {
-      "name": "ieee754",
-      "version": "1.0.3",
-      "dependencies": [
-        "meta"
-      ]
-    },
-    {
-      "name": "convert",
-      "version": "3.1.2",
-      "dependencies": [
-        "typed_data"
-      ]
-    },
-    {
-      "name": "hex",
-      "version": "0.2.0",
-      "dependencies": []
-    },
-    {
-      "name": "typed_data",
-      "version": "1.4.0",
-      "dependencies": [
-        "collection"
       ]
     },
     {

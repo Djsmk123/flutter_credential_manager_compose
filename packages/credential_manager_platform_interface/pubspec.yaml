@@ -12,8 +12,6 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  credential_manager:
-    path: ../credential_manager
 
 dev_dependencies:
   flutter_test:
