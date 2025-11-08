@@ -79,6 +79,7 @@
       "name": "credential_manager_platform_interface",
       "version": "2.0.4",
       "dependencies": [
+        "credential_manager",
         "flutter",
         "plugin_platform_interface"
       ]

@@ -28,4 +28,5 @@ flutter:
     platforms:
       ios:
         pluginClass: CredentialManagerPlugin
+        podspecPath: ios/credential_manager_ios.podspec
 
