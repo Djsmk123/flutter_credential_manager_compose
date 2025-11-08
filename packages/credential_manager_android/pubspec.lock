@@ -44,9 +44,10 @@ packages:
   credential_manager_platform_interface:
     dependency: "direct main"
     description:
-      path: "../credential_manager_platform_interface"
-      relative: true
-    source: path
+      name: credential_manager_platform_interface
+      sha256: "43a7ff2c3a93344032cdee0e4470a2b107694991566f13023c675a357dedf96d"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.0.6"
   fake_async:
     dependency: transitive

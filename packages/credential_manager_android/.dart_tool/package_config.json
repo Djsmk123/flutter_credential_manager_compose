@@ -33,7 +33,7 @@
     },
     {
       "name": "credential_manager_platform_interface",
-      "rootUri": "../../credential_manager_platform_interface",
+      "rootUri": "file:///Users/smkwinner/.pub-cache/hosted/pub.dev/credential_manager_platform_interface-2.0.6",
       "packageUri": "lib/",
       "languageVersion": "3.1"
     },
