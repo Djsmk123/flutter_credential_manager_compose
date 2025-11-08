@@ -13,25 +13,14 @@ import 'package:credential_manager_ios/credential_manager_ios.dart' as ios_plugi
 /// see the “Extensions” section in the docs:
 /// https://djsmk123.github.io/flutter_credential_manager_compose/#/
 class CredentialManager {
-  // /// Ensures the platform implementation is registered
-  // static void _ensureInitialized() {
-  //   if (!_initialized) {
-  //     if (Platform.isAndroid) {
-  //       android_plugin.CredentialManagerAndroidPlugin.registerWith();
-  //     } else if (Platform.isIOS) {
-  //       ios_plugin.CredentialManagerIosPlugin.registerWith();
-  //     }
-  //     _initialized = true;
-  //   }
-  // }
   /// Creates a [CredentialManager] and ensures the appropriate platform
   /// implementation is registered. If you ship a forked Android/iOS package,
   /// update the imports above or register your plugin before instantiating this
   /// class (see docs linked in the class comment).
   CredentialManager() {
-    if (Platform.isAndroid) {
+    if (CredentialManagerPlatformManager.instance.isAndroid) {
       android_plugin.CredentialManagerAndroidPlugin.registerWith();
-    } else if (Platform.isIOS) {
+    } else if (CredentialManagerPlatformManager.instance.isIOS) {
       ios_plugin.CredentialManagerIosPlugin.registerWith();
     }
   }
@@ -104,7 +93,8 @@ class CredentialManager {
   /// Checks if the Credential Manager is supported on the current platform.
   ///
   /// Returns `true` if the platform is supported, otherwise `false`.
-  bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
+  bool get isSupportedPlatform =>
+      CredentialManagerPlatformManager.instance.isAndroid || CredentialManagerPlatformManager.instance.isIOS;
 
   /// Checks if Google Play Services is available on the device.
   ///

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:credential_manager/credential_manager.dart';
 import 'package:credential_manager_example/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer';
 
 const String googleClientId = "<your-web-client-id>";
 const String rpId = "blogs-deeplink-example.vercel.app";
@@ -15,7 +16,10 @@ void main() async {
       preferImmediatelyAvailableCredentials: true,
       googleClientId: googleClientId.isNotEmpty ? googleClientId : null,
     );
+  
   }
+    log("current platform: ${CredentialManagerPlatformManager.instance.isAndroid?"android":CredentialManagerPlatformManager.instance.isIOS?"ios":"web"}");
+    log("is supported platform: ${credentialManager.isSupportedPlatform}");
 
   runApp(const MyApp());
 }
@@ -137,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onRegisterWithPassKey,
                                 icon: Icons.key,
                               ),
-                              if (Platform.isAndroid) ...[
+                              if (CredentialManagerPlatformManager.instance.isAndroid) ...[
                                 const SizedBox(height: 12),
                                 _buildActionButton(
                                   "Register with Google",
@@ -149,7 +153,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               _buildSectionTitle("Login"),
                               const SizedBox(height: 12),
                               _buildActionButton(
-                                Platform.isAndroid ? "Login (All Methods)" : "Login with Passkey",
+                                CredentialManagerPlatformManager.instance.isAndroid
+                                    ? "Login (All Methods)"
+                                    : "Login with Passkey",
                                 onLogin,
                                 icon: Icons.login,
                                 isPrimary: true,
@@ -178,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  bool enableInlineAutofill = Platform.isIOS;
+  bool enableInlineAutofill = CredentialManagerPlatformManager.instance.isIOS;
 
   Widget _buildHeader() {
     return Column(
@@ -343,7 +349,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         };
 
-        if (Platform.isAndroid) {
+        if (CredentialManagerPlatformManager.instance.isAndroid) {
           credentialCreationOptions.addAll({
             "pubKeyCredParams": [
               {"type": "public-key", "alg": -7},
