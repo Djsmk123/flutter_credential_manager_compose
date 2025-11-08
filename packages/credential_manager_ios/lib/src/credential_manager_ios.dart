@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:cbor/cbor.dart';
+import 'package:credential_manager_ios/src/utils/parser.dart';
 import 'package:credential_manager_platform_interface/credential_manager_platform_interface.dart';
 import 'package:flutter/services.dart';
 
@@ -176,73 +176,3 @@ class CredentialManagerIos extends CredentialManagerPlatform {
   }
 
 }
-
-/// A utility class for parsing iOS passkey attestation objects.
-class AttestationParser {
-  /// Parses an iOS passkey attestation object to extract the authenticator data and public key.
-  static (String authData, String publicKey) parseAttestationObject(
-      String attestationObject) {
-    try {
-      // Ensure base64url padding before decoding
-      String paddedAttestation = attestationObject;
-      while (paddedAttestation.length % 4 != 0) {
-        paddedAttestation += '=';
-      }
-
-      // Convert base64url to bytes
-      final attestationBuffer = base64Url.decode(paddedAttestation);
-
-      // Decode CBOR
-      final decoded = cbor.decode(attestationBuffer);
-      if (decoded is! Map) {
-        throw Exception('Decoded CBOR is not a Map');
-      }
-
-      // Extract authData
-      final authDataValue =
-          (decoded as Map<CborValue, dynamic>)[CborValue('authData')];
-
-      Uint8List authDataBytes;
-      if (authDataValue is CborBytes) {
-        authDataBytes = Uint8List.fromList(authDataValue.bytes);
-      } else {
-        throw Exception('authData is in an unsupported format');
-      }
-
-      // Ensure authData length is valid
-      if (authDataBytes.length < 55) {
-        throw Exception('authData is too short');
-      }
-
-      // Extract flags and check if public key is present
-      final int flags = authDataBytes[32];
-      final bool hasPublicKey = (flags & 0x40) != 0;
-      if (!hasPublicKey) {
-        throw Exception('No public key in attestation data');
-      }
-
-      // Get credential ID length (2 bytes) at index 53
-      final int credentialIdLength =
-          (authDataBytes[53] << 8) | authDataBytes[54];
-      final int publicKeyStart = 55 + credentialIdLength;
-
-      if (publicKeyStart >= authDataBytes.length) {
-        throw Exception('Public key index out of bounds');
-      }
-
-      // Extract public key bytes
-      final Uint8List publicKeyBytes = authDataBytes.sublist(publicKeyStart);
-      //convert the public key to base64url
-      final publicKeyBase64 =
-          base64Url.encode(publicKeyBytes).replaceAll('=', '');
-      //convert the auth data to base64url
-      final authDataBase64 =
-          base64Url.encode(authDataBytes).replaceAll('=', '');
-      //return the auth data and public key
-      return (authDataBase64, publicKeyBase64);
-    } catch (error) {
-      rethrow;
-    }
-  }
-}
-
