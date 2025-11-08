@@ -174,5 +174,4 @@ class CredentialManagerIos extends CredentialManagerPlatform {
       details: null,
     );
   }
-
 }

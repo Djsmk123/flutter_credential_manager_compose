@@ -1,0 +1,10 @@
+# IDE
+.idea/
+.vscode/
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins-dependencies
+.flutter-plugins
+.metadata
+.packages

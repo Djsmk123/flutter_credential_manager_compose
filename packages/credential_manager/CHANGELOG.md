@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.7
+- Fixed plugin score issues
+
 ## 2.0.6
 
 ### 🚀 Major Refactoring: Modular Architecture

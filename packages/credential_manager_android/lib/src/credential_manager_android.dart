@@ -170,6 +170,4 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       details: null,
     );
   }
-
 }
-

@@ -41,6 +41,25 @@ get_package_version() {
   fi
 }
 
+# Function to run dart format and analyze
+run_dart_checks() {
+  print_info "Running 'dart format .'..."
+  if ! dart format .; then
+    print_error "'dart format .' failed"
+    return 1
+  fi
+  print_info "Running 'dart analyze'..."
+  if ! dart analyze; then
+    print_warning "Dart analyze found issues"
+    read -p "Continue anyway? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
 # Function to display package menu
 show_menu() {
   clear
@@ -134,6 +153,11 @@ publish_package() {
   print_info "Running 'flutter pub get'..."
   if ! flutter pub get; then
     print_error "Failed to run 'flutter pub get'"
+    return 1
+  fi
+
+  # Run dart format and analyze
+  if ! run_dart_checks; then
     return 1
   fi
 
@@ -258,4 +282,3 @@ main() {
 
 # Run main function
 main "$@"
-

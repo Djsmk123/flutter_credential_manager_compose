@@ -1,10 +1,13 @@
 name: credential_manager_platform_interface
 description: A common platform interface for the credential_manager plugin. This package allows platform-specific implementations of credential_manager to share the same interface.
-version: 2.0.6
-homepage: https://github.com/Djsmk123/flutter_credential_manager_compose
+
+version: 2.0.7
+homepage: https://djsmk123.github.io/flutter_credential_manager_compose
+repository: https://github.com/Djsmk123/flutter_credential_manager_compose
 
 environment:
   sdk: '>=3.1.3 <4.0.0'
+  
   flutter: '>=3.3.0'
 
 dependencies:

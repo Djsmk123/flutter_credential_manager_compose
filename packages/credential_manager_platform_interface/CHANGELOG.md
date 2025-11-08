@@ -1,3 +1,6 @@
+## 2.0.7
+- Fixed plugin score issues
+
 ## 2.0.6
 
 - Added exceptions and utilities to platform interface package
