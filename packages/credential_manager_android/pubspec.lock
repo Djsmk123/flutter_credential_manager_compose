@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: credential_manager_platform_interface
-      sha256: "43a7ff2c3a93344032cdee0e4470a2b107694991566f13023c675a357dedf96d"
+      sha256: "118e8046f95597baf23caf0ec4bc739e4502f71441df593edd951f9b16bea69e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.6"
+    version: "2.0.7"
   fake_async:
     dependency: transitive
     description:
