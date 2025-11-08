@@ -63,23 +63,23 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.5"
+    version: "2.0.6"
   credential_manager_android:
     dependency: transitive
     description:
       name: credential_manager_android
-      sha256: c57344d20f60682525a6a8286bdc266d58579381a7ea7e28d2c167e544fbfc1b
+      sha256: c24fbbdb4e6406de1d7f87865573606c6003a4c9696592caddee95a588efe2e6
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.5"
+    version: "2.0.6"
   credential_manager_ios:
     dependency: transitive
     description:
       name: credential_manager_ios
-      sha256: eee15a0d70c2376ebcf72a79ab4bb335f5676e18e8bde9e60891f8e3ad00a837
+      sha256: "3f8f70f20b8717c0091db428bbd0816fc04998057db568c83f12cb90d5702820"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.5"
+    version: "2.0.6"
   credential_manager_platform_interface:
     dependency: transitive
     description:
