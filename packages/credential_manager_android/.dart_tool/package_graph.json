@@ -5,11 +5,10 @@
   "packages": [
     {
       "name": "credential_manager_android",
-      "version": "2.0.5",
+      "version": "2.0.6",
       "dependencies": [
         "credential_manager_platform_interface",
-        "flutter",
-        "plugin_platform_interface"
+        "flutter"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -39,13 +38,6 @@
         "stream_channel",
         "test_api",
         "vector_math"
-      ]
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
-        "meta"
       ]
     },
     {
@@ -155,6 +147,13 @@
         "stream_channel",
         "string_scanner",
         "term_glyph"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
       ]
     },
     {

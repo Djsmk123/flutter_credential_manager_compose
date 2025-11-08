@@ -5,12 +5,11 @@
   "packages": [
     {
       "name": "credential_manager_ios",
-      "version": "2.0.5",
+      "version": "2.0.6",
       "dependencies": [
         "cbor",
         "credential_manager_platform_interface",
-        "flutter",
-        "plugin_platform_interface"
+        "flutter"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -53,13 +52,6 @@
         "ieee754",
         "meta",
         "typed_data"
-      ]
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
-        "meta"
       ]
     },
     {
@@ -200,6 +192,13 @@
       "version": "1.4.0",
       "dependencies": [
         "collection"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
       ]
     },
     {
