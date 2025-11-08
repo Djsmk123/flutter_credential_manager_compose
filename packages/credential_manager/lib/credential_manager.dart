@@ -16,3 +16,6 @@ export 'src/Models/fetch_options.dart';
 export 'src/credential_manager_core.dart';
 export 'src/exceptions/exceptions.dart';
 export 'src/utils/encryption.dart';
+export 'src/utils/credential_type.dart';
+export 'src/utils/platform_exception_handler.dart';
+export 'src/utils/credential_response_parser.dart';

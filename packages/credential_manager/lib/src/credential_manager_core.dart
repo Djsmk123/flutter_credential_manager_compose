@@ -1,7 +1,32 @@
 import 'package:credential_manager/credential_manager.dart';
 
+// Import platform-specific plugin registration classes
+import 'package:credential_manager_android/credential_manager_android.dart'
+    as android_plugin;
+import 'package:credential_manager_ios/credential_manager_ios.dart'
+    as ios_plugin;
+
 /// A class that provides a high-level interface for interacting with the Credential Manager.
 class CredentialManager {
+  // /// Ensures the platform implementation is registered
+  // static void _ensureInitialized() {
+  //   if (!_initialized) {
+  //     if (Platform.isAndroid) {
+  //       android_plugin.CredentialManagerAndroidPlugin.registerWith();
+  //     } else if (Platform.isIOS) {
+  //       ios_plugin.CredentialManagerIosPlugin.registerWith();
+  //     }
+  //     _initialized = true;
+  //   }
+  // }
+  CredentialManager() {
+    if (Platform.isAndroid) {
+      android_plugin.CredentialManagerAndroidPlugin.registerWith();
+    } else if (Platform.isIOS) {
+      ios_plugin.CredentialManagerIosPlugin.registerWith();
+    }
+  }
+
   /// Gets the platform version.
   ///
   /// Returns a [Future] that completes with a [String] representing the platform version.

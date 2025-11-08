@@ -5,13 +5,6 @@ import 'package:credential_manager/credential_manager.dart'
 import 'package:credential_manager_platform_interface/credential_manager_platform_interface.dart';
 import 'package:flutter/services.dart';
 
-/// Enum representing the different types of credentials for Android.
-enum CredentialType {
-  passwordCredentials,
-  publicKeyCredentials,
-  googleIdTokenCredentials
-}
-
 /// Android implementation of Credential Manager using method channels.
 class CredentialManagerAndroid extends CredentialManagerPlatform {
   /// Method channel used to communicate with the native Android platform.
@@ -67,7 +60,10 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
         details: null,
       );
     } on PlatformException catch (e) {
-      throw handlePlatformException(e, CredentialType.passwordCredentials);
+      throw PlatformExceptionHandler.handlePlatformException(
+        e,
+        CredentialType.passwordCredentials,
+      );
     }
   }
 
@@ -94,26 +90,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       );
 
       if (res != null) {
-        var data = jsonDecode(jsonEncode(res));
-        switch (data['type']) {
-          case 'PasswordCredentials':
-            return Credentials(
-                passwordCredential: PasswordCredential.fromJson(data['data']));
-          case 'PublicKeyCredentials':
-            return Credentials(
-                publicKeyCredential:
-                    PublicKeyCredential.fromJson(jsonDecode(data['data'])));
-          case 'GoogleIdTokenCredentials':
-            return Credentials(
-                googleIdTokenCredential:
-                    GoogleIdTokenCredential.fromJson(data['data']));
-          default:
-            throw CredentialException(
-              code: 204,
-              message: "Login failed ",
-              details: "Expected Credential Type not found in native platform",
-            );
-        }
+        return CredentialResponseParser.parseCredentialResponse(res);
       }
 
       throw CredentialException(
@@ -122,7 +99,10 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
         details: "Expected a response from the native platform but got null",
       );
     } on PlatformException catch (e) {
-      throw handlePlatformException(e, credentialType);
+      throw PlatformExceptionHandler.handlePlatformException(
+        e,
+        credentialType,
+      );
     }
   }
 
@@ -144,7 +124,10 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       }
       return GoogleIdTokenCredential.fromJson(jsonDecode(jsonEncode(res)));
     } on PlatformException catch (e) {
-      throw handlePlatformException(e, CredentialType.googleIdTokenCredentials);
+      throw PlatformExceptionHandler.handlePlatformException(
+        e,
+        CredentialType.googleIdTokenCredentials,
+      );
     }
   }
 
@@ -170,7 +153,10 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
         details: null,
       );
     } on PlatformException catch (e) {
-      throw handlePlatformException(e, CredentialType.publicKeyCredentials);
+      throw PlatformExceptionHandler.handlePlatformException(
+        e,
+        CredentialType.publicKeyCredentials,
+      );
     }
   }
 
@@ -187,139 +173,5 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
     );
   }
 
-  /// Handles PlatformException and returns appropriate CredentialException based on error codes.
-  CredentialException handlePlatformException(
-      PlatformException e, CredentialType type) {
-    switch (e.code) {
-      case "101":
-        return CredentialException(
-          code: 101,
-          message: "Initialization failure",
-          details: e.details,
-        );
-      case "102":
-        return CredentialException(
-          code: 102,
-          message: "Plugin exception",
-          details: e.details,
-        );
-      case "103":
-        return CredentialException(
-          code: 103,
-          message: "Not implemented",
-          details: e.details,
-        );
-      case "201":
-        return CredentialException(
-          code: 201,
-          message: type == CredentialType.googleIdTokenCredentials
-              ? "Login with Google cancelled"
-              : "Login cancelled",
-          details: e.details,
-        );
-      case "202":
-        return CredentialException(
-          code: 202,
-          message: type == CredentialType.googleIdTokenCredentials
-              ? "No Google credentials found"
-              : "No credentials found",
-          details: e.details,
-        );
-      case "203":
-        return CredentialException(
-          code: 203,
-          message: type == CredentialType.googleIdTokenCredentials
-              ? "Mismatched Google credentials"
-              : "Mismatched credentials",
-          details: e.details,
-        );
-      case "204":
-        return CredentialException(
-          code: 204,
-          message: "Login failed",
-          details: e.details,
-        );
-      case "301":
-        return CredentialException(
-          code: 301,
-          message: type == CredentialType.googleIdTokenCredentials
-              ? "Save Google Credentials cancelled"
-              : "Save Credentials cancelled",
-          details: e.details,
-        );
-      case "302":
-        return CredentialException(
-          code: 302,
-          message: "Create Credentials failed",
-          details: e.details,
-        );
-      case "401":
-        return CredentialException(
-          code: 401,
-          message: "Encryption failed",
-          details: e.details,
-        );
-      case "402":
-        return CredentialException(
-          code: 402,
-          message: "Decryption failed",
-          details: e.details,
-        );
-      case "501":
-        return CredentialException(
-          code: 501,
-          message: "Received an invalid Google ID token response",
-          details: e.details,
-        );
-      case "502":
-        return CredentialException(
-          code: 502,
-          message: "Invalid request",
-          details: e.details,
-        );
-      case "503":
-        return CredentialException(
-          code: 503,
-          message: "Google client is not initialized yet",
-          details: e.details,
-        );
-      case "504":
-        return CredentialException(
-          code: 504,
-          message: "Credentials operation failed",
-          details: e.details,
-        );
-      case "505":
-        return CredentialException(
-          code: 505,
-          message: "Google credential decode error",
-          details: e.details,
-        );
-      case "601":
-        return CredentialException(
-          code: 601,
-          message: "User cancelled passkey operation",
-          details: e.details,
-        );
-      case "602":
-        return CredentialException(
-          code: 602,
-          message: "Passkey creation failed",
-          details: e.details,
-        );
-      case "603":
-        return CredentialException(
-          code: 603,
-          message: "Passkey failed to fetch",
-          details: e.details,
-        );
-      default:
-        return CredentialException(
-          code: 504,
-          message: e.message ?? "Credentials operation failed",
-          details: e.details,
-        );
-    }
-  }
 }
 
