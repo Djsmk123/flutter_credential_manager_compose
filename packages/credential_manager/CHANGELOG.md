@@ -92,3 +92,49 @@
 ### Documentation & CI
 - Enhanced README and overall documentation.
 - Updated static analysis and caching workflows in `static.yml` to improve CI efficiency.
+
+## 2.0.5
+
+### Major Refactoring: Modular Architecture
+- **BREAKING CHANGE**: Refactored plugin into modular architecture with separate packages:
+  - `credential_manager` - Main plugin package with shared code (models, exceptions, utilities)
+  - `credential_manager_platform_interface` - Platform-agnostic interface
+  - `credential_manager_android` - Android-specific implementation
+  - `credential_manager_ios` - iOS-specific implementation
+- All packages are now located in the `packages/` directory
+- Improved maintainability and code organization
+
+### Code Optimization
+- **Removed ~300+ lines of duplicate code** between Android and iOS implementations
+- Created shared utilities:
+  - `CredentialType` enum - Centralized credential type definitions
+  - `PlatformExceptionHandler` - Unified error handling for both platforms
+  - `CredentialResponseParser` - Shared credential response parsing logic
+- Android implementation reduced from ~326 lines to 177 lines
+- iOS implementation reduced from ~410 lines to 250 lines
+
+### Bug Fixes
+- Fixed `AssertionError` for uninitialized `CredentialManagerPlatform.instance`
+- Implemented automatic platform registration in `CredentialManager` constructor
+- Fixed platform-specific implementations not being registered automatically
+
+### Platform Registration
+- Added automatic platform implementation registration
+- Platform implementations are now registered when `CredentialManager` is instantiated
+- Improved error messages for uninitialized platform instances
+
+### Testing & Migration
+- ✅ iOS migration tested and working
+- ✅ Android migration tested and working
+- All platform implementations verified and functional
+
+### Developer Experience
+- Added analysis error checking script (`packages/scripts/analysis_error.sh`)
+- Improved code organization and maintainability
+- Better separation of concerns between platforms
+- All packages pass static analysis with no errors
+
+### Documentation
+- Updated package structure documentation
+- Enhanced README with modular architecture information
+- Improved code comments and documentation

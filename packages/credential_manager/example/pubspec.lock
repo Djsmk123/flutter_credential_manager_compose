@@ -63,28 +63,28 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.4"
+    version: "2.0.5"
   credential_manager_android:
     dependency: transitive
     description:
       path: "../../credential_manager_android"
       relative: true
     source: path
-    version: "2.0.4"
+    version: "2.0.5"
   credential_manager_ios:
     dependency: transitive
     description:
       path: "../../credential_manager_ios"
       relative: true
     source: path
-    version: "2.0.4"
+    version: "2.0.5"
   credential_manager_platform_interface:
     dependency: transitive
     description:
       path: "../../credential_manager_platform_interface"
       relative: true
     source: path
-    version: "2.0.4"
+    version: "2.0.5"
   cupertino_icons:
     dependency: "direct main"
     description:

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'credential_manager_ios'
-  s.version          = '2.0.4'
+  s.version          = '2.0.5'
   s.summary          = 'iOS implementation of the credential_manager plugin using Keychain and Autofill.'
   s.description      = <<-DESC
                        iOS implementation of the credential_manager plugin. This package provides iOS-specific implementation using Keychain and Autofill for secure credential storage.
