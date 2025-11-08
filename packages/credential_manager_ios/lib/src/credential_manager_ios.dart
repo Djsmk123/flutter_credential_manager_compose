@@ -54,20 +54,8 @@ class CredentialManagerIos extends CredentialManagerPlatform {
   @override
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
     try {
-      final res = await methodChannel.invokeMethod<String>(
-        'save_password_credentials',
-        credential.toJson(),
-      );
-
-      if (res != null && res == "Credentials saved") {
-        return;
-      }
-
-      throw CredentialException(
-        code: 302,
-        message: "Create Credentials failed",
-        details: null,
-      );
+     // Nothing on ios simply return
+     return;
     } on PlatformException catch (e) {
       throw PlatformExceptionHandler.handlePlatformException(
         e,

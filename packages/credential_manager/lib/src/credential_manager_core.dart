@@ -3,6 +3,7 @@ import 'package:credential_manager/credential_manager.dart';
 // Import platform-specific plugin registration classes
 import 'package:credential_manager_android/credential_manager_android.dart' as android_plugin;
 import 'package:credential_manager_ios/credential_manager_ios.dart' as ios_plugin;
+import 'package:credential_manager_web/credential_manager_web.dart' as web_plugin;
 
 /// A class that provides a high-level interface for interacting with the
 /// Credential Manager.
@@ -22,6 +23,8 @@ class CredentialManager {
       android_plugin.CredentialManagerAndroidPlugin.registerWith();
     } else if (CredentialManagerPlatformManager.instance.isIOS) {
       ios_plugin.CredentialManagerIosPlugin.registerWith();
+    } else if (CredentialManagerPlatformManager.instance.isWeb) {
+      web_plugin.CredentialManagerWebPlugin.registerWithManual();
     }
   }
 
@@ -94,7 +97,9 @@ class CredentialManager {
   ///
   /// Returns `true` if the platform is supported, otherwise `false`.
   bool get isSupportedPlatform =>
-      CredentialManagerPlatformManager.instance.isAndroid || CredentialManagerPlatformManager.instance.isIOS;
+      CredentialManagerPlatformManager.instance.isAndroid ||
+      CredentialManagerPlatformManager.instance.isIOS ||
+      CredentialManagerPlatformManager.instance.isWeb;
 
   /// Checks if Google Play Services is available on the device.
   ///

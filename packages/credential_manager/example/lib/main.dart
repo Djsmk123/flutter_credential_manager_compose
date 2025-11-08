@@ -5,17 +5,23 @@ import 'package:flutter/material.dart';
 import 'dart:developer';
 
 const String googleClientId = "<your-web-client-id>";
-const String rpId = "blogs-deeplink-example.vercel.app";
+// For localhost testing, use "localhost" as rpId
+// For production, use your actual domain
+final String rpId = CredentialManagerPlatformManager.instance.isWeb ? "localhost" : "blogs-deeplink-example.vercel.app";
 final CredentialManager credentialManager = CredentialManager();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (credentialManager.isSupportedPlatform) {
-    await credentialManager.init(
+    try{
+      await credentialManager.init(
       preferImmediatelyAvailableCredentials: true,
       googleClientId: googleClientId.isNotEmpty ? googleClientId : null,
     );
+    } on CredentialException catch (e) {
+      log("Error initializing credential manager: ${e.message}");
+    }
   
   }
     log("current platform: ${CredentialManagerPlatformManager.instance.isAndroid?"android":CredentialManagerPlatformManager.instance.isIOS?"ios":"web"}");
@@ -74,7 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
       challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
       rpId: rpId,
       userVerification: "required",
-      conditionalUI: false,
+      //only for ios, true only when we want to show the passkey popup on keyboard otherwise false
+      conditionalUI: true,
     );
     isGoogleEnabled = googleClientId.isNotEmpty;
   }
@@ -184,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  bool enableInlineAutofill = CredentialManagerPlatformManager.instance.isIOS;
+  bool enableInlineAutofill = CredentialManagerPlatformManager.instance.isIOS || CredentialManagerPlatformManager.instance.isWeb;
 
   Widget _buildHeader() {
     return Column(
@@ -349,8 +356,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         };
 
-        if (CredentialManagerPlatformManager.instance.isAndroid) {
-          credentialCreationOptions.addAll({
+        if (!CredentialManagerPlatformManager.instance.isIOS) {
+          credentialCreationOptions.addAll({  
             "pubKeyCredParams": [
               {"type": "public-key", "alg": -7},
               {"type": "public-key", "alg": -257}
@@ -401,6 +408,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await action();
     } on CredentialException catch (e) {
+      log("Error performing action: ${e.message}, code: ${e.code} , details: ${e.details}"); 
       _showSnackBar(e.message.toString());
     } finally {
       if (mounted) setState(() => isLoading = false);

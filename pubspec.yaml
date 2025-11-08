@@ -10,6 +10,7 @@ workspace:
   - packages/credential_manager_android
   - packages/credential_manager_ios
   - packages/credential_manager_platform_interface
+  - packages/credential_manager_web
 
 dev_dependencies:
   melos: ^8.1.0

@@ -33,6 +33,20 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <!-- Load CredentialManagerWeb JavaScript before Flutter -->
+  <script>
+    // Load the JavaScript bundle - try multiple possible paths
+    (function() {
+      var script = document.createElement('script');
+      script.src = 'packages/credential_manager_web/web/passkey_authenticator.js';
+      script.onerror = function() {
+        // Try alternative path
+        script.src = 'passkey_authenticator.js';
+        document.head.appendChild(script);
+      };
+      document.head.appendChild(script);
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
