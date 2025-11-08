@@ -3,7 +3,7 @@ description: Credential Manager plugin,Help one-tap Login functionality and stor
 
 
 version: 2.0.5
-repository: https://github.com/Djsmk123/flutter_credential_manager_compose
+repository: https://github.com/Djsmk123/flutter_credential_manager_compose/packages/credential_manager
 publish_to: none
 
 environment:
