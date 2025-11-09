@@ -77,12 +77,27 @@ external JSPromise<JSString> savePasswordCredentials(JSString credentialData);
 @JS('CredentialManagerWeb.getPasswordCredentials')
 external JSPromise<JSString> getPasswordCredentials();
 
-/// Save Google credential (placeholder - requires OAuth 2.0 implementation)
+/// Save Google credential using FedCM (Federated Credential Management API)
 /// 
-/// [useButtonFlow] - Whether to use button flow
-/// Returns a Promise resolving to null (not implemented)
+/// Uses the FedCM API for privacy-preserving Google Sign-In without third-party cookies.
+/// See: https://developer.chrome.com/docs/identity/fedcm/overview
+/// 
+/// [useButtonFlow] - Whether to use button flow (active mode) or passive mode
+///   - true: Active mode - requires user interaction (button click)
+///   - false: Passive mode - shows automatically when user is signed in
+/// Returns a Promise resolving to JSON string of Google credential data
 @JS('CredentialManagerWeb.saveGoogleCredential')
 external JSPromise<JSString?> saveGoogleCredential(JSBoolean useButtonFlow);
+
+/// Get credentials (unified method for passkeys and Google Sign-In via FedCM)
+/// 
+/// Similar to Android's unified Credential Manager - fetches passkeys or Google Sign-In
+/// based on fetchOptions configuration
+/// 
+/// [options] - JSON string containing fetch options and passkey options
+/// Returns a Promise resolving to JSON string of credential response
+@JS('CredentialManagerWeb.getCredentials')
+external JSPromise<JSString> getCredentials(JSString options);
 
 /// Logout (clear credentials)
 /// 

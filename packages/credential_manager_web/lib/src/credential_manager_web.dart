@@ -95,38 +95,33 @@ class CredentialManagerWeb extends CredentialManagerPlatform {
     FetchOptionsAndroid? fetchOptions,
   }) async {
     try {
-      if (passKeyOption != null) {
-        // Use JavaScript interop for passkey authentication
-        final optionsJson = jsonEncode(passKeyOption.toJson());
-        
-        // Call the JavaScript interop function
-        final jsPromise = passkey_interop.authenticatorLogin(optionsJson.toJS);
-        final jsResult = await jsPromise.toDart;
-        
-        // Convert JSString to Dart String
-        final resultString = jsResult.toDart;
-        
-        // Parse the JSON response
-        final credentialData = jsonDecode(resultString) as Map<String, dynamic>;
-        
-        // Wrap in the expected format for CredentialResponseParser
-        final response = {
-          'type': 'PublicKeyCredentials',
-          'data': jsonEncode(credentialData),
-        };
-        
-        return CredentialResponseParser.parseCredentialResponse(response);
-      } else {
-        // Use JavaScript interop for password credentials
-        final jsPromise = passkey_interop.getPasswordCredentials();
-        final jsResult = await jsPromise.toDart;
-        final resultString = jsResult.toDart;
-
-        // Parse the JSON response
-        final responseData = jsonDecode(resultString) as Map<String, dynamic>;
-        
-        return CredentialResponseParser.parseCredentialResponse(responseData);
-      }
+      // Use unified getCredentials method (similar to Android's Credential Manager)
+      // This method tries passkeys first, then Google Sign-In via FedCM
+      // Based on fetchOptions configuration
+      
+      // Prepare options for unified credential fetch
+      final optionsMap = <String, dynamic>{
+        'passKeyOption': passKeyOption?.toJson(),
+        'fetchOptions': fetchOptions?.toJson() ?? {
+          'passKey': passKeyOption != null,
+          'googleCredential': true,
+          'passwordCredential': false, // Not supported via FedCM on web
+        },
+      };
+      
+      final optionsJson = jsonEncode(optionsMap);
+      
+      // Call the unified JavaScript getCredentials method
+      final jsPromise = passkey_interop.getCredentials(optionsJson.toJS);
+      final jsResult = await jsPromise.toDart;
+      final resultString = jsResult.toDart;
+      
+      // Parse the JSON response
+      final responseData = jsonDecode(resultString) as Map<String, dynamic>;
+      
+      // The response is already in the correct format for CredentialResponseParser
+      // It has 'type' and 'data' fields
+      return CredentialResponseParser.parseCredentialResponse(responseData);
     } catch (e) {
       if (e is CredentialException) {
         rethrow;
