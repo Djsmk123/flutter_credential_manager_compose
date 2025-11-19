@@ -11,6 +11,9 @@
 ///    203   Mismatched credentials
 ///    204   Login failed
 ///    205   Temporarily blocked (due to too many canceled sign-in prompts)
+///    206   Credential fetch options not enabled
+///    207   No Google account present (the plugin may launch account settings)
+///    208   RequestJson is required for passkey
 ///
 ///    301   Save Credentials cancelled
 ///    302   Create Credentials failed

@@ -67,6 +67,30 @@ class PlatformExceptionHandler {
           message: 'Login failed',
           details: e.details,
         );
+      case '205':
+        return CredentialException(
+          code: 205,
+          message: 'Temporarily blocked',
+          details: e.details,
+        );
+      case '206':
+        return CredentialException(
+          code: 206,
+          message: 'Credential fetch options not enabled',
+          details: e.details,
+        );
+      case '207':
+        return CredentialException(
+          code: 207,
+          message: 'No Google account present; launched account settings',
+          details: e.details,
+        );
+      case '208':
+        return CredentialException(
+          code: 208,
+          message: 'RequestJson is required for passkey',
+          details: e.details,
+        );
       case '301':
         return CredentialException(
           code: 301,
