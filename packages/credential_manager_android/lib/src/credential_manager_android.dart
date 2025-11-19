@@ -8,6 +8,10 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
   /// Method channel used to communicate with the native Android platform.
   final methodChannel = const MethodChannel('credential_manager');
 
+  /// Whether Google Play Services is available on the device.
+  /// Defaults to true and is updated during initialization.
+  bool _isGmsAvailable = true;
+
   @override
   Future<String?> getPlatformVersion() async {
     final version =
@@ -20,7 +24,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
     bool preferImmediatelyAvailableCredentials,
     String? googleClientId,
   ) async {
-    final res = await methodChannel.invokeMethod<String>(
+    final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
       "init",
       {
         'prefer_immediately_available_credentials':
@@ -29,7 +33,8 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       },
     );
 
-    if (res != null && res == "Initialization successful") {
+    if (res != null && res['message'] == "Initialization successful") {
+      _isGmsAvailable = res['isGmsAvailable'] as bool? ?? true;
       return;
     }
 
@@ -97,6 +102,11 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
         details: "Expected a response from the native platform but got null",
       );
     } on PlatformException catch (e) {
+      // Return empty Credentials when no credentials are found (code 202)
+      // This is a normal expected state, not an error
+      if (e.code == '202') {
+        return Credentials();
+      }
       throw PlatformExceptionHandler.handlePlatformException(
         e,
         credentialType,
@@ -170,4 +180,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       details: null,
     );
   }
+
+  @override
+  bool get isGmsAvailable => _isGmsAvailable;
 }

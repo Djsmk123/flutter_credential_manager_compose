@@ -14,6 +14,7 @@
 ///    206   Credential fetch options not enabled
 ///    207   No Google account present (the plugin may launch account settings)
 ///    208   RequestJson is required for passkey
+///    209   Google Play Services not available
 ///
 ///    301   Save Credentials cancelled
 ///    302   Create Credentials failed

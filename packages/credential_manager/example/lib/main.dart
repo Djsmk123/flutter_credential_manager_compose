@@ -3,7 +3,7 @@ import 'package:credential_manager/credential_manager.dart';
 import 'package:credential_manager_example/home_screen.dart';
 import 'package:flutter/material.dart';
 
-const String googleClientId = "";
+const String googleClientId = "492037512529-c925fm2tv7ckvrm7fh63pjuc59ln3nt9.apps.googleusercontent.com";
 const String rpId = "blogs-deeplink-example.vercel.app";
 final CredentialManager credentialManager = CredentialManager();
 
@@ -28,7 +28,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Credential Manager Example",
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.light,
+        ),
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+      ),
       home: const LoginScreen(),
     );
   }
@@ -57,7 +70,6 @@ class _LoginScreenState extends State<LoginScreen> {
       challenge: "HjBbH__fbLuzy95AGR31yEARA0EMtKlY0NrV5oy3NQw",
       rpId: rpId,
       userVerification: "required",
-      //only for ios, true only when we want to show the passkey popup on keyboard otherwise false
       conditionalUI: false,
     );
     isGoogleEnabled = googleClientId.isNotEmpty;
@@ -65,53 +77,105 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildAutofillGroup(Widget child) {
     if (enableInlineAutofill) {
-      return AutofillGroup(
-        child: child,
-      );
+      return AutofillGroup(child: child);
     }
     return child;
   }
 
   @override
   Widget build(BuildContext context) {
+    final isGmsAvailable = credentialManager.isGmsAvailable;
     return Scaffold(
-      appBar: AppBar(title: const Text("Credentials Manager")),
-      body: Stack(
+      appBar: AppBar(
+        title: const Text("Credential Manager"),
+        centerTitle: true,
+      ),
+      body: !isGmsAvailable ? const Center(child: Text("Google Play Services is not available")) :
+
+      Stack(
         children: [
+
           AbsorbPointer(
             absorbing: isLoading,
             child: Opacity(
               opacity: isLoading ? 0.5 : 1,
-              child: _buildAutofillGroup(
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildInputField("Username", (value) => username = value),
-                      if (createPassKey)
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: _buildAutofillGroup(
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 32),
                         _buildInputField(
-                            "Password", (value) => password = value,
-                            isPassword: true),
-                      _buildButton("Register", onRegister),
-                      _buildButton(
-                          "Register with pass key", onRegisterWithPassKey),
-                      if (Platform.isAndroid)
-                        _buildButton(
-                            "Register with Google Sign In", onGoogleSignIn),
-                      if (Platform.isAndroid)
-                        _buildButton(
-                            "Login (Password, Passkey, Google)", onLogin)
-                      else
-                        _buildButton("Login Passkey", onLogin)
-                    ],
+                          "Username",
+                          (value) => username = value,
+                          icon: Icons.person_outline,
+                        ),
+                        if (createPassKey) ...[
+                          const SizedBox(height: 16),
+                          _buildInputField(
+                            "Password",
+                            (value) => password = value,
+                            isPassword: true,
+                            icon: Icons.lock_outline,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        _buildSectionTitle("Registration"),
+                        const SizedBox(height: 12),
+                        _buildActionButton(
+                          "Register with Password",
+                          onRegister,
+                          icon: Icons.password,
+                          isPrimary: true,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildActionButton(
+                          "Register with Passkey",
+                          onRegisterWithPassKey,
+                          icon: Icons.key,
+                        ),
+                        if (Platform.isAndroid) ...[
+                          const SizedBox(height: 12),
+                          _buildActionButton(
+                            "Register with Google",
+                            onGoogleSignIn,
+                            icon: Icons.g_mobiledata,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        _buildSectionTitle("Login"),
+                        const SizedBox(height: 12),
+                        _buildActionButton(
+                          Platform.isAndroid
+                              ? "Login (All Methods)"
+                              : "Login with Passkey",
+                          onLogin,
+                          icon: Icons.login,
+                          isPrimary: true,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
           if (isLoading)
-            const Center(child: CircularProgressIndicator.adaptive()),
+            Container(
+              color: Colors.black26,
+              child: const Center(
+                child: Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: CircularProgressIndicator.adaptive(),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -119,40 +183,122 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool enableInlineAutofill = Platform.isIOS;
 
-  Widget _buildInputField(String hint, Function(String) onChanged,
-      {bool isPassword = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: TextFormField(
-        onChanged: onChanged,
-        obscureText: isPassword,
-        autofillHints: enableInlineAutofill
-            ? (isPassword
-                ? const [AutofillHints.password]
-                : const [AutofillHints.username])
-            : [],
-        keyboardType: isPassword ? TextInputType.visiblePassword : null,
-        validator: (value) => value!.isEmpty ? "Please enter a $hint" : null,
-        decoration: InputDecoration(
-          hintText: hint,
-          border: OutlineInputBorder(
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.blueAccent),
+          ),
+          child: Icon(
+            Icons.security,
+            size: 48,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
           ),
         ),
+        const SizedBox(height: 16),
+        Text(
+          'Secure Authentication',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Sign in with password, passkey, or Google',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Divider(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInputField(
+    String hint,
+    Function(String) onChanged, {
+    bool isPassword = false,
+    IconData? icon,
+  }) {
+    return TextFormField(
+      onChanged: onChanged,
+      obscureText: isPassword,
+      autofillHints: enableInlineAutofill
+          ? (isPassword
+              ? const [AutofillHints.password]
+              : const [AutofillHints.username])
+          : [],
+      keyboardType: isPassword ? TextInputType.visiblePassword : null,
+      validator: (value) => value!.isEmpty ? "Please enter a $hint" : null,
+      decoration: InputDecoration(
+        labelText: hint,
+        prefixIcon: icon != null ? Icon(icon) : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
     );
   }
 
-  Widget _buildButton(String label, VoidCallback onPressed) {
-    return MaterialButton(
+  Widget _buildActionButton(
+    String label,
+    VoidCallback onPressed, {
+    IconData? icon,
+    bool isPrimary = false,
+  }) {
+    if (isPrimary) {
+      return FilledButton.icon(
+        onPressed: onPressed,
+        icon: icon != null ? Icon(icon) : const SizedBox.shrink(),
+        label: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Text(label),
+        ),
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+
+    return OutlinedButton.icon(
       onPressed: onPressed,
-      color: Colors.red,
-      minWidth: MediaQuery.of(context).size.width / 2,
-      height: 40,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Text(label,
-          style: const TextStyle(color: Colors.white, fontSize: 16)),
+      icon: icon != null ? Icon(icon) : const SizedBox.shrink(),
+      label: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(label),
+      ),
+      style: OutlinedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
     );
   }
 
@@ -242,7 +388,6 @@ class _LoginScreenState extends State<LoginScreen> {
     await _performAction(() async {
       Credentials credential = await credentialManager.getCredentials(
         passKeyOption: passKeyLoginOption,
-        //only for android
         fetchOptions: FetchOptionsAndroid(
           passKey: true,
           passwordCredential: true,

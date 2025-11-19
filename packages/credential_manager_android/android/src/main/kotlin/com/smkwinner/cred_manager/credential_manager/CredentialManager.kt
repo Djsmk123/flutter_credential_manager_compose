@@ -5,6 +5,8 @@ import android.content.Intent
 import android.provider.Settings
 import android.util.Log
 import androidx.credentials.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialCancellationException
@@ -19,6 +21,7 @@ class CredentialManagerUtils {
     private lateinit var credentialManager: CredentialManager
     private var preferImmediatelyAvailableCredentials: Boolean = true
     private lateinit var serverClientID: String
+    private var isGmsAvailable: Boolean = false
 
     /**
      * Initialize the CredentialManagerUtils.
@@ -34,6 +37,16 @@ class CredentialManagerUtils {
         context: Context,
     ): Pair<CredentialManagerExceptions?, String> {
         return try {
+            // Check if Google Play Services is available
+            val googleApiAvailability = GoogleApiAvailability.getInstance()
+            val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(context)
+            isGmsAvailable = (resultCode == ConnectionResult.SUCCESS)
+
+            if (!isGmsAvailable) {
+                val errorMessage = googleApiAvailability.getErrorString(resultCode)
+                Log.d("CredentialManager", "Google Play Services not available: $errorMessage")
+            }
+
             credentialManager = CredentialManager.create(context = context)
             this.preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
             if (gClientId != null) {
@@ -136,6 +149,17 @@ class CredentialManagerUtils {
                         code = 503,
                         message = "Google client not initialized",
                         details = "Ensure Google credentials are provided."
+                    ), null
+                )
+            }
+
+            // Check if Google Play Services is available for Google credentials
+            if (fetchOptions.googleCredential && !isGmsAvailable) {
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 209,
+                        message = "Google Play Services not available",
+                        details = "Google Sign-In requires Google Play Services"
                     ), null
                 )
             }
@@ -291,6 +315,17 @@ class CredentialManagerUtils {
      * or CredentialManagerExceptions and null if an error occurs.
      */
     suspend fun saveGoogleCredentials(useButtonFlow: Boolean, context: Context): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
+        // Check if Google Play Services is available
+        if (!isGmsAvailable) {
+            return Pair(
+                CredentialManagerExceptions(
+                    code = 209,
+                    message = "Google Play Services not available",
+                    details = "Google Sign-In requires Google Play Services"
+                ), null
+            )
+        }
+
         if (!this::serverClientID.isInitialized) {
             return Pair(
                 CredentialManagerExceptions(
@@ -468,6 +503,15 @@ class CredentialManagerUtils {
         fetchOptions: FetchOptions
     ): Boolean {
         return fetchOptions.googleCredential || fetchOptions.passwordCredential || fetchOptions.passKeyOption
+    }
+
+    /**
+     * Returns whether Google Play Services is available on the device.
+     *
+     * @return Boolean indicating GMS availability.
+     */
+    fun getIsGmsAvailable(): Boolean {
+        return isGmsAvailable
     }
 
 

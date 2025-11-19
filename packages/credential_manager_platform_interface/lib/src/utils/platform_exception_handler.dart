@@ -91,6 +91,12 @@ class PlatformExceptionHandler {
           message: 'RequestJson is required for passkey',
           details: e.details,
         );
+      case '209':
+        return CredentialException(
+          code: 209,
+          message: 'Google Play Services not available',
+          details: e.details,
+        );
       case '301':
         return CredentialException(
           code: 301,

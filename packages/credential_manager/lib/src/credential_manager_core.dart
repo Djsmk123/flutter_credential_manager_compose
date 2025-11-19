@@ -75,6 +75,7 @@ class CredentialManager {
   /// [fetchOptions] - Options for fetching specific types of credentials.
   ///
   /// Returns a [Future] that completes with [Credentials] representing the retrieved credentials.
+  /// Returns an empty [Credentials] object if no credentials are found.
   Future<Credentials> getCredentials(
       {CredentialLoginOptions? passKeyOption,
       FetchOptionsAndroid? fetchOptions}) async {
@@ -104,4 +105,13 @@ class CredentialManager {
   ///
   /// Returns `true` if the platform is supported, otherwise `false`.
   bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
+
+  /// Checks if Google Play Services is available on the device.
+  ///
+  /// This is an Android-specific feature. On iOS, this will return `true`.
+  /// Use this to check GMS availability before attempting Google Sign-In operations.
+  /// This value is set during initialization.
+  ///
+  /// Returns a [bool] indicating GMS availability.
+  bool get isGmsAvailable => CredentialManagerPlatform.instance.isGmsAvailable;
 }
