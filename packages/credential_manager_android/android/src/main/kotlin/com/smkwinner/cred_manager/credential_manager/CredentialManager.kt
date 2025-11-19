@@ -1,6 +1,8 @@
 package com.smkwinner.cred_manager.credential_manager
 
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.util.Log
 import androidx.credentials.*
 import androidx.credentials.exceptions.CreateCredentialCancellationException
@@ -142,7 +144,7 @@ class CredentialManagerUtils {
             if (fetchOptions.passKeyOption && requestJson == null) {
                 return Pair(
                     CredentialManagerExceptions(
-                        code = 207,
+                        code = 208,
                         message = "RequestJson is required",
                         details = "Provide requestJson for passkey."
                     ), null
@@ -243,6 +245,25 @@ class CredentialManagerUtils {
                 ), null
             )
         } catch (e: GetCredentialException) {
+            // Detect situation where no google account is available on device/emulator
+            val msg = e.localizedMessage ?: ""
+            if (msg.contains("no credentials available", ignoreCase = true) || msg.contains("no accounts", ignoreCase = true) || msg.contains("no google", ignoreCase = true)) {
+                try {
+                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
+                    intent.putExtra("accountTypes", arrayOf("com.google"))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                } catch (ex: Exception) {
+                    Log.d("CredentialManager", "Failed to open add account settings: ${ex.localizedMessage}")
+                }
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 207,
+                        message = "No Google account present; launched account settings",
+                        details = e.localizedMessage
+                    ), null
+                )
+            }
             Pair(
                 CredentialManagerExceptions(
                     code = 204,
@@ -297,10 +318,38 @@ class CredentialManagerUtils {
             .build()
 
         Log.d("CredentialManager", "$request")
-        val result = credentialManager.getCredential(
-            request = request,
-            context = context,
-        )
+        val result = try {
+            credentialManager.getCredential(
+                request = request,
+                context = context,
+            )
+        } catch (e: GetCredentialException) {
+            val msg = e.localizedMessage ?: ""
+            if (msg.contains("no credentials available", ignoreCase = true) || msg.contains("no accounts", ignoreCase = true) || msg.contains("no google", ignoreCase = true)) {
+                try {
+                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
+                    intent.putExtra("accountTypes", arrayOf("com.google"))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                } catch (ex: Exception) {
+                    Log.d("CredentialManager", "Failed to open add account settings: ${ex.localizedMessage}")
+                }
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 207,
+                        message = "No Google account present; launched account settings",
+                        details = e.localizedMessage
+                    ), null
+                )
+            }
+            return Pair(
+                CredentialManagerExceptions(
+                    code = 204,
+                    message = "Login failed ${e.localizedMessage}",
+                    details = e.stackTraceToString(),
+                ), null
+            )
+        }
 
         when (val credential = result.credential) {
             is CustomCredential -> {
