@@ -12,6 +12,15 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+// Load keystore properties from key.keystore
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.keystore')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withReader('UTF-8') { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
@@ -63,12 +72,33 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            if (keystoreProperties['storeFile'] != null) {
+                storeFile file(keystoreProperties['storeFile'])
+            }
+            if (keystoreProperties['storePassword'] != null) {
+                storePassword keystoreProperties['storePassword']
+            }
+            if (keystoreProperties['keyAlias'] != null) {
+                keyAlias keystoreProperties['keyAlias']
+            }
+            if (keystoreProperties['keyPassword'] != null) {
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            // Use release signing config for release build
+            signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            // Keep using debug signing config for debug builds
+            signingConfig signingConfigs.release
         }
     }
 }
