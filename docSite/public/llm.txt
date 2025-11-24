@@ -1,0 +1,15 @@
+A quick reference for LLM-based doc search helpers.
+
+Primary docs: https://djsmk123.github.io/flutter_credential_manager_compose/
+
+Structure:
+- packages/credential_manager: Flutter-facing API and example app.
+- packages/credential_manager_platform_interface: shared models, exceptions, utils.
+- packages/credential_manager_android / _ios: platform implementations.
+- docSite/: Docusaurus-like static docs (build with npm run build).
+
+Common questions:
+- Gradle/Kotlin versions: example app uses AGP 8.4.2 / Kotlin 2.0.20; plugin module uses AGP 8.11.1 / Kotlin 1.9.22 in android/build.gradle.
+- Credential error codes documented in packages/.../exceptions.dart and docSite Usage page.
+- GitHub Pages deploy workflow: see .github/workflows/docs-deploy.yml (root) — build docSite and deploy via actions/deploy-pages.
+
