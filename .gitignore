@@ -4,8 +4,6 @@
 
 # Flutter/Dart
 .dart_tool/
-.flutter-plugins-dependencies
 .flutter-plugins
-.metadata
 .packages
 packages/credential_manager/example/android/.kotlin/
