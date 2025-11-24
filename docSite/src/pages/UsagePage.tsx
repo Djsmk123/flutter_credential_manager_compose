@@ -159,7 +159,7 @@ if (!credentialManager.isGmsAvailable) {
       <p className="mt-4 mb-2">
         Now validate the credentials and after action, Native APIs will handle the rest of the things.
       </p>
-      
+
       <div className="my-4">
         <p className="mb-2 font-medium">iOS Password Autofill:</p>
         <div className="border border-gray-300 rounded-lg p-2 inline-block">
@@ -296,14 +296,14 @@ if (!credentialManager.isGmsAvailable) {
           <p className="font-medium mb-2">With using <code>useButtonFlow</code>:</p>
           <div className="border border-gray-300 rounded-lg p-2">
             <ImageViewer imageUrls={["https://developer.android.com/static/identity/sign-in/images/add-siwg-animated-2.gif"]} height="300" />
-            
+
           </div>
         </div>
         <div>
           <p className="font-medium mb-2">Without using <code>useButtonFlow</code>:</p>
           <div className="border border-gray-300 rounded-lg p-2">
             <ImageViewer imageUrls={["https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg"]} height="300" />
-            
+
           </div>
         </div>
       </div>
@@ -445,7 +445,7 @@ print('Passkey Raw ID: \${credential.rawId}');`}
       <div className="my-4">
         <div className="border border-gray-300 rounded-lg p-2 inline-block">
           <ImageViewer imageUrls={["https://i.ibb.co/XCLvkB3/Whats-App-Image-2024-06-02-at-21-46-17.jpg"]} height="300" />
-          
+
         </div>
       </div>
 
@@ -502,7 +502,7 @@ print('Passkey Raw ID: \${credential.rawId}');`}
   if(credential.publicKeyCredential != null){
     print('Passkey ID: \${credential.publicKeyCredential!.id}');
     print('Passkey Raw ID: \${credential.publicKeyCredential!.rawId}');
-  }  
+  }
 } on CredentialException catch (e) {
   // Handle the error
   print('Error getting passkey credential: \${e.message}');

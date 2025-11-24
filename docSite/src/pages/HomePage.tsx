@@ -1,177 +1,110 @@
-'use client';
-
-import { useGitHubRepoStats } from '@/lib/useGithHubRepoState';
-import ImageViewer from '@/components/ImageViewer';
-import { motion } from 'framer-motion';
-
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.15 },
-  }),
-};
+import { Link } from 'react-router-dom';
+import { ArrowRight, Shield, Lock, Smartphone, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const HomePage = () => {
-  const stats = useGitHubRepoStats();
-
   return (
-    <motion.div
-      className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto"
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: {},
-      }}
-    >
-      <motion.h1
-        className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-gray-900 dark:text-white"
-        variants={fadeIn}
-        custom={0}
-      >
-        Credential Manager
-      </motion.h1>
+    <div className="flex flex-col gap-16 pb-8">
+      {/* Hero Section */}
+      <section className="flex flex-col items-start gap-4 pt-8 md:pt-12 lg:pt-24">
+        <div className="inline-flex items-center rounded-lg bg-muted px-3 py-1 text-sm font-medium">
+          🎉 <span className="ml-1">v1.0.0 is now available</span>
+        </div>
+        <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-5xl lg:leading-[1.1]">
+          Secure Credential Management <br className="hidden sm:inline" />
+          for Flutter Applications
+        </h1>
+        <p className="max-w-[750px] text-lg text-muted-foreground sm:text-xl">
+          A powerful, easy-to-use plugin for managing user credentials in Flutter. 
+          Securely store, retrieve, and manage authentication tokens with biometric support.
+        </p>
+        <div className="flex w-full items-center gap-4 md:w-auto">
+          <Link to="/installation">
+            <Button size="lg" className="w-full md:w-auto gap-2">
+              Get Started <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link to="/examples">
+            <Button variant="outline" size="lg" className="w-full md:w-auto">
+              View Examples
+            </Button>
+          </Link>
+        </div>
+      </section>
 
-      {stats && (
-        <motion.div
-          className="mb-6 sm:mb-8 text-gray-800 dark:text-gray-300 flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs sm:text-sm"
-          variants={fadeIn}
-          custom={1}
-        >
-          <span>⭐ Stars: {stats.stars}</span>
-          <span>🍴 Forks: {stats.forks}</span>
-          <span>🕒 Last Commit: {new Date(stats.lastCommitDate).toLocaleDateString()}</span>
-        </motion.div>
-      )}
+      {/* Features Grid */}
+      <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="relative overflow-hidden rounded-lg border bg-background p-6 hover:border-primary/50 transition-colors">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 mb-4">
+            <Shield className="h-6 w-6 text-primary" />
+          </div>
+          <h3 className="font-bold text-xl mb-2">Secure Storage</h3>
+          <p className="text-muted-foreground">
+            Leverages platform-specific secure storage mechanisms (Keychain on iOS, Keystore on Android) to keep data safe.
+          </p>
+        </div>
+        <div className="relative overflow-hidden rounded-lg border bg-background p-6 hover:border-primary/50 transition-colors">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 mb-4">
+            <Lock className="h-6 w-6 text-primary" />
+          </div>
+          <h3 className="font-bold text-xl mb-2">Biometric Auth</h3>
+          <p className="text-muted-foreground">
+            Seamlessly integrate biometric authentication (Face ID, Touch ID, Fingerprint) for access control.
+          </p>
+        </div>
+        <div className="relative overflow-hidden rounded-lg border bg-background p-6 hover:border-primary/50 transition-colors">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 mb-4">
+            <Smartphone className="h-6 w-6 text-primary" />
+          </div>
+          <h3 className="font-bold text-xl mb-2">Cross Platform</h3>
+          <p className="text-muted-foreground">
+            Unified API for both iOS and Android, handling platform differences automatically.
+          </p>
+        </div>
+      </section>
 
-      <motion.div className="flex gap-2 mb-6 sm:mb-8" variants={fadeIn} custom={2}>
-        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs sm:text-sm font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-          Android
-        </span>
-        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs sm:text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
-          iOS
-        </span>
-      </motion.div>
+      {/* Code Preview Section */}
+      <section className="rounded-xl border bg-muted/50 p-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Simple & Intuitive API</h2>
+            <p className="text-muted-foreground mt-2">
+              Designed to be easy to integrate into your existing Flutter apps.
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 relative rounded-lg bg-slate-950 p-4 overflow-hidden">
+          <pre className="text-sm text-slate-50 overflow-x-auto">
+            <code>{`// Save credentials
+await CredentialManager.save(
+  key: 'user_token',
+  value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+);
 
-      {[
-        'Credential Manager is a Jetpack API that supports multiple sign-in methods, such as username and password, passkeys, and federated sign-in solutions (like Sign-in with Google) in a single API, simplifying integration for developers.',
-        'For users, Credential Manager unifies the sign-in interface across authentication methods, making it clearer and easier to sign into apps, regardless of the chosen method.',
-        'For iOS, it uses Keychain for storing passkeys and Autofill for managing credentials.',
-        'For more information, please refer to the official documentation.',
-      ].map((text, idx) => (
-        <motion.p
-          key={idx}
-          className="mb-4 sm:mb-6 text-base sm:text-lg text-gray-800 dark:text-gray-300"
-          variants={fadeIn}
-          custom={3 + idx}
-        >
-          {text.includes('Keychain') ? (
-            <>
-              For iOS, it uses{' '}
-              <a
-                href="https://developer.apple.com/documentation/security/keychain_services"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
-              >
-                Keychain
-              </a>{' '}
-              and{' '}
-              <a
-                href="https://developer.apple.com/documentation/uikit/text_input/adding_password_autofill_support_to_your_app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
-              >
-                Autofill
-              </a>
-              .
-            </>
-          ) : text.includes('official documentation') ? (
-            <>
-              For more information, please refer to the{' '}
-              <a
-                href="https://developer.android.com/jetpack/androidx/releases/credentials"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
-              >
-                official documentation
-              </a>
-              .
-            </>
-          ) : (
-            text
-          )}
-        </motion.p>
-      ))}
+// Retrieve credentials
+final token = await CredentialManager.read(key: 'user_token');
 
-      {/* Support section */}
-      <motion.div
-        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8"
-        variants={fadeIn}
-        custom={7}
-      >
-        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">
-          Support the Project
+// Delete credentials
+await CredentialManager.delete(key: 'user_token');`}</code>
+          </pre>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="flex flex-col items-center gap-4 py-8 md:py-12 lg:py-24 text-center">
+        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+          Ready to secure your app?
         </h2>
-        <p className="mb-3 sm:mb-4 text-sm sm:text-base text-gray-700 dark:text-gray-300">
-          If you find this library useful and would like to support its development, consider buying me a coffee:
+        <p className="max-w-[600px] text-muted-foreground md:text-xl">
+          Join thousands of developers building secure Flutter applications with Credential Manager.
         </p>
-        <a
-          href="https://www.buymeacoffee.com/smkwinner"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded transition-colors text-sm sm:text-base"
-        >
-          ☕ Buy Me a Coffee
-        </a>
-      </motion.div>
-
-      {/* Maintainers section */}
-      <motion.div
-        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8"
-        variants={fadeIn}
-        custom={8}
-      >
-        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">
-          Looking for Maintainers
-        </h2>
-        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
-          We are looking for maintainers to help us keep this library up-to-date and implement new features. If you are interested in contributing, please reach out via{' '}
-          <a
-            href="https://github.com/Djsmk123/flutter_credential_manager_compose"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
-          >
-            GitHub
-          </a>{' '}
-          or open an issue. Your help would be greatly appreciated!
-        </p>
-      </motion.div>
-
-      {/* Contributors */}
-      <motion.div className="mt-6 sm:mt-8" variants={fadeIn} custom={9}>
-        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">Contributors</h2>
-        <p className="mb-3 sm:mb-4 text-sm sm:text-base text-gray-800 dark:text-gray-300">
-          Thanks to all the contributors who have helped make this library better!
-        </p>
-        <a
-          href="https://github.com/Djsmk123/flutter_credential_manager_compose/graphs/contributors"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block"
-        >
-          <ImageViewer 
-            imageUrls={["https://contrib.rocks/image?repo=Djsmk123/flutter_credential_manager_compose"]} 
-            height="200" 
-          />
-        </a>
-      </motion.div>
-    </motion.div>
+        <Link to="/installation">
+          <Button size="lg" className="mt-4">
+            Start Integration
+          </Button>
+        </Link>
+      </section>
+    </div>
   );
 };
 
