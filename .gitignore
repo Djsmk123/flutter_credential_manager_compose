@@ -8,3 +8,4 @@
 .flutter-plugins
 .metadata
 .packages
+packages/credential_manager/example/android/.kotlin/

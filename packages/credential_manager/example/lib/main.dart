@@ -3,7 +3,7 @@ import 'package:credential_manager/credential_manager.dart';
 import 'package:credential_manager_example/home_screen.dart';
 import 'package:flutter/material.dart';
 
-const String googleClientId = "492037512529-c925fm2tv7ckvrm7fh63pjuc59ln3nt9.apps.googleusercontent.com";
+const String googleClientId = "<your-web-client-id>";
 const String rpId = "blogs-deeplink-example.vercel.app";
 final CredentialManager credentialManager = CredentialManager();
 
@@ -90,94 +90,93 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text("Credential Manager"),
         centerTitle: true,
       ),
-      body: !isGmsAvailable ? const Center(child: Text("Google Play Services is not available")) :
-
-      Stack(
-        children: [
-
-          AbsorbPointer(
-            absorbing: isLoading,
-            child: Opacity(
-              opacity: isLoading ? 0.5 : 1,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: _buildAutofillGroup(
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildHeader(),
-                        const SizedBox(height: 32),
-                        _buildInputField(
-                          "Username",
-                          (value) => username = value,
-                          icon: Icons.person_outline,
-                        ),
-                        if (createPassKey) ...[
-                          const SizedBox(height: 16),
-                          _buildInputField(
-                            "Password",
-                            (value) => password = value,
-                            isPassword: true,
-                            icon: Icons.lock_outline,
+      body: !isGmsAvailable
+          ? const Center(child: Text("Google Play Services is not available"))
+          : Stack(
+              children: [
+                AbsorbPointer(
+                  absorbing: isLoading,
+                  child: Opacity(
+                    opacity: isLoading ? 0.5 : 1,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: _buildAutofillGroup(
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildHeader(),
+                              const SizedBox(height: 32),
+                              _buildInputField(
+                                "Username",
+                                (value) => username = value,
+                                icon: Icons.person_outline,
+                              ),
+                              if (createPassKey) ...[
+                                const SizedBox(height: 16),
+                                _buildInputField(
+                                  "Password",
+                                  (value) => password = value,
+                                  isPassword: true,
+                                  icon: Icons.lock_outline,
+                                ),
+                              ],
+                              const SizedBox(height: 24),
+                              _buildSectionTitle("Registration"),
+                              const SizedBox(height: 12),
+                              _buildActionButton(
+                                "Register with Password",
+                                onRegister,
+                                icon: Icons.password,
+                                isPrimary: true,
+                              ),
+                              const SizedBox(height: 12),
+                              _buildActionButton(
+                                "Register with Passkey",
+                                onRegisterWithPassKey,
+                                icon: Icons.key,
+                              ),
+                              if (Platform.isAndroid) ...[
+                                const SizedBox(height: 12),
+                                _buildActionButton(
+                                  "Register with Google",
+                                  onGoogleSignIn,
+                                  icon: Icons.g_mobiledata,
+                                ),
+                              ],
+                              const SizedBox(height: 24),
+                              _buildSectionTitle("Login"),
+                              const SizedBox(height: 12),
+                              _buildActionButton(
+                                Platform.isAndroid
+                                    ? "Login (All Methods)"
+                                    : "Login with Passkey",
+                                onLogin,
+                                icon: Icons.login,
+                                isPrimary: true,
+                              ),
+                            ],
                           ),
-                        ],
-                        const SizedBox(height: 24),
-                        _buildSectionTitle("Registration"),
-                        const SizedBox(height: 12),
-                        _buildActionButton(
-                          "Register with Password",
-                          onRegister,
-                          icon: Icons.password,
-                          isPrimary: true,
                         ),
-                        const SizedBox(height: 12),
-                        _buildActionButton(
-                          "Register with Passkey",
-                          onRegisterWithPassKey,
-                          icon: Icons.key,
-                        ),
-                        if (Platform.isAndroid) ...[
-                          const SizedBox(height: 12),
-                          _buildActionButton(
-                            "Register with Google",
-                            onGoogleSignIn,
-                            icon: Icons.g_mobiledata,
-                          ),
-                        ],
-                        const SizedBox(height: 24),
-                        _buildSectionTitle("Login"),
-                        const SizedBox(height: 12),
-                        _buildActionButton(
-                          Platform.isAndroid
-                              ? "Login (All Methods)"
-                              : "Login with Passkey",
-                          onLogin,
-                          icon: Icons.login,
-                          isPrimary: true,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          if (isLoading)
-            Container(
-              color: Colors.black26,
-              child: const Center(
-                child: Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: CircularProgressIndicator.adaptive(),
+                if (isLoading)
+                  Container(
+                    color: Colors.black26,
+                    child: const Center(
+                      child: Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator.adaptive(),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+              ],
             ),
-        ],
-      ),
     );
   }
 
