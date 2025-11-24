@@ -1,25 +1,103 @@
 
+/**
+ * Changelog entries are sourced directly from packages/credential_manager/CHANGELOG.md.
+ * To update: Copy the desired versions directly, convert markdown (links/code blocks) as needed.
+ */
+
 const changelog = [
   {
-    version: "Unreleased",
+    version: "2.0.8",
+    items: [
+      <>Added <code>isGmsAvailable</code> to platform interface.</>,
+      <>Handle <code>exception code 209</code> for Google Play Services not available.</>,
+      <>On Android, if Google account is not logged in, the plugin will launch Google Sign-In flow.</>,
+      "Updated documentation.",
+    ],
+  },
+  {
+    version: "2.0.7",
+    items: [
+      "Fixed plugin score issues."
+    ],
+  },
+  {
+    version: "2.0.6",
     sections: [
       {
-        title: "Example Experience",
+        title: "🚀 Major Refactoring: Modular Architecture",
         items: [
-          <>Refined the login screen with Material 3 cards, loading overlays, and a prominent logout action on the result page so you can demo every credential flow without restarting the app. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/6449ccbd8777db80bca3790b30a4308addec62bf" target="_blank" rel="noopener noreferrer">6449ccb</a>)</>,
-          <>Added a reusable <code>JsonViewer</code> widget that renders password, passkey, and Google ID token payloads with collapsible sections and copy-to-clipboard support. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/6449ccbd8777db80bca3790b30a4308addec62bf" target="_blank" rel="noopener noreferrer">6449ccb</a>)</>,
-          <>Surfaced the new <code>credentialManager.isGmsAvailable</code> getter inside the sample app to block Google flows when Play Services are missing. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/6449ccbd8777db80bca3790b30a4308addec62bf" target="_blank" rel="noopener noreferrer">6449ccb</a>)</>,
-        ],
+          <><strong>⚠️ Breaking Change:</strong> The plugin has been completely refactored into a modular architecture for better scalability and maintenance.</>,
+          <>Introduced new packages:</>,
+          <ul className="list-disc pl-6">
+            <li><code>credential_manager</code> – Main package containing shared logic, models, and utilities.</li>
+            <li><code>credential_manager_platform_interface</code> – Platform-agnostic interface for consistent API definitions.</li>
+            <li><code>credential_manager_android</code> – Android-specific implementation.</li>
+            <li><code>credential_manager_ios</code> – iOS-specific implementation.</li>
+          </ul>,
+          "All packages are now organized under the packages/ directory.",
+          "Greatly improved maintainability, clarity, and extensibility for future updates."
+        ]
       },
       {
-        title: "Android Reliability",
+        title: "🧠 Code Optimization",
         items: [
-          <>Detect devices that have zero Google accounts and deep-link users into the system settings while returning error code <code>207</code> so the Flutter layer can react gracefully. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/3fdfef4d282ca26e34c8f544e1f1b152cd21711a" target="_blank" rel="noopener noreferrer">3fdfef4</a>)</>,
-          <>Added explicit Google Play Services checks and a dedicated <code>209</code> error code that short-circuits Google Sign-In requests when Play Services are unavailable. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/3fdfef4d282ca26e34c8f544e1f1b152cd21711a" target="_blank" rel="noopener noreferrer">3fdfef4</a>)</>,
-          <>Documented the expanded exception table in the platform interface so integrators see the new codes without digging into native sources. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/3fdfef4d282ca26e34c8f544e1f1b152cd21711a" target="_blank" rel="noopener noreferrer">3fdfef4</a>)</>,
-        ],
+          "Removed 300+ lines of duplicate code between Android and iOS implementations.",
+          <>Introduced shared utilities:</>,
+          <ul className="list-disc pl-6">
+            <li><code>CredentialType</code> – Centralized credential type definitions.</li>
+            <li><code>PlatformExceptionHandler</code> – Unified platform error handling.</li>
+            <li><code>CredentialResponseParser</code> – Shared response parsing logic for all platforms.</li>
+          </ul>,
+          <>File size reduction highlights:</>,
+          <ul className="list-disc pl-6">
+            <li>Android implementation: <strong>~326 → 177 lines</strong></li>
+            <li>iOS implementation: <strong>~410 → 250 lines</strong></li>
+          </ul>,
+        ]
       },
-    ],
+      {
+        title: "🐞 Bug Fixes",
+        items: [
+          "Fixed AssertionError for uninitialized CredentialManagerPlatform.instance.",
+          "Added automatic platform registration within the CredentialManager constructor.",
+          "Fixed platform implementations not being registered automatically."
+        ]
+      },
+      {
+        title: "⚙️ Platform Registration Improvements",
+        items: [
+          "Platform implementations now auto-register when CredentialManager is instantiated.",
+          "Improved error messages for uninitialized platform instances.",
+        ]
+      },
+      {
+        title: "✅ Testing & Migration",
+        items: [
+          <>Migration verified and tested on both platforms:</>,
+          <ul className="list-disc pl-6">
+            <li>✅ iOS</li>
+            <li>✅ Android</li>
+          </ul>,
+          "All platform implementations are stable and functional."
+        ]
+      },
+      {
+        title: "🧩 Developer Experience",
+        items: [
+          "Added analysis_error.sh script for static analysis and code health checks.",
+          "Enforced better separation of concerns across all packages.",
+          "All packages pass static analysis with zero errors.",
+        ]
+      },
+      {
+        title: "📚 Documentation",
+        items: [
+          "Updated README and package documentation to reflect the modular structure.",
+          "Added in-code documentation for maintainers and contributors.",
+          "Improved migration guide and changelog clarity.",
+        ]
+      }
+    ]
   },
   {
     version: "2.0.4",
@@ -35,7 +113,7 @@ const changelog = [
       {
         title: "iOS Fixes",
         items: [
-          "Refactored UIWindow retrieval logic in PasskeyAuthentication and PasskeyRegistration to address build issues on iOS.",
+          "Refactored UIWindow retrieval logic in PasskeyAuthentication and PasskeyRegistration.",
           "Fixed iOS build issues in the example project.",
         ],
       },
@@ -43,7 +121,7 @@ const changelog = [
         title: "Documentation & CI",
         items: [
           "Enhanced README and overall documentation.",
-          "Updated static analysis and caching workflows in static.yml to improve CI efficiency.",
+          "Updated static analysis and caching workflows in static.yml for improved CI performance.",
         ],
       },
     ],
@@ -66,34 +144,29 @@ const changelog = [
   {
     version: "2.0.1",
     items: [
-      "Fixed example application (enableInlineAutofill) for iOS by default.",
+      <>Fixed example application (<code>enableInlineAutofill</code>) for iOS by default.</>,
     ],
   },
   {
     version: "2.0.0",
     items: [
       "Added Password Credentials and Passkey Credentials support for iOS.",
-      "Breaking changes in Android.",
+      <><strong>Breaking Changes</strong> on Android.</>,
       "Removed Encrypted Credentials (password-based) from both platforms.",
     ],
   },
   {
     version: "1.0.4+1",
     items: [
-      "Updated documentation.",
-      "Updated example application.",
-      "Updated dependencies.",
-      "Updated README.md.",
-      "Updated CHANGELOG.md.",
-      "Updated LICENSE.",
-      "Updated pubspec.yaml.",
+      "Updated documentation and example application.",
+      "Updated dependencies, README, CHANGELOG, LICENSE, and pubspec.yaml.",
       "Updated errors.md.",
     ],
   },
   {
     version: "1.0.4",
     items: [
-      "Added logout functionality using clearCredential(), updated example application, documentation, and dependencies.",
+      <>Added logout functionality using <code>clearCredential()</code>. Updated example application, documentation, and dependencies.</>,
     ],
   },
   {
@@ -127,29 +200,29 @@ const changelog = [
     version: "0.0.5",
     items: [
       <>Updated all dependencies to latest versions. Thanks to <a href="https://github.com/jlafazia-figure" target="_blank" rel="noopener noreferrer">@jlafazia-figure</a>.</>,
-      "Bug fixes and improvements in example application.",
-      "Updated README.md with latest information.",
+      "Bug fixes and improvements in example app.",
+      "Updated README.md with latest info.",
     ],
   },
   {
     version: "0.0.4",
     items: [
-      <>Migrated to latest version of Jetpack library (<a href="https://developer.android.com/jetpack/androidx/releases/credentials#groovy" target="_blank" rel="noopener noreferrer">release notes</a>).</>,
+      <>Migrated to latest Jetpack library version (<a href="https://developer.android.com/jetpack/androidx/releases/credentials#groovy" target="_blank" rel="noopener noreferrer">release notes</a>).</>,
       "Added Google Sign-in with Credential Manager.",
     ],
   },
   {
     version: "0.0.3",
     items: [
-      <>Implemented remaining ActivityAware lifecycle methods. Thanks to <a href="https://github.com/Granfalloner" target="_blank" rel="noopener noreferrer">Granfalloner</a>.</>,
+      <>Implemented remaining <code>ActivityAware</code> lifecycle methods. Thanks to <a href="https://github.com/Granfalloner" target="_blank" rel="noopener noreferrer">Granfalloner</a>.</>
     ],
   },
   {
     version: "0.0.2",
     items: [
       "Added encryption.",
-      "No breaking changes.",
       "Added documentation.",
+      "No breaking changes.",
     ],
   },
   {
