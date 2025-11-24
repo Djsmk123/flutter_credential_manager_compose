@@ -1,0 +1,16 @@
+repos:
+  - repo: local
+    hooks:
+      - id: dart-format
+        name: Format Flutter/Dart sources with dart format
+        entry: dart format
+        language: system
+        types: [dart]
+        exclude: ^docSite/
+      - id: flutter-analyze
+        name: Run flutter analyze for all packages
+        entry: scripts/run_flutter_analyze.sh
+        language: system
+        pass_filenames: false
+        files: \.(dart)$
+        exclude: ^docSite/

@@ -182,5 +182,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
   }
 
   @override
-  bool get isGmsAvailable => _isGmsAvailable;
+  bool get isGmsAvailable {
+    return _isGmsAvailable;
+  }
 }

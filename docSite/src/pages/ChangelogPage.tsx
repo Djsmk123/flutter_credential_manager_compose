@@ -1,7 +1,26 @@
 
-import React from 'react';
-
 const changelog = [
+  {
+    version: "Unreleased",
+    sections: [
+      {
+        title: "Example Experience",
+        items: [
+          <>Refined the login screen with Material 3 cards, loading overlays, and a prominent logout action on the result page so you can demo every credential flow without restarting the app. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/6449ccbd8777db80bca3790b30a4308addec62bf" target="_blank" rel="noopener noreferrer">6449ccb</a>)</>,
+          <>Added a reusable <code>JsonViewer</code> widget that renders password, passkey, and Google ID token payloads with collapsible sections and copy-to-clipboard support. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/6449ccbd8777db80bca3790b30a4308addec62bf" target="_blank" rel="noopener noreferrer">6449ccb</a>)</>,
+          <>Surfaced the new <code>credentialManager.isGmsAvailable</code> getter inside the sample app to block Google flows when Play Services are missing. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/6449ccbd8777db80bca3790b30a4308addec62bf" target="_blank" rel="noopener noreferrer">6449ccb</a>)</>,
+        ],
+      },
+      {
+        title: "Android Reliability",
+        items: [
+          <>Detect devices that have zero Google accounts and deep-link users into the system settings while returning error code <code>207</code> so the Flutter layer can react gracefully. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/3fdfef4d282ca26e34c8f544e1f1b152cd21711a" target="_blank" rel="noopener noreferrer">3fdfef4</a>)</>,
+          <>Added explicit Google Play Services checks and a dedicated <code>209</code> error code that short-circuits Google Sign-In requests when Play Services are unavailable. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/3fdfef4d282ca26e34c8f544e1f1b152cd21711a" target="_blank" rel="noopener noreferrer">3fdfef4</a>)</>,
+          <>Documented the expanded exception table in the platform interface so integrators see the new codes without digging into native sources. (<a href="https://github.com/Djsmk123/flutter_credential_manager_compose/commit/3fdfef4d282ca26e34c8f544e1f1b152cd21711a" target="_blank" rel="noopener noreferrer">3fdfef4</a>)</>,
+        ],
+      },
+    ],
+  },
   {
     version: "2.0.4",
     sections: [

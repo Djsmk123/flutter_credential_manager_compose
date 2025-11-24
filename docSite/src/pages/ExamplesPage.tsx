@@ -34,6 +34,41 @@ const ExamplesPage = () => {
           <strong>Note:</strong> For passkey authentication you need to setup a web server and configure it with your domain and you might use mine for testing purpose for android only but for iOS you need to setup your own(Apple Policy Sucks so much).
         </p>
       </blockquote>
+
+      <h2 className="text-2xl font-semibold mt-10 mb-4">What's New in the Example App</h2>
+      <p className="mb-4">
+        The latest commits refresh <code>login_screen.dart</code> and <code>home_screen.dart</code> with Material 3 styling, loading overlays, and a quick logout shortcut so you can repeatedly test each credential flow. Two highlights:
+      </p>
+      <ul className="list-disc pl-6 space-y-2 mb-6">
+        <li>A guard around Google actions that checks the new <code>credentialManager.isGmsAvailable</code> flag so emulators without Play Services show a friendly message instead of throwing.</li>
+        <li>A dedicated <code>JsonViewer</code> widget (<code>example/lib/widgets/json_viewer.dart</code>) that renders any credential payload with collapsible sections and copy-to-clipboard support.</li>
+      </ul>
+
+      <h3 className="text-xl font-medium mt-6 mb-2">Gate Google Sign-In When Play Services Are Missing</h3>
+      <p className="mb-2">The login screen now short-circuits Google flows using the platform-reported GMS status:</p>
+      <CodeBlock
+        language="dart"
+        code={`final isGmsAvailable = credentialManager.isGmsAvailable;
+return !isGmsAvailable
+    ? const Center(child: Text('Google Play Services is not available'))
+    : LoginScaffold(...);`}
+      />
+
+      <h3 className="text-xl font-medium mt-6 mb-2">Inspect Credential Payloads with JsonViewer</h3>
+      <p className="mb-2">
+        Every successful login pushes you to <code>HomeScreen</code>, which now shows the structured payload for the credential you just received:
+      </p>
+      <CodeBlock
+        language="dart"
+        code={`JsonViewer(
+  data: _getCredentialJson(),
+  title: 'Credential Data',
+  initiallyExpanded: true,
+);`}
+      />
+      <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
+        The viewer collapses nested sections, highlights keys/values, and offers a one-tap “Copy JSON” action—handy when debugging responses from Google ID tokens, passkeys, or masked password credentials.
+      </p>
       
       <h2 className="text-2xl font-semibold mt-10 mb-4">Example Code Snippets</h2>
       

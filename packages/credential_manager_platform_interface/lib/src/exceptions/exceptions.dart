@@ -7,7 +7,7 @@
 ///    103   Not implemented
 ///
 ///    201   Login cancelled
-///    202   No credentials found
+///    202   No credentials found (Android returns empty Credentials object instead)
 ///    203   Mismatched credentials
 ///    204   Login failed
 ///    205   Temporarily blocked (due to too many canceled sign-in prompts)
