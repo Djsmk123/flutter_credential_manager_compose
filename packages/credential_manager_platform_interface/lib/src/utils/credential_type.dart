@@ -4,4 +4,3 @@ enum CredentialType {
   publicKeyCredentials,
   googleIdTokenCredentials
 }
-
