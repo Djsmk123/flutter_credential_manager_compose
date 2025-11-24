@@ -28,6 +28,33 @@ flutter pub add credential_manager
 
 For comprehensive guides and detailed documentation, please visit our [Documentation Page](https://djsmk123.github.io/flutter_credential_manager_compose/#/). Here you will find everything you need to get started, including API references, usage examples, and best practices for integrating Credential Manager into your application.
 
+## Credential Flow Previews
+
+<table>
+  <tr>
+    <th>Android Credential Manager</th>
+    <th>iOS Passkey Sheet</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img
+        src="https://developer.android.com/static/images/design/ui/mobile/passkeys/02c-a14-two-step-flow.png"
+        alt="Credential Manager UI"
+        width="350"
+      />
+    </td>
+    <td align="center">
+      <img
+        src="https://devimages-cdn.apple.com/wwdc-services/images/D35E0E85-CCB6-41A1-B227-7995ECD83ED5/8332/8332_wide_900x506_2x.jpg"
+        alt="Apple Passkey UI"
+        width="350"
+      />
+    </td>
+  </tr>
+</table>
+
+> **Heads-up:** The screenshots above come directly from the official Android and Apple design resources. The bundled example application recreates similar flows but may look slightly different depending on your theme, device, or customizations.
+
 ## Development Workflow
 
 We rely on [pre-commit](https://pre-commit.com/) to guarantee formatting and analyzer checks run before every commit.
