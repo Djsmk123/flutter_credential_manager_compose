@@ -63,30 +63,27 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.7"
+    version: "2.0.8"
   credential_manager_android:
     dependency: transitive
     description:
-      name: credential_manager_android
-      sha256: "5ae9e4790921874aa3a56d4849695a2f66ac2eacfa5a24f0bda2b4dd1cc02dae"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../credential_manager_android"
+      relative: true
+    source: path
     version: "2.0.7"
   credential_manager_ios:
     dependency: transitive
     description:
-      name: credential_manager_ios
-      sha256: "5cabc6d070afcda12f585e9f091534b9acdd40c3740820b2e4b56fb54fe19b23"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../credential_manager_ios"
+      relative: true
+    source: path
     version: "2.0.7"
   credential_manager_platform_interface:
     dependency: transitive
     description:
-      name: credential_manager_platform_interface
-      sha256: "118e8046f95597baf23caf0ec4bc739e4502f71441df593edd951f9b16bea69e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../credential_manager_platform_interface"
+      relative: true
+    source: path
     version: "2.0.7"
   cupertino_icons:
     dependency: "direct main"

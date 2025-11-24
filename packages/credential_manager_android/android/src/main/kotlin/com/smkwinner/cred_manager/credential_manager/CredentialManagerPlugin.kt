@@ -75,7 +75,10 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)
         } else {
-            result.success(message)
+            result.success(mapOf(
+                "message" to message,
+                "isGmsAvailable" to utils.getIsGmsAvailable()
+            ))
         }
     }
     private suspend fun handleSavePasswordCredentials(call: MethodCall, result: Result) {

@@ -79,5 +79,7 @@ dependencies {
     implementation "com.google.android.libraries.identity.googleid:googleid:1.1.1"
     //Co-routine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    // Google Play Services availability check
+    implementation "com.google.android.gms:play-services-base:18.9.0"
    // implementation files('/Users/mobin/development/flutter/bin/cache/artifacts/engine/android-arm64/flutter.jar')
 }

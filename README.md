@@ -28,6 +28,23 @@ flutter pub add credential_manager
 
 For comprehensive guides and detailed documentation, please visit our [Documentation Page](https://djsmk123.github.io/flutter_credential_manager_compose/#/). Here you will find everything you need to get started, including API references, usage examples, and best practices for integrating Credential Manager into your application.
 
+## Development Workflow
+
+We rely on [pre-commit](https://pre-commit.com/) to guarantee formatting and analyzer checks run before every commit.
+
+```bash
+pip3 install --user pre-commit   # first time only
+python3 -m pre_commit install    # installs the git hook
+# (optional) run on the entire repo once
+python3 -m pre_commit run --all-files
+```
+
+The configured hooks will:
+
+- Format every staged Dart file using `dart format`.
+- Format `docSite` sources with Prettier.
+- Run `flutter analyze` across all packages (including the example app); commits are blocked if any analyzer error occurs.
+
 ## Support the Project
 
 If you find this library useful and would like to support its development, consider buying me a coffee:
@@ -43,8 +60,3 @@ We are looking for maintainers to help us keep this library up-to-date and imple
 Thanks to all the contributors who have helped make this library better!
 
 [![Contributors](https://contrib.rocks/image?repo=Djsmk123/flutter_credential_manager_compose)](https://github.com/Djsmk123/flutter_credential_manager_compose/graphs/contributors)
-
-
-
-
-
