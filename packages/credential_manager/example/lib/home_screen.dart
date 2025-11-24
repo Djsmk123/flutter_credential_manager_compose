@@ -234,7 +234,7 @@ class HomeScreen extends StatelessWidget {
     };
 
     json['idToken'] = googleIdTokenCredential?.idToken.substring(0, 50);
-  
+
     json['displayName'] = googleIdTokenCredential?.displayName;
 
     json['givenName'] = googleIdTokenCredential?.givenName;
@@ -242,7 +242,7 @@ class HomeScreen extends StatelessWidget {
     json['familyName'] = googleIdTokenCredential?.familyName;
 
     json['email'] = googleIdTokenCredential?.email;
-  
+
     json['phoneNumber'] = googleIdTokenCredential?.phoneNumber;
 
     json['profilePictureUri'] =
