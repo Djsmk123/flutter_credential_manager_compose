@@ -5,9 +5,22 @@ import 'package:credential_manager_platform_interface/credential_manager_platfor
 import 'package:flutter/services.dart';
 
 /// iOS implementation of Credential Manager using method channels.
+///
+/// This class mirrors the Swift code under `packages/credential_manager_ios/`.
+/// If you extend the native plugin (e.g., to add Keychain flows or passkey
+/// metadata) consult the docs' “Extensions” section so your Dart and Swift
+/// changes ship together.
 class CredentialManagerIos extends CredentialManagerPlatform {
   /// Method channel used to communicate with the native iOS platform.
-  final methodChannel = const MethodChannel('credential_manager');
+  final MethodChannel methodChannel;
+
+  /// Creates a [CredentialManagerIos] instance.
+  ///
+  /// You can optionally provide a custom [channel] (useful for testing or when
+  /// embedding the plugin inside another binary). When omitted the default
+  /// `credential_manager` channel is used.
+  CredentialManagerIos({MethodChannel? channel})
+      : methodChannel = channel ?? const MethodChannel('credential_manager');
 
   @override
   Future<String?> getPlatformVersion() async {

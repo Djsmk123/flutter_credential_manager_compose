@@ -1,8 +1,12 @@
 package com.smkwinner.cred_manager.credential_manager
 
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.util.Log
 import androidx.credentials.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialCancellationException
@@ -17,6 +21,7 @@ class CredentialManagerUtils {
     private lateinit var credentialManager: CredentialManager
     private var preferImmediatelyAvailableCredentials: Boolean = true
     private lateinit var serverClientID: String
+    private var isGmsAvailable: Boolean = false
 
     /**
      * Initialize the CredentialManagerUtils.
@@ -32,6 +37,16 @@ class CredentialManagerUtils {
         context: Context,
     ): Pair<CredentialManagerExceptions?, String> {
         return try {
+            // Check if Google Play Services is available
+            val googleApiAvailability = GoogleApiAvailability.getInstance()
+            val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(context)
+            isGmsAvailable = (resultCode == ConnectionResult.SUCCESS)
+
+            if (!isGmsAvailable) {
+                val errorMessage = googleApiAvailability.getErrorString(resultCode)
+                Log.d("CredentialManager", "Google Play Services not available: $errorMessage")
+            }
+
             credentialManager = CredentialManager.create(context = context)
             this.preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
             if (gClientId != null) {
@@ -138,11 +153,22 @@ class CredentialManagerUtils {
                 )
             }
 
+            // Check if Google Play Services is available for Google credentials
+            if (fetchOptions.googleCredential && !isGmsAvailable) {
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 209,
+                        message = "Google Play Services not available",
+                        details = "Google Sign-In requires Google Play Services"
+                    ), null
+                )
+            }
+
             // Validate requestJson for Passkey or Google Sign-In
             if (fetchOptions.passKeyOption && requestJson == null) {
                 return Pair(
                     CredentialManagerExceptions(
-                        code = 207,
+                        code = 208,
                         message = "RequestJson is required",
                         details = "Provide requestJson for passkey."
                     ), null
@@ -243,6 +269,25 @@ class CredentialManagerUtils {
                 ), null
             )
         } catch (e: GetCredentialException) {
+            // Detect situation where no google account is available on device/emulator
+            val msg = e.localizedMessage ?: ""
+            if (msg.contains("no credentials available", ignoreCase = true) || msg.contains("no accounts", ignoreCase = true) || msg.contains("no google", ignoreCase = true)) {
+                try {
+                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
+                    intent.putExtra("accountTypes", arrayOf("com.google"))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                } catch (ex: Exception) {
+                    Log.d("CredentialManager", "Failed to open add account settings: ${ex.localizedMessage}")
+                }
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 207,
+                        message = "No Google account present; launched account settings",
+                        details = e.localizedMessage
+                    ), null
+                )
+            }
             Pair(
                 CredentialManagerExceptions(
                     code = 204,
@@ -270,6 +315,17 @@ class CredentialManagerUtils {
      * or CredentialManagerExceptions and null if an error occurs.
      */
     suspend fun saveGoogleCredentials(useButtonFlow: Boolean, context: Context): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
+        // Check if Google Play Services is available
+        if (!isGmsAvailable) {
+            return Pair(
+                CredentialManagerExceptions(
+                    code = 209,
+                    message = "Google Play Services not available",
+                    details = "Google Sign-In requires Google Play Services"
+                ), null
+            )
+        }
+
         if (!this::serverClientID.isInitialized) {
             return Pair(
                 CredentialManagerExceptions(
@@ -297,10 +353,38 @@ class CredentialManagerUtils {
             .build()
 
         Log.d("CredentialManager", "$request")
-        val result = credentialManager.getCredential(
-            request = request,
-            context = context,
-        )
+        val result = try {
+            credentialManager.getCredential(
+                request = request,
+                context = context,
+            )
+        } catch (e: GetCredentialException) {
+            val msg = e.localizedMessage ?: ""
+            if (msg.contains("no credentials available", ignoreCase = true) || msg.contains("no accounts", ignoreCase = true) || msg.contains("no google", ignoreCase = true)) {
+                try {
+                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
+                    intent.putExtra("accountTypes", arrayOf("com.google"))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                } catch (ex: Exception) {
+                    Log.d("CredentialManager", "Failed to open add account settings: ${ex.localizedMessage}")
+                }
+                return Pair(
+                    CredentialManagerExceptions(
+                        code = 207,
+                        message = "No Google account present; launched account settings",
+                        details = e.localizedMessage
+                    ), null
+                )
+            }
+            return Pair(
+                CredentialManagerExceptions(
+                    code = 204,
+                    message = "Login failed ${e.localizedMessage}",
+                    details = e.stackTraceToString(),
+                ), null
+            )
+        }
 
         when (val credential = result.credential) {
             is CustomCredential -> {
@@ -419,6 +503,15 @@ class CredentialManagerUtils {
         fetchOptions: FetchOptions
     ): Boolean {
         return fetchOptions.googleCredential || fetchOptions.passwordCredential || fetchOptions.passKeyOption
+    }
+
+    /**
+     * Returns whether Google Play Services is available on the device.
+     *
+     * @return Boolean indicating GMS availability.
+     */
+    fun getIsGmsAvailable(): Boolean {
+        return isGmsAvailable
     }
 
 

@@ -1,3 +1,8 @@
+/// Public entry point for the credential manager platform interface package.
+///
+/// Import this library when you need the shared models, exceptions, or the
+/// [CredentialManagerPlatform] base class to build new platform
+/// implementations or utilities.
 library credential_manager_platform_interface;
 
 export 'src/credential_manager_platform_interface.dart';
@@ -16,4 +21,3 @@ export 'src/exceptions/exceptions.dart';
 export 'src/utils/credential_type.dart';
 export 'src/utils/platform_exception_handler.dart';
 export 'src/utils/credential_response_parser.dart';
-

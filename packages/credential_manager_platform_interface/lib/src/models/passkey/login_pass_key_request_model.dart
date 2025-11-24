@@ -12,7 +12,8 @@ class CredentialLoginOptions {
   /// The time, in milliseconds, allowed for the user to complete the operation.
   /// Defaults to 30 minutes (1800000 milliseconds).
   final int timeout;
-  //only available on ios
+
+  /// iOS-only flag that triggers the system's conditional UI on the keyboard.
   final bool conditionalUI;
 
   /// Constructs a new [CredentialLoginOptions] instance.

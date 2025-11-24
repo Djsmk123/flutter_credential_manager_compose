@@ -1,5 +1,11 @@
 # Changelog
 
+# 2.0.8
+- Added `isGmsAvailable` to platform interface
+- Handle `exception code 209` for Google Play Services not available
+- on Android, Google account is not logged in, the plugin will  launch Google Sign-In flow.
+- Updated documentation
+
 ## 2.0.7
 - Fixed plugin score issues
 

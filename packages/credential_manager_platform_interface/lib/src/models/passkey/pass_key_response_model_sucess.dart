@@ -159,6 +159,7 @@ class Response {
 
 /// Class representing client extension results.
 class ClientExtensionResults {
+  /// Credential properties returned by the authenticator extension, if any.
   CredProps? credProps;
 
   /// Constructor for ClientExtensionResults.
@@ -194,6 +195,7 @@ class ClientExtensionResults {
 
 /// Class representing credential properties.
 class CredProps {
+  /// Indicates whether the credential is a resident key (stored on-device).
   bool? rk;
 
   /// Constructor for CredProps.

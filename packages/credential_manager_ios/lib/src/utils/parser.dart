@@ -5,6 +5,11 @@ import 'package:cbor/cbor.dart';
 
 /// A utility class for parsing iOS passkey attestation objects.
 class AttestationParser {
+  /// Creates an [AttestationParser]. All members are static, so instantiating
+  /// this class is rarely required; this constructor exists for completeness in
+  /// generated documentation and for potential dependency injection in tests.
+  const AttestationParser();
+
   /// Parses an iOS passkey attestation object to extract the authenticator data and public key.
   ///
   /// This method decodes the base64url-encoded attestation object that is returned

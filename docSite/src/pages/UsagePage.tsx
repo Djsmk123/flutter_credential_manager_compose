@@ -50,6 +50,22 @@ const UsagePage = () => {
         </p>
       </div>
 
+      <p className="mt-4 mb-2">
+        After calling <code>init</code>, the plugin now exposes <code>credentialManager.isGmsAvailable</code>. Use it to avoid launching Google flows on devices/emulators where Play Services is missing; otherwise you will receive the new <code>209</code> exception code. This check only reflects real availability on Android—on iOS and other platforms it will always return <code>true</code>.
+      </p>
+      <CodeBlock
+        language="dart"
+        code={`await credentialManager.init(
+  preferImmediatelyAvailableCredentials: true,
+  googleClientId: '<your-web-client-id>',
+);
+
+if (!credentialManager.isGmsAvailable) {
+  // Show a friendly message or fall back to password/passkey flows
+  return const Text('Google Play Services is not available on this device');
+}`}
+      />
+
       <h2 className="text-2xl font-semibold mt-8 mb-4">Password Based Credentials</h2>
 
       <p className="mb-4">
@@ -143,7 +159,7 @@ const UsagePage = () => {
       <p className="mt-4 mb-2">
         Now validate the credentials and after action, Native APIs will handle the rest of the things.
       </p>
-      
+
       <div className="my-4">
         <p className="mb-2 font-medium">iOS Password Autofill:</p>
         <div className="border border-gray-300 rounded-lg p-2 inline-block">
@@ -280,14 +296,14 @@ const UsagePage = () => {
           <p className="font-medium mb-2">With using <code>useButtonFlow</code>:</p>
           <div className="border border-gray-300 rounded-lg p-2">
             <ImageViewer imageUrls={["https://developer.android.com/static/identity/sign-in/images/add-siwg-animated-2.gif"]} height="300" />
-            
+
           </div>
         </div>
         <div>
           <p className="font-medium mb-2">Without using <code>useButtonFlow</code>:</p>
           <div className="border border-gray-300 rounded-lg p-2">
             <ImageViewer imageUrls={["https://i.ibb.co/KNkgtdV/IMG-20240128-164347.jpg"]} height="300" />
-            
+
           </div>
         </div>
       </div>
@@ -429,7 +445,7 @@ print('Passkey Raw ID: \${credential.rawId}');`}
       <div className="my-4">
         <div className="border border-gray-300 rounded-lg p-2 inline-block">
           <ImageViewer imageUrls={["https://i.ibb.co/XCLvkB3/Whats-App-Image-2024-06-02-at-21-46-17.jpg"]} height="300" />
-          
+
         </div>
       </div>
 
@@ -486,7 +502,7 @@ print('Passkey Raw ID: \${credential.rawId}');`}
   if(credential.publicKeyCredential != null){
     print('Passkey ID: \${credential.publicKeyCredential!.id}');
     print('Passkey Raw ID: \${credential.publicKeyCredential!.rawId}');
-  }  
+  }
 } on CredentialException catch (e) {
   // Handle the error
   print('Error getting passkey credential: \${e.message}');
@@ -509,6 +525,15 @@ print('Passkey Raw ID: \${credential.rawId}');`}
       <p className="mb-4">
         Handle common errors when working with the Credential Manager:
       </p>
+
+      <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg mb-4 border border-amber-200 dark:border-amber-800">
+        <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-2">New Android-focused error codes:</p>
+        <ul className="list-disc pl-6 space-y-1 text-amber-900 dark:text-amber-100 text-sm">
+          <li><code>207</code>: No Google account is present on the device. The plugin automatically opens the “Add account” settings screen so users can add one.</li>
+          <li><code>209</code>: Google Play Services is not available, so Google Sign-In and credential fetching are skipped.</li>
+        </ul>
+        <p className="text-xs mt-2 text-amber-700 dark:text-amber-200">Watch for these codes in <code>CredentialException</code> when calling <code>saveGoogleCredential</code> or <code>getCredentials</code> with <code>googleCredential: true</code>.</p>
+      </div>
 
       <CodeBlock
         language="dart"

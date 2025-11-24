@@ -6,7 +6,14 @@ import 'package:credential_manager_android/credential_manager_android.dart'
 import 'package:credential_manager_ios/credential_manager_ios.dart'
     as ios_plugin;
 
-/// A class that provides a high-level interface for interacting with the Credential Manager.
+/// A class that provides a high-level interface for interacting with the
+/// Credential Manager.
+///
+/// The methods are intentionally thin wrappers around
+/// [CredentialManagerPlatform] so that you can extend or swap pieces out when
+/// writing custom plugins. For details on extending the Dart and native layers,
+/// see the “Extensions” section in the docs:
+/// https://djsmk123.github.io/flutter_credential_manager_compose/#/
 class CredentialManager {
   // /// Ensures the platform implementation is registered
   // static void _ensureInitialized() {
@@ -19,6 +26,10 @@ class CredentialManager {
   //     _initialized = true;
   //   }
   // }
+  /// Creates a [CredentialManager] and ensures the appropriate platform
+  /// implementation is registered. If you ship a forked Android/iOS package,
+  /// update the imports above or register your plugin before instantiating this
+  /// class (see docs linked in the class comment).
   CredentialManager() {
     if (Platform.isAndroid) {
       android_plugin.CredentialManagerAndroidPlugin.registerWith();
@@ -75,6 +86,7 @@ class CredentialManager {
   /// [fetchOptions] - Options for fetching specific types of credentials.
   ///
   /// Returns a [Future] that completes with [Credentials] representing the retrieved credentials.
+  /// Returns an empty [Credentials] object if no credentials are found.
   Future<Credentials> getCredentials(
       {CredentialLoginOptions? passKeyOption,
       FetchOptionsAndroid? fetchOptions}) async {
@@ -104,4 +116,13 @@ class CredentialManager {
   ///
   /// Returns `true` if the platform is supported, otherwise `false`.
   bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
+
+  /// Checks if Google Play Services is available on the device.
+  ///
+  /// This is an Android-specific feature. On iOS, this will return `true`.
+  /// Use this to check GMS availability before attempting Google Sign-In operations.
+  /// This value is set during initialization.
+  ///
+  /// Returns a [bool] indicating GMS availability.
+  bool get isGmsAvailable => CredentialManagerPlatform.instance.isGmsAvailable;
 }

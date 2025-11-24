@@ -22,7 +22,8 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   ///
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [CredentialManagerPlatform] when
-  /// they register themselves.
+  /// they register themselves. See the “Extensions” guidance in the docs for
+  /// best practices on wiring up custom platform instances.
   static CredentialManagerPlatform get instance {
     if (_instance == null) {
       throw AssertionError(
@@ -37,7 +38,9 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
 
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [CredentialManagerPlatform] when
-  /// they register themselves.
+  /// they register themselves. If you fork the Android/iOS packages, call this
+  /// setter during plugin registration so the Dart surface knows about your
+  /// implementation.
   static set instance(CredentialManagerPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
@@ -67,6 +70,7 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   /// [fetchOptions] - Options for fetching specific types of credentials (Android only).
   ///
   /// Returns a [Future] that completes with [Credentials] representing the retrieved credentials.
+  /// Returns an empty [Credentials] object if no credentials are found.
   Future<Credentials> getCredentials({
     CredentialLoginOptions? passKeyOption,
     FetchOptionsAndroid? fetchOptions,
@@ -97,5 +101,12 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   ///
   /// Returns a [Future] that completes when the user is successfully logged out.
   Future<void> logout();
-}
 
+  /// Checks if Google Play Services is available on the device.
+  ///
+  /// This is an Android-specific feature. On iOS, this will return `true`.
+  /// This value is set during initialization.
+  ///
+  /// Returns a [bool] indicating GMS availability.
+  bool get isGmsAvailable => true;
+}

@@ -4,9 +4,25 @@ import 'package:credential_manager_platform_interface/credential_manager_platfor
 import 'package:flutter/services.dart';
 
 /// Android implementation of Credential Manager using method channels.
+///
+/// If you need to augment the native side (for example to support OEM flows or
+/// proprietary credential providers) start here—each public override maps to a
+/// Kotlin entry-point under `packages/credential_manager_android/android`.
+/// The docs' “Extensions” section explains how to keep those edits in sync with
+/// the shared platform interface.
 class CredentialManagerAndroid extends CredentialManagerPlatform {
   /// Method channel used to communicate with the native Android platform.
-  final methodChannel = const MethodChannel('credential_manager');
+  final MethodChannel methodChannel;
+
+  /// Creates a [CredentialManagerAndroid] instance. Provide a custom [channel]
+  /// when writing tests or wrapping this plugin inside another Android binary;
+  /// the default channel name is `credential_manager`.
+  CredentialManagerAndroid({MethodChannel? channel})
+      : methodChannel = channel ?? const MethodChannel('credential_manager');
+
+  /// Whether Google Play Services is available on the device.
+  /// Defaults to true and is updated during initialization.
+  bool _isGmsAvailable = true;
 
   @override
   Future<String?> getPlatformVersion() async {
@@ -20,7 +36,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
     bool preferImmediatelyAvailableCredentials,
     String? googleClientId,
   ) async {
-    final res = await methodChannel.invokeMethod<String>(
+    final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
       "init",
       {
         'prefer_immediately_available_credentials':
@@ -29,7 +45,8 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       },
     );
 
-    if (res != null && res == "Initialization successful") {
+    if (res != null && res['message'] == "Initialization successful") {
+      _isGmsAvailable = res['isGmsAvailable'] as bool? ?? true;
       return;
     }
 
@@ -97,6 +114,11 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
         details: "Expected a response from the native platform but got null",
       );
     } on PlatformException catch (e) {
+      // Return empty Credentials when no credentials are found (code 202)
+      // This is a normal expected state, not an error
+      if (e.code == '202') {
+        return Credentials();
+      }
       throw PlatformExceptionHandler.handlePlatformException(
         e,
         credentialType,
@@ -169,5 +191,10 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       message: "Logout failed",
       details: null,
     );
+  }
+
+  @override
+  bool get isGmsAvailable {
+    return _isGmsAvailable;
   }
 }

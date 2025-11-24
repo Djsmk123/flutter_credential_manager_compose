@@ -8,10 +8,15 @@ import '../models/password_credentials.dart';
 
 /// Utility class for parsing credential responses from platform channels.
 class CredentialResponseParser {
+  /// Creates a [CredentialResponseParser]. All members are static, so creating
+  /// an instance is rarely necessary; this constructor exists primarily for
+  /// completeness in generated documentation.
+  const CredentialResponseParser();
+
   /// Parses a credential response map and returns the appropriate [Credentials] object.
   static Credentials parseCredentialResponse(Map<Object?, Object?> response) {
     final data = jsonDecode(jsonEncode(response));
-    
+
     switch (data['type']) {
       case 'PasswordCredentials':
         return Credentials(
@@ -36,4 +41,3 @@ class CredentialResponseParser {
     }
   }
 }
-
