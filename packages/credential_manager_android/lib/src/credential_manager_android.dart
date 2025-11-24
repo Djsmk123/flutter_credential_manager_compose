@@ -12,7 +12,13 @@ import 'package:flutter/services.dart';
 /// the shared platform interface.
 class CredentialManagerAndroid extends CredentialManagerPlatform {
   /// Method channel used to communicate with the native Android platform.
-  final methodChannel = const MethodChannel('credential_manager');
+  final MethodChannel methodChannel;
+
+  /// Creates a [CredentialManagerAndroid] instance. Provide a custom [channel]
+  /// when writing tests or wrapping this plugin inside another Android binary;
+  /// the default channel name is `credential_manager`.
+  CredentialManagerAndroid({MethodChannel? channel})
+      : methodChannel = channel ?? const MethodChannel('credential_manager');
 
   /// Whether Google Play Services is available on the device.
   /// Defaults to true and is updated during initialization.
