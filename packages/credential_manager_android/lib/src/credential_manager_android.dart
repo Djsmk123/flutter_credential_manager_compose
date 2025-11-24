@@ -4,6 +4,12 @@ import 'package:credential_manager_platform_interface/credential_manager_platfor
 import 'package:flutter/services.dart';
 
 /// Android implementation of Credential Manager using method channels.
+///
+/// If you need to augment the native side (for example to support OEM flows or
+/// proprietary credential providers) start here—each public override maps to a
+/// Kotlin entry-point under `packages/credential_manager_android/android`.
+/// The docs' “Extensions” section explains how to keep those edits in sync with
+/// the shared platform interface.
 class CredentialManagerAndroid extends CredentialManagerPlatform {
   /// Method channel used to communicate with the native Android platform.
   final methodChannel = const MethodChannel('credential_manager');

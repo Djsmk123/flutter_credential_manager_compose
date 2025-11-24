@@ -6,6 +6,8 @@ import { docNavigation } from '@/lib/docs-utils';
 import Footer from '@/components/Footer';
 import { cn } from '@/lib/utils';
 import { useSidebarToggle } from '@/hooks/useSidebarToggle';
+import Header from './Header';
+import TableOfContents from './TableOfContents';
 
 type DocLayoutProps = PropsWithChildren
 
@@ -37,36 +39,42 @@ const DocLayout = ({ children }: DocLayoutProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-background font-sans antialiased">
       {/* Progress bar */}
-      <div className="fixed top-0 left-0 w-full h-1 z-50">
+      <div className="fixed top-0 left-0 w-full h-1 z-[100]">
         <div 
-          className="h-full bg-blue-600 dark:bg-blue-500 transition-all duration-300 ease-linear"
+          className="h-full bg-primary transition-all duration-300 ease-linear"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
-      <div className="flex min-h-screen">
-        <DocSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+
+      <div className="flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 container max-w-screen-2xl">
+        <aside className={cn(
+          "fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 md:sticky md:block overflow-y-auto border-r border-border/40 pr-2 py-6 lg:py-8",
+          isSidebarOpen && "block bg-background inset-0 z-50 w-full p-6 md:p-0"
+        )}>
+          <DocSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+        </aside>
         
-        <div className="flex-1 flex flex-col min-w-0">
-          <main className="flex-grow mx-auto w-full max-w-5xl px-3 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <main className="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
+          <div className="mx-auto w-full min-w-0">
             <div className={cn(
-              "bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8",
-              "doc-content prose prose-blue dark:prose-invert max-w-none",
+              "prose prose-slate dark:prose-invert max-w-none",
               "animate-fade-in"
             )}>
               {children}
 
               {/* Previous/Next navigation */}
-              <div className="mt-12 sm:mt-16 border-t border-gray-200 dark:border-gray-800 pt-4 sm:pt-6 flex flex-col sm:flex-row justify-between gap-4">
+              <div className="mt-12 flex flex-row items-center justify-between gap-4 border-t pt-6 pb-6">
                 {prevPage ? (
                   <Link
                     to={prevPage.path}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 no-underline group transition-all duration-200 text-sm sm:text-base"
+                    className="group flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground no-underline"
                   >
-                    <ChevronLeft size={18} className="mr-1 group-hover:-translate-x-1 transition-transform duration-200" />
-                    <span className="truncate">{prevPage.title}</span>
+                    <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                    <span>{prevPage.title}</span>
                   </Link>
                 ) : (
                   <div />
@@ -75,20 +83,20 @@ const DocLayout = ({ children }: DocLayoutProps) => {
                 {nextPage ? (
                   <Link
                     to={nextPage.path}
-                    className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 no-underline group transition-all duration-200 text-sm sm:text-base"
+                    className="group flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground no-underline"
                   >
-                    <span className="truncate">{nextPage.title}</span>
-                    <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform duration-200" />
+                    <span>{nextPage.title}</span>
+                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 ) : (
                   <div />
                 )}
               </div>
             </div>
-          </main>
-          
-          <Footer />
-        </div>
+            <Footer />
+          </div>
+          <TableOfContents />
+        </main>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -30,31 +30,33 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
-    
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-primary: 221.2 83.2% 53.3%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-ring: 221.2 83.2% 53.3%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222.2 47.4% 11.2%;
+    /* Slate 950 */
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 217.2 32.6% 17.5%;
+    /* Slate 900 */
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -71,16 +73,16 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    
+    --ring: 212.7 26.8% 83.9%;
+
     --sidebar-background: 222.2 47.4% 11.2%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary: 210 40% 98%;
     --sidebar-primary-foreground: 222.2 47.4% 11.2%;
     --sidebar-accent: 217.2 32.6% 17.5%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-ring: 224.3 76.3% 48%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -94,145 +96,186 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply scroll-mt-20;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply scroll-mt-24 font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl lg:text-5xl mb-6;
+  }
+
+  h2 {
+    @apply text-3xl border-b pb-2 mt-10 mb-4;
+  }
+
+  h3 {
+    @apply text-2xl mt-8 mb-4;
+  }
+
+  p {
+    @apply leading-7 [&:not(:first-child)]:mt-6;
   }
 }
 
-/* Prism.js theme overrides for dark mode */
-.dark pre[class*="language-"],
-.dark code[class*="language-"] {
-  @apply text-gray-100 !bg-gray-950;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.dark pre[class*="language-"] .token.comment,
-.dark code[class*="language-"] .token.comment,
-.dark pre[class*="language-"] .token.prolog,
-.dark code[class*="language-"] .token.prolog,
-.dark pre[class*="language-"] .token.doctype,
-.dark code[class*="language-"] .token.doctype,
-.dark pre[class*="language-"] .token.cdata,
-.dark code[class*="language-"] .token.cdata {
-  @apply text-gray-500;
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
 }
 
-.dark pre[class*="language-"] .token.punctuation,
-.dark code[class*="language-"] .token.punctuation {
-  @apply text-gray-400;
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
 }
 
-.dark pre[class*="language-"] .token.property,
-.dark code[class*="language-"] .token.property,
-.dark pre[class*="language-"] .token.tag,
-.dark code[class*="language-"] .token.tag,
-.dark pre[class*="language-"] .token.boolean,
-.dark code[class*="language-"] .token.boolean,
-.dark pre[class*="language-"] .token.number,
-.dark code[class*="language-"] .token.number {
-  @apply text-orange-300;
+/* Glassmorphism utilities */
+.glass {
+  @apply bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border border-white/20 dark:border-white/10;
 }
 
-.dark pre[class*="language-"] .token.selector,
-.dark code[class*="language-"] .token.selector,
-.dark pre[class*="language-"] .token.attr-name,
-.dark code[class*="language-"] .token.attr-name,
-.dark pre[class*="language-"] .token.string,
-.dark code[class*="language-"] .token.string,
-.dark pre[class*="language-"] .token.char,
-.dark code[class*="language-"] .token.char,
-.dark pre[class*="language-"] .token.builtin,
-.dark code[class*="language-"] .token.builtin {
-  @apply text-green-300;
+.glass-card {
+  @apply bg-card/50 backdrop-blur-sm border border-border/50 shadow-sm;
 }
 
-.dark pre[class*="language-"] .token.operator,
-.dark code[class*="language-"] .token.operator,
-.dark pre[class*="language-"] .token.entity,
-.dark code[class*="language-"] .token.entity,
-.dark pre[class*="language-"] .token.url,
-.dark code[class*="language-"] .token.url,
-.dark pre[class*="language-"] .language-css .token.string,
-.dark code[class*="language-"] .language-css .token.string,
-.dark pre[class*="language-"] .style .token.string,
-.dark code[class*="language-"] .style .token.string {
-  @apply text-yellow-300;
+/* Code block styling */
+pre {
+  @apply !bg-slate-950 !rounded-lg !border !border-slate-800 !p-4 !my-6 overflow-x-auto;
 }
 
-.dark pre[class*="language-"] .token.atrule,
-.dark code[class*="language-"] .token.atrule,
-.dark pre[class*="language-"] .token.attr-value,
-.dark code[class*="language-"] .token.attr-value,
-.dark pre[class*="language-"] .token.keyword,
-.dark code[class*="language-"] .token.keyword {
-  @apply text-blue-300;
+code {
+  @apply font-mono text-sm;
 }
 
-.dark pre[class*="language-"] .token.function,
-.dark code[class*="language-"] .token.function {
-  @apply text-pink-300;
+:not(pre)>code {
+  @apply bg-muted px-[0.3rem] py-[0.2rem] rounded border border-border font-semibold text-primary;
 }
 
-.dark pre[class*="language-"] .token.regex,
-.dark code[class*="language-"] .token.regex,
-.dark pre[class*="language-"] .token.important,
-.dark code[class*="language-"] .token.important,
-.dark pre[class*="language-"] .token.variable,
-.dark code[class*="language-"] .token.variable {
-  @apply text-red-300;
+/* Prism Theme Overrides */
+code[class*="language-"],
+pre[class*="language-"] {
+  @apply !text-slate-50 !text-sm !leading-relaxed;
 }
 
-/* Custom utility classes */
-.glass-effect {
-  @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border border-white/20 dark:border-gray-800/50;
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  @apply !text-slate-500;
 }
 
-.prose :where(pre):not(:where([class~="not-prose"] *)) {
-  @apply bg-gray-950 text-gray-50 border border-gray-800 rounded-md shadow-md;
+.token.punctuation {
+  @apply !text-slate-400;
 }
 
-/* Dark mode improvements */
-.dark .doc-content {
-  @apply text-gray-200;
+.token.namespace {
+  @apply !opacity-70;
 }
 
-.dark .doc-content h1,
-.dark .doc-content h2,
-.dark .doc-content h3,
-.dark .doc-content h4,
-.dark .doc-content h5,
-.dark .doc-content h6 {
-  @apply text-gray-100;
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  @apply !text-pink-400;
 }
 
-.dark .doc-content a:not(.no-underline) {
-  @apply text-blue-400 hover:text-blue-300;
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  @apply !text-green-400;
 }
 
-.dark .doc-content p,
-.dark .doc-content li {
-  @apply text-gray-300;
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  @apply !text-sky-400;
 }
 
-.dark .doc-content blockquote {
-  @apply border-blue-700 bg-blue-900/20 text-gray-300;
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  @apply !text-violet-400;
 }
 
-.dark .bg-doc-bg {
-  @apply bg-gray-950;
+.token.function,
+.token.class-name {
+  @apply !text-yellow-300;
 }
 
-.dark .bg-doc-sidebar {
-  @apply bg-gray-900;
+.token.regex,
+.token.important,
+.token.variable {
+  @apply !text-orange-400;
 }
 
-.dark .border-doc-border {
-  @apply border-gray-800;
+/* Markdown Content Styling */
+.prose {
+  @apply max-w-none text-foreground;
 }
 
-.dark .text-doc-text {
-  @apply text-gray-200;
+.prose a {
+  @apply text-primary no-underline hover:underline font-medium decoration-primary/30 underline-offset-4 transition-all;
 }
 
-.dark .text-doc-primary {
-  @apply text-blue-400;
+.prose strong {
+  @apply font-bold text-foreground;
+}
+
+.prose ul {
+  @apply list-disc list-outside ml-6 my-6 marker:text-muted-foreground;
+}
+
+.prose ol {
+  @apply list-decimal list-outside ml-6 my-6 marker:text-muted-foreground;
+}
+
+.prose li {
+  @apply mt-2;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-primary/50 bg-muted/50 pl-6 py-1 italic rounded-r-lg my-6;
+}
+
+.prose img {
+  @apply rounded-lg border border-border shadow-md my-8;
+}
+
+.prose hr {
+  @apply my-10 border-border;
+}
+
+.prose table {
+  @apply w-full my-8 border-collapse text-sm;
+}
+
+.prose thead {
+  @apply bg-muted/50 border-b border-border;
+}
+
+.prose th {
+  @apply text-left p-4 font-semibold text-foreground;
+}
+
+.prose td {
+  @apply p-4 border-b border-border align-top;
+}
+
+.prose tr:last-child td {
+  @apply border-0;
 }
