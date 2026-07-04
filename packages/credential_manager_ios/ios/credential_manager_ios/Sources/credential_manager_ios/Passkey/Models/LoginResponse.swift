@@ -16,7 +16,7 @@ extension AuthenticateResponse {
               let userHandle = json["userHandle"] as? String else {
             return nil
         }
-        
+
         return AuthenticateResponse(
             id: id,
             rawId: rawId,
@@ -26,7 +26,7 @@ extension AuthenticateResponse {
             userHandle: userHandle
         )
     }
-    
+
     func toJson() -> [String: Any] {
         return [
             "id": id,
@@ -58,12 +58,15 @@ struct AuthenticateResponse {
   var userHandle: String
 
   static func fromList(_ list: [Any?]) -> AuthenticateResponse? {
-    let id = list[0] as! String
-    let rawId = list[1] as! String
-    let clientDataJSON = list[2] as! String
-    let authenticatorData = list[3] as! String
-    let signature = list[4] as! String
-    let userHandle = list[5] as! String
+    guard list.count >= 6,
+          let id = list[0] as? String,
+          let rawId = list[1] as? String,
+          let clientDataJSON = list[2] as? String,
+          let authenticatorData = list[3] as? String,
+          let signature = list[4] as? String,
+          let userHandle = list[5] as? String else {
+      return nil
+    }
 
     return AuthenticateResponse(
       id: id,
@@ -81,7 +84,7 @@ struct AuthenticateResponse {
       clientDataJSON,
       authenticatorData,
       signature,
-      userHandle,
+      userHandle
     ]
   }
 }

@@ -4,14 +4,24 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.util.Log
-import androidx.credentials.*
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CreatePasswordRequest
+import androidx.credentials.CreatePublicKeyCredentialRequest
+import androidx.credentials.CreatePublicKeyCredentialResponse
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetPasswordOption
+import androidx.credentials.GetPublicKeyCredentialOption
+import androidx.credentials.PasswordCredential
+import androidx.credentials.PublicKeyCredential
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -61,7 +71,8 @@ class CredentialManagerUtils {
                     code = 101,
                     message = "Initialization failure",
                     details = message
-                ), ""
+                ),
+                ""
             )
         }
     }
@@ -97,7 +108,8 @@ class CredentialManagerUtils {
                     code = 301,
                     message = "Save credentials canceled",
                     details = e.localizedMessage
-                ), ""
+                ),
+                ""
             )
         } catch (e: CreateCredentialException) {
             Pair(
@@ -105,7 +117,8 @@ class CredentialManagerUtils {
                     code = 302,
                     message = "Create credentials failed",
                     details = e.localizedMessage
-                ), ""
+                ),
+                ""
             )
         } catch (e: Exception) {
             Pair(
@@ -113,7 +126,8 @@ class CredentialManagerUtils {
                     code = 302,
                     message = "Create credentials failed, ${e.message}",
                     details = e.localizedMessage
-                ), ""
+                ),
+                ""
             )
         }
     }
@@ -138,7 +152,8 @@ class CredentialManagerUtils {
                         code = 206,
                         message = "Credential fetch options are not enabled",
                         details = "Enable at least one credential fetch option (passkey, Google, or password)."
-                    ), null
+                    ),
+                    null
                 )
             }
             val googleClientId = if (this::serverClientID.isInitialized) serverClientID else ""
@@ -149,7 +164,8 @@ class CredentialManagerUtils {
                         code = 503,
                         message = "Google client not initialized",
                         details = "Ensure Google credentials are provided."
-                    ), null
+                    ),
+                    null
                 )
             }
 
@@ -160,7 +176,8 @@ class CredentialManagerUtils {
                         code = 209,
                         message = "Google Play Services not available",
                         details = "Google Sign-In requires Google Play Services"
-                    ), null
+                    ),
+                    null
                 )
             }
 
@@ -171,7 +188,8 @@ class CredentialManagerUtils {
                         code = 208,
                         message = "RequestJson is required",
                         details = "Provide requestJson for passkey."
-                    ), null
+                    ),
+                    null
                 )
             }
 
@@ -222,7 +240,8 @@ class CredentialManagerUtils {
                                     code = 501,
                                     message = "Received an invalid google id token response",
                                     details = e.localizedMessage,
-                                ), null
+                                ),
+                                null
                             )
                         }
                     } else {
@@ -231,7 +250,8 @@ class CredentialManagerUtils {
                                 code = 202,
                                 message = "No credentials found",
                                 details = null
-                            ), null
+                            ),
+                            null
                         )
                     }
                 }
@@ -247,7 +267,8 @@ class CredentialManagerUtils {
                             code = 202,
                             message = "No credentials found",
                             details = null
-                        ), null
+                        ),
+                        null
                     )
                 }
             }
@@ -258,7 +279,8 @@ class CredentialManagerUtils {
                     code = 201,
                     message = "Login canceled",
                     details = e.localizedMessage
-                ), null
+                ),
+                null
             )
         } catch (e: NoCredentialException) {
             Pair(
@@ -266,12 +288,16 @@ class CredentialManagerUtils {
                     code = 202,
                     message = "No credentials found",
                     details = e.localizedMessage
-                ), null
+                ),
+                null
             )
         } catch (e: GetCredentialException) {
             // Detect situation where no google account is available on device/emulator
             val msg = e.localizedMessage ?: ""
-            if (msg.contains("no credentials available", ignoreCase = true) || msg.contains("no accounts", ignoreCase = true) || msg.contains("no google", ignoreCase = true)) {
+            val noAccountAvailable = msg.contains("no credentials available", ignoreCase = true) ||
+                msg.contains("no accounts", ignoreCase = true) ||
+                msg.contains("no google", ignoreCase = true)
+            if (noAccountAvailable) {
                 try {
                     val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
                     intent.putExtra("accountTypes", arrayOf("com.google"))
@@ -285,7 +311,8 @@ class CredentialManagerUtils {
                         code = 207,
                         message = "No Google account present; launched account settings",
                         details = e.localizedMessage
-                    ), null
+                    ),
+                    null
                 )
             }
             Pair(
@@ -293,7 +320,8 @@ class CredentialManagerUtils {
                     code = 204,
                     message = "Login failed ${e.localizedMessage}",
                     details = e.stackTraceToString(),
-                ), null
+                ),
+                null
             )
         } catch (e: Exception) {
             Pair(
@@ -301,11 +329,11 @@ class CredentialManagerUtils {
                     code = 204,
                     message = "Login failed ${e.localizedMessage}",
                     details = e.stackTraceToString(),
-                ), null
+                ),
+                null
             )
         }
     }
-
 
     /**
      * Save Google credentials.
@@ -314,7 +342,10 @@ class CredentialManagerUtils {
      * @return A Pair containing either null and deserialized GoogleIdTokenCredential
      * or CredentialManagerExceptions and null if an error occurs.
      */
-    suspend fun saveGoogleCredentials(useButtonFlow: Boolean, context: Context): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
+    suspend fun saveGoogleCredentials(
+        useButtonFlow: Boolean,
+        context: Context
+    ): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
         // Check if Google Play Services is available
         if (!isGmsAvailable) {
             return Pair(
@@ -322,7 +353,8 @@ class CredentialManagerUtils {
                     code = 209,
                     message = "Google Play Services not available",
                     details = "Google Sign-In requires Google Play Services"
-                ), null
+                ),
+                null
             )
         }
 
@@ -332,7 +364,8 @@ class CredentialManagerUtils {
                     code = 503,
                     message = "Google client is not initialized yet",
                     details = "Check if Google credentials is provided"
-                ), null
+                ),
+                null
             )
         }
 
@@ -360,7 +393,10 @@ class CredentialManagerUtils {
             )
         } catch (e: GetCredentialException) {
             val msg = e.localizedMessage ?: ""
-            if (msg.contains("no credentials available", ignoreCase = true) || msg.contains("no accounts", ignoreCase = true) || msg.contains("no google", ignoreCase = true)) {
+            val noAccountAvailable = msg.contains("no credentials available", ignoreCase = true) ||
+                msg.contains("no accounts", ignoreCase = true) ||
+                msg.contains("no google", ignoreCase = true)
+            if (noAccountAvailable) {
                 try {
                     val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
                     intent.putExtra("accountTypes", arrayOf("com.google"))
@@ -374,7 +410,8 @@ class CredentialManagerUtils {
                         code = 207,
                         message = "No Google account present; launched account settings",
                         details = e.localizedMessage
-                    ), null
+                    ),
+                    null
                 )
             }
             return Pair(
@@ -382,7 +419,8 @@ class CredentialManagerUtils {
                     code = 204,
                     message = "Login failed ${e.localizedMessage}",
                     details = e.stackTraceToString(),
-                ), null
+                ),
+                null
             )
         }
 
@@ -401,7 +439,8 @@ class CredentialManagerUtils {
                                 code = 501,
                                 message = "Received an invalid google id token response",
                                 details = e.localizedMessage,
-                            ), null
+                            ),
+                            null
                         )
                     }
                 }
@@ -412,22 +451,27 @@ class CredentialManagerUtils {
                 code = 502,
                 message = "Invalid request",
                 details = null
-            ), null
+            ),
+            null
         )
     }
 
-    suspend fun savePasskeyCredentials(context: Context, requestJson: String): Pair<CredentialManagerExceptions?, String> {
+    suspend fun savePasskeyCredentials(
+        context: Context,
+        requestJson: String
+    ): Pair<CredentialManagerExceptions?, String> {
         return try {
             Log.v("CredentialTest", "RequestJson $requestJson")
 
-            //check for if android is  android 9
-            if(android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.Q){
+            // check for if android is  android 9
+            if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.Q) {
                 return Pair(
                     CredentialManagerExceptions(
                         code = 603,
                         message = "Passkey is not supported on this device",
                         details = "Android version is less than 10"
-                    ), ""
+                    ),
+                    ""
                 )
             }
 
@@ -442,7 +486,6 @@ class CredentialManagerUtils {
 
             Log.v("CredentialTest", "Passkey credentials successfully added $result")
             Pair(null, result.registrationResponseJson)
-
         } catch (e: CreateCredentialCancellationException) {
             Log.d("CredentialTest", "Exception $e")
             Pair(
@@ -450,7 +493,8 @@ class CredentialManagerUtils {
                     code = 601,
                     message = "Save credentials operation was cancelled",
                     details = e.localizedMessage
-                ), ""
+                ),
+                ""
             )
         } catch (e: CreateCredentialException) {
             Log.d("CredentialTest", "Exception $e")
@@ -459,7 +503,8 @@ class CredentialManagerUtils {
                     code = 602,
                     message = "Failed to create passkey credentials",
                     details = e.localizedMessage
-                ), ""
+                ),
+                ""
             )
         } catch (e: Exception) {
             Log.d("CredentialTest", "Exception $e")
@@ -468,7 +513,8 @@ class CredentialManagerUtils {
                     code = 603,
                     message = "Failed to fetch passkey",
                     details = e.localizedMessage
-                ), ""
+                ),
+                ""
             )
         }
     }
@@ -490,10 +536,12 @@ class CredentialManagerUtils {
                     code = 701,
                     message = "Logout failed",
                     details = e.localizedMessage
-                ), ""
+                ),
+                ""
             )
         }
     }
+
     /**
      * Checks if at least one credential option is enabled.
      *
@@ -513,9 +561,4 @@ class CredentialManagerUtils {
     fun getIsGmsAvailable(): Boolean {
         return isGmsAvailable
     }
-
-
-
-
-
 }

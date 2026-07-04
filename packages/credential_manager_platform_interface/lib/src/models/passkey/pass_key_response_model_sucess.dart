@@ -30,11 +30,8 @@ class PublicKeyCredential {
       authenticatorAttachment: json['authenticatorAttachment'] ?? 'platform',
       type: json['type'] ?? 'public-key',
       id: json['id'],
-      response:
-          json['response'] != null ? Response.fromJson(json['response']) : null,
-      transports: json['transports'] != null
-          ? List<String>.from(json['transports'])
-          : null,
+      response: json['response'] != null ? Response.fromJson(json['response']) : null,
+      transports: json['transports'] != null ? List<String>.from(json['transports']) : null,
       clientExtensionResults: json['clientExtensionResults'] != null
           ? ClientExtensionResults.fromJson(json['clientExtensionResults'])
           : null,
@@ -72,14 +69,12 @@ class PublicKeyCredential {
   }) {
     return PublicKeyCredential(
       rawId: rawId ?? this.rawId,
-      authenticatorAttachment:
-          authenticatorAttachment ?? this.authenticatorAttachment,
+      authenticatorAttachment: authenticatorAttachment ?? this.authenticatorAttachment,
       type: type ?? this.type,
       id: id ?? this.id,
       response: response ?? this.response,
       transports: transports ?? this.transports,
-      clientExtensionResults:
-          clientExtensionResults ?? this.clientExtensionResults,
+      clientExtensionResults: clientExtensionResults ?? this.clientExtensionResults,
       publicKeyAlgorithm: publicKeyAlgorithm ?? this.publicKeyAlgorithm,
       publicKey: publicKey ?? this.publicKey,
     );
@@ -114,9 +109,7 @@ class Response {
       attestationObject: json['attestationObject'],
       authenticatorData: json['authenticatorData'],
       publicKey: json['publicKey'],
-      transports: json['transports'] != null
-          ? List<String>.from(json['transports'])
-          : null,
+      transports: json['transports'] != null ? List<String>.from(json['transports']) : null,
       signature: json['signature'],
       userHandle: json['userHandle'],
     );
@@ -170,9 +163,7 @@ class ClientExtensionResults {
   /// Construct ClientExtensionResults from JSON.
   factory ClientExtensionResults.fromJson(Map<String, dynamic> json) {
     return ClientExtensionResults(
-      credProps: json['credProps'] != null
-          ? CredProps.fromJson(json['credProps'])
-          : null,
+      credProps: json['credProps'] != null ? CredProps.fromJson(json['credProps']) : null,
     );
   }
 

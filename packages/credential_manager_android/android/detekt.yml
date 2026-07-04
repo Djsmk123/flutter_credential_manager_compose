@@ -1,0 +1,41 @@
+formatting:
+  MaximumLineLength:
+    active: true
+    maxLineLength: 120
+  PackageName:
+    # See naming>PackageNaming below for why this legacy package name is grandfathered in.
+    active: false
+
+naming:
+  PackageNaming:
+    # The plugin's package (com.smkwinner.cred_manager.credential_manager) contains an
+    # underscore and predates this config; renaming it is a breaking change for consumers
+    # (Android package/namespace), so it's out of scope for a lint-only change.
+    active: false
+
+complexity:
+  TooManyFunctions:
+    active: true
+    thresholdInClasses: 15
+  LongMethod:
+    active: true
+    threshold: 180
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 30
+  NestedBlockDepth:
+    active: true
+    threshold: 5
+
+style:
+  ReturnCount:
+    active: true
+    max: 10
+
+exceptions:
+  TooGenericExceptionCaught:
+    # These catches sit at the Flutter method-channel boundary, translating whatever the
+    # underlying Android/Credential Manager/Play Services APIs throw into a FlutterError.
+    # Enumerating every possible exception type there is impractical and not worth the risk
+    # of a behavior-changing rewrite in credential-handling code.
+    active: false

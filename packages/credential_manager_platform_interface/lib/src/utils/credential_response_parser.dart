@@ -24,13 +24,11 @@ class CredentialResponseParser {
         );
       case 'PublicKeyCredentials':
         return Credentials(
-          publicKeyCredential:
-              PublicKeyCredential.fromJson(jsonDecode(data['data'])),
+          publicKeyCredential: PublicKeyCredential.fromJson(jsonDecode(data['data'])),
         );
       case 'GoogleIdTokenCredentials':
         return Credentials(
-          googleIdTokenCredential:
-              GoogleIdTokenCredential.fromJson(data['data']),
+          googleIdTokenCredential: GoogleIdTokenCredential.fromJson(data['data']),
         );
       default:
         throw CredentialException(
