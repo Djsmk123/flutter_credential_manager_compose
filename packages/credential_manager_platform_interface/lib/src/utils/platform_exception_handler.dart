@@ -31,9 +31,7 @@ class PlatformExceptionHandler {
       case '201':
         return CredentialException(
           code: 201,
-          message: type == CredentialType.googleIdTokenCredentials
-              ? 'Login with Google cancelled'
-              : 'Login cancelled',
+          message: type == CredentialType.googleIdTokenCredentials ? 'Login with Google cancelled' : 'Login cancelled',
           details: e.details,
         );
       case '202':

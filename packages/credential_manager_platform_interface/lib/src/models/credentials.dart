@@ -36,8 +36,7 @@ class Credentials {
   }) {
     return Credentials(
       passwordCredential: passwordCredential ?? this.passwordCredential,
-      googleIdTokenCredential:
-          googleIdTokenCredential ?? this.googleIdTokenCredential,
+      googleIdTokenCredential: googleIdTokenCredential ?? this.googleIdTokenCredential,
       publicKeyCredential: publicKeyCredential ?? this.publicKeyCredential,
     );
   }

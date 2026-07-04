@@ -1,10 +1,8 @@
 import 'package:credential_manager/credential_manager.dart';
 
 // Import platform-specific plugin registration classes
-import 'package:credential_manager_android/credential_manager_android.dart'
-    as android_plugin;
-import 'package:credential_manager_ios/credential_manager_ios.dart'
-    as ios_plugin;
+import 'package:credential_manager_android/credential_manager_android.dart' as android_plugin;
+import 'package:credential_manager_ios/credential_manager_ios.dart' as ios_plugin;
 
 /// A class that provides a high-level interface for interacting with the
 /// Credential Manager.
@@ -55,8 +53,7 @@ class CredentialManager {
     required bool preferImmediatelyAvailableCredentials,
     String? googleClientId,
   }) async {
-    return CredentialManagerPlatform.instance
-        .init(preferImmediatelyAvailableCredentials, googleClientId);
+    return CredentialManagerPlatform.instance.init(preferImmediatelyAvailableCredentials, googleClientId);
   }
 
   /// Saves plain text password credentials.
@@ -65,8 +62,7 @@ class CredentialManager {
   ///
   /// Returns a [Future] that completes when the credentials are successfully saved.
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
-    return CredentialManagerPlatform.instance
-        .savePasswordCredentials(credential);
+    return CredentialManagerPlatform.instance.savePasswordCredentials(credential);
   }
 
   /// Saves credentials using passkey.
@@ -74,10 +70,8 @@ class CredentialManager {
   /// [request] - The credentials to be saved.
   ///
   /// Returns a [Future] that completes with [PublicKeyCredential] representing the saved credentials.
-  Future<PublicKeyCredential> savePasskeyCredentials(
-      {required CredentialCreationOptions request}) async {
-    return CredentialManagerPlatform.instance
-        .savePasskeyCredentials(request: request);
+  Future<PublicKeyCredential> savePasskeyCredentials({required CredentialCreationOptions request}) async {
+    return CredentialManagerPlatform.instance.savePasskeyCredentials(request: request);
   }
 
   /// Gets credentials.
@@ -87,11 +81,8 @@ class CredentialManager {
   ///
   /// Returns a [Future] that completes with [Credentials] representing the retrieved credentials.
   /// Returns an empty [Credentials] object if no credentials are found.
-  Future<Credentials> getCredentials(
-      {CredentialLoginOptions? passKeyOption,
-      FetchOptionsAndroid? fetchOptions}) async {
-    return CredentialManagerPlatform.instance.getCredentials(
-        passKeyOption: passKeyOption, fetchOptions: fetchOptions);
+  Future<Credentials> getCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions}) async {
+    return CredentialManagerPlatform.instance.getCredentials(passKeyOption: passKeyOption, fetchOptions: fetchOptions);
   }
 
   /// Saves Google credentials.
@@ -99,10 +90,8 @@ class CredentialManager {
   /// [useButtonFlow] - Whether to use the button flow for saving Google credentials.
   ///
   /// Returns a [Future] that completes with [GoogleIdTokenCredential] representing the saved Google credentials.
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(
-      {bool useButtonFlow = false}) async {
-    return CredentialManagerPlatform.instance
-        .saveGoogleCredential(useButtonFlow);
+  Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false}) async {
+    return CredentialManagerPlatform.instance.saveGoogleCredential(useButtonFlow);
   }
 
   /// Logs out the user.

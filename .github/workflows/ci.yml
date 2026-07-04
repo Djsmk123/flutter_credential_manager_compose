@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  format:
+    name: Dart format (120 cols)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
+  analyze:
+    name: Flutter analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Bootstrap workspace
+        run: |
+          dart pub global activate melos
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          melos bootstrap
+      - name: Analyze all packages
+        run: |
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          melos run analyze
+
+  android-build:
+    name: Android build (example app)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Get dependencies
+        working-directory: packages/credential_manager/example
+        run: flutter pub get
+      - name: Build Android APK (debug)
+        working-directory: packages/credential_manager/example
+        run: flutter build apk --debug
+
+  ios-build:
+    name: iOS build (example app, SPM)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
+      - name: Get dependencies
+        working-directory: packages/credential_manager/example
+        run: flutter pub get
+      - name: Build iOS (simulator, no codesign)
+        working-directory: packages/credential_manager/example
+        run: flutter build ios --debug --no-codesign --simulator
