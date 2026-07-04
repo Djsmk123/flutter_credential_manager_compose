@@ -5,6 +5,29 @@ on:
     branches: [main, develop]
 
 jobs:
+  changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      android: ${{ steps.filter.outputs.android }}
+      ios: ${{ steps.filter.outputs.ios }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            android:
+              - 'packages/credential_manager_android/**'
+              - 'packages/credential_manager_platform_interface/**'
+              - 'packages/credential_manager/**'
+              - '.github/workflows/ci.yml'
+            ios:
+              - 'packages/credential_manager_ios/**'
+              - 'packages/credential_manager_platform_interface/**'
+              - 'packages/credential_manager/**'
+              - '.github/workflows/ci.yml'
+
   format:
     name: Dart format (120 cols)
     runs-on: ubuntu-latest
@@ -13,6 +36,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Bootstrap workspace
+        run: |
+          dart pub global activate melos
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          melos bootstrap
       - name: Check formatting
         run: dart format . --line-length 120 --page-width 120 --set-exit-if-changed
 
@@ -36,6 +64,8 @@ jobs:
 
   android-build:
     name: Android build (example app)
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +85,8 @@ jobs:
 
   android-lint:
     name: Android lint (Detekt)
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,6 +100,8 @@ jobs:
 
   ios-build:
     name: iOS build (example app, SPM)
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -85,6 +119,8 @@ jobs:
 
   ios-lint:
     name: iOS lint (SwiftLint)
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
