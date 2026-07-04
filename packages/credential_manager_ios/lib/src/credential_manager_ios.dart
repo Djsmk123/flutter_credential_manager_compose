@@ -19,13 +19,11 @@ class CredentialManagerIos extends CredentialManagerPlatform {
   /// You can optionally provide a custom [channel] (useful for testing or when
   /// embedding the plugin inside another binary). When omitted the default
   /// `credential_manager` channel is used.
-  CredentialManagerIos({MethodChannel? channel})
-      : methodChannel = channel ?? const MethodChannel('credential_manager');
+  CredentialManagerIos({MethodChannel? channel}) : methodChannel = channel ?? const MethodChannel('credential_manager');
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version =
-        await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
@@ -37,8 +35,7 @@ class CredentialManagerIos extends CredentialManagerPlatform {
     final res = await methodChannel.invokeMethod<String>(
       "init",
       {
-        'prefer_immediately_available_credentials':
-            preferImmediatelyAvailableCredentials,
+        'prefer_immediately_available_credentials': preferImmediatelyAvailableCredentials,
         'google_client_id': googleClientId,
       },
     );
@@ -114,8 +111,7 @@ class CredentialManagerIos extends CredentialManagerPlatform {
   }
 
   @override
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(
-      bool useButtonFlow) async {
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow) async {
     try {
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
         'save_google_credential',
@@ -152,8 +148,7 @@ class CredentialManagerIos extends CredentialManagerPlatform {
         var data = res.toString();
         final credential = PublicKeyCredential.fromJson(jsonDecode(data));
         // Parse iOS attestation object
-        final authData = AttestationParser.parseAttestationObject(
-            credential.response!.attestationObject!);
+        final authData = AttestationParser.parseAttestationObject(credential.response!.attestationObject!);
         return credential.copyWith(
           response: credential.response?.copyWith(
             publicKey: authData.$2,

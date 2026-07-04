@@ -94,8 +94,7 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            if (credentialType == Credential.google &&
-                googleIdTokenCredential?.profilePictureUri != null)
+            if (credentialType == Credential.google && googleIdTokenCredential?.profilePictureUri != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(25),
                 child: Image.network(
@@ -245,8 +244,7 @@ class HomeScreen extends StatelessWidget {
 
     json['phoneNumber'] = googleIdTokenCredential?.phoneNumber;
 
-    json['profilePictureUri'] =
-        googleIdTokenCredential?.profilePictureUri?.toString();
+    json['profilePictureUri'] = googleIdTokenCredential?.profilePictureUri?.toString();
 
     return json;
   }

@@ -42,9 +42,7 @@ class GoogleIdTokenCredential {
       familyName: json['familyName'],
       givenName: json['givenName'],
       phoneNumber: json['phoneNumber'],
-      profilePictureUri: json['profilePictureUri'] != null
-          ? Uri.parse(json['profilePictureUri'])
-          : null,
+      profilePictureUri: json['profilePictureUri'] != null ? Uri.parse(json['profilePictureUri']) : null,
     );
   }
 }
