@@ -9,5 +9,9 @@
 .packages
 packages/credential_manager/example/android/.kotlin/
 
+# Swift Package Manager
+.build/
+.swiftpm/
+
 # macOS
 .DS_Store
