@@ -23,11 +23,11 @@ melos:
       description: Run flutter analyze in every package.
 
     format:
-      run: melos exec -- dart format --set-exit-if-changed .
+      run: melos exec -- dart format . --line-length 120 --page-width 120 --set-exit-if-changed
       description: Check formatting in every package.
 
     format:fix:
-      run: melos exec -- dart format .
+      run: melos exec -- dart format . --line-length 120 --page-width 120
       description: Format every package.
 
     test:

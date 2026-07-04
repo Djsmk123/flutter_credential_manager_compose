@@ -7,11 +7,11 @@ bootstrap:
 	dart pub global activate melos
 	$(MELOS) bootstrap
 
-## Format all Dart sources in place (120-column width, via analysis_options.yaml)
+## Format all Dart sources in place (explicit 120-column width)
 format:
 	$(MELOS) run format:fix
 
-## Check Dart formatting without modifying files (fails if anything is unformatted)
+## Check Dart formatting without modifying files (explicit 120-column width; fails if anything is unformatted)
 format-check:
 	$(MELOS) run format
 
