@@ -1,0 +1,9 @@
+included:
+  - ios/credential_manager_ios/Sources
+
+line_length:
+  warning: 120
+  error: 160
+
+identifier_name:
+  min_length: 2

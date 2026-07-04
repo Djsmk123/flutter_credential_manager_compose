@@ -53,6 +53,19 @@ jobs:
         working-directory: packages/credential_manager/example
         run: flutter build apk --debug
 
+  android-lint:
+    name: Android lint (Detekt)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Run Detekt
+        working-directory: packages/credential_manager_android/android
+        run: ./gradlew detekt --no-daemon
+
   ios-build:
     name: iOS build (example app, SPM)
     runs-on: macos-latest
@@ -69,3 +82,14 @@ jobs:
       - name: Build iOS (simulator, no codesign)
         working-directory: packages/credential_manager/example
         run: flutter build ios --debug --no-codesign --simulator
+
+  ios-lint:
+    name: iOS lint (SwiftLint)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SwiftLint
+        run: brew install swiftlint
+      - name: Run SwiftLint
+        working-directory: packages/credential_manager_ios
+        run: swiftlint lint --strict

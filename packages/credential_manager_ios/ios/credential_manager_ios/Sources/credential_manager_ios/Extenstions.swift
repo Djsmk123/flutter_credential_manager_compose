@@ -56,5 +56,5 @@ extension Data {
         result = result.replacingOccurrences(of: "=", with: "")
         return result
     }
-    
+
 }
