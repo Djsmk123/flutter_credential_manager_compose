@@ -1,9 +1,17 @@
 # IDE
 .idea/
 .vscode/
+*.iml
 
 # Flutter/Dart
 .dart_tool/
 .flutter-plugins
 .packages
 packages/credential_manager/example/android/.kotlin/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store

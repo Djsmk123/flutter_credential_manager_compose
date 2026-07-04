@@ -4,6 +4,8 @@
 //
 //  Created by Mobin on 05/10/24.
 //
+import Foundation
+
 public extension Data {
     /// Same as ``Data(base64Encoded:)``, but adds padding automatically
     /// (if missing, instead of returning `nil`).
