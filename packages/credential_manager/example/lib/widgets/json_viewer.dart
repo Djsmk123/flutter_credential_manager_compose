@@ -193,9 +193,7 @@ class _JsonEntryViewState extends State<_JsonEntryView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           InkWell(
-            onTap: isExpandable
-                ? () => setState(() => _isExpanded = !_isExpanded)
-                : null,
+            onTap: isExpandable ? () => setState(() => _isExpanded = !_isExpanded) : null,
             borderRadius: BorderRadius.circular(4),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),

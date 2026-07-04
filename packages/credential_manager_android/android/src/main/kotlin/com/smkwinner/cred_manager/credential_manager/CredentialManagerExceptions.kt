@@ -8,7 +8,6 @@ package com.smkwinner.cred_manager.credential_manager
  */
 class CredentialManagerExceptions(val code: Int, val message: String, val details: String?)
 
-
 /*  code  message
   101   initialization failure
   102   Plugin exception

@@ -1,0 +1,43 @@
+name: flutter_credential_manager_compose
+publish_to: none
+
+environment:
+  sdk: '>=3.6.0 <4.0.0'
+
+workspace:
+  - packages/credential_manager
+  - packages/credential_manager/example
+  - packages/credential_manager_android
+  - packages/credential_manager_ios
+  - packages/credential_manager_platform_interface
+
+dev_dependencies:
+  melos: ^8.1.0
+
+melos:
+  name: flutter_credential_manager_compose
+
+  scripts:
+    analyze:
+      run: melos exec -- flutter analyze
+      description: Run flutter analyze in every package.
+
+    format:
+      run: melos exec -- dart format . --line-length 120 --page-width 120 --set-exit-if-changed
+      description: Check formatting in every package.
+
+    format:fix:
+      run: melos exec -- dart format . --line-length 120 --page-width 120
+      description: Format every package.
+
+    test:
+      run: melos exec --dir-exists=test -- flutter test
+      description: Run tests in every package that has a test directory.
+
+    get:
+      run: melos exec -- flutter pub get
+      description: Run flutter pub get in every package.
+
+    clean:
+      run: melos exec -- flutter clean
+      description: Run flutter clean in every package.

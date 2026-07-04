@@ -1,6 +1,14 @@
 # Changelog
 
-# 2.0.8
+# 3.0.1
+- Bumped `credential_manager_ios` to `^3.0.1` and `credential_manager_android` to `^3.0.1`, both of which add native static analysis (SwiftLint, Detekt) with no functional or API changes
+- No breaking changes to the Dart API
+
+## 3.0.0
+- Bumped `credential_manager_ios` to `^3.0.0`, which adds Swift Package Manager (SPM) support alongside the existing CocoaPods integration
+- No breaking changes to the Dart API; apps still on CocoaPods continue to work unchanged
+
+## 2.0.8
 - Added `isGmsAvailable` to platform interface
 - Handle `exception code 209` for Google Play Services not available
 - on Android, Google account is not logged in, the plugin will  launch Google Sign-In flow.

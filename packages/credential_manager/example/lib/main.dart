@@ -149,9 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _buildSectionTitle("Login"),
                               const SizedBox(height: 12),
                               _buildActionButton(
-                                Platform.isAndroid
-                                    ? "Login (All Methods)"
-                                    : "Login with Passkey",
+                                Platform.isAndroid ? "Login (All Methods)" : "Login with Passkey",
                                 onLogin,
                                 icon: Icons.login,
                                 isPrimary: true,
@@ -245,11 +243,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       onChanged: onChanged,
       obscureText: isPassword,
-      autofillHints: enableInlineAutofill
-          ? (isPassword
-              ? const [AutofillHints.password]
-              : const [AutofillHints.username])
-          : [],
+      autofillHints:
+          enableInlineAutofill ? (isPassword ? const [AutofillHints.password] : const [AutofillHints.username]) : [],
       keyboardType: isPassword ? TextInputType.visiblePassword : null,
       validator: (value) => value!.isEmpty ? "Please enter a $hint" : null,
       decoration: InputDecoration(
@@ -365,8 +360,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         final res = await credentialManager.savePasskeyCredentials(
-          request:
-              CredentialCreationOptions.fromJson(credentialCreationOptions),
+          request: CredentialCreationOptions.fromJson(credentialCreationOptions),
         );
         _showSnackBar("Successfully saved credential");
         _navigateToHomeScreen(Credential.passkey, publicKeyCredential: res);
@@ -378,8 +372,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await _performAction(() async {
       final credential = await credentialManager.saveGoogleCredential();
       _showSnackBar("Successfully retrieved credential");
-      _navigateToHomeScreen(Credential.google,
-          googleIdTokenCredential: credential);
+      _navigateToHomeScreen(Credential.google, googleIdTokenCredential: credential);
     });
   }
 
@@ -409,8 +402,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _showLoginSuccessDialog(Credentials credential) {

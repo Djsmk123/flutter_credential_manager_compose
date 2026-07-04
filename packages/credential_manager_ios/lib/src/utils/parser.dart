@@ -37,8 +37,7 @@ class AttestationParser {
   /// - [Exception] if no public key is present in the attestation data
   /// - [Exception] if the credential ID length is invalid
   /// - [Exception] if the public key index is out of bounds
-  static (String authData, String publicKey) parseAttestationObject(
-      String attestationObject) {
+  static (String authData, String publicKey) parseAttestationObject(String attestationObject) {
     try {
       // Ensure base64url padding before decoding
       String paddedAttestation = attestationObject;
@@ -56,8 +55,7 @@ class AttestationParser {
       }
 
       // Extract authData
-      final authDataValue =
-          (decoded as Map<CborValue, dynamic>)[CborValue('authData')];
+      final authDataValue = (decoded as Map<CborValue, dynamic>)[CborValue('authData')];
 
       Uint8List authDataBytes;
       if (authDataValue is CborBytes) {
@@ -79,8 +77,7 @@ class AttestationParser {
       }
 
       // Get credential ID length (2 bytes) at index 53
-      final int credentialIdLength =
-          (authDataBytes[53] << 8) | authDataBytes[54];
+      final int credentialIdLength = (authDataBytes[53] << 8) | authDataBytes[54];
       final int publicKeyStart = 55 + credentialIdLength;
 
       if (publicKeyStart >= authDataBytes.length) {
@@ -90,11 +87,9 @@ class AttestationParser {
       // Extract public key bytes
       final Uint8List publicKeyBytes = authDataBytes.sublist(publicKeyStart);
       //convert the public key to base64url
-      final publicKeyBase64 =
-          base64Url.encode(publicKeyBytes).replaceAll('=', '');
+      final publicKeyBase64 = base64Url.encode(publicKeyBytes).replaceAll('=', '');
       //convert the auth data to base64url
-      final authDataBase64 =
-          base64Url.encode(authDataBytes).replaceAll('=', '');
+      final authDataBase64 = base64Url.encode(authDataBytes).replaceAll('=', '');
       //return the auth data and public key
       return (authDataBase64, publicKeyBase64);
     } catch (error) {

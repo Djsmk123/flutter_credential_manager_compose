@@ -1,61 +1,64 @@
-import Foundation;
+import Foundation
 struct RegisterResponse {
   /// The ID
-  var id: String;
+  var id: String
   /// The raw ID
-  var rawId: String;
+  var rawId: String
   /// The client data JSON
-  var clientDataJSON: String;
+  var clientDataJSON: String
   /// The attestation object
-  var attestationObject: String;
+  var attestationObject: String
 
   static func fromList(_ list: [Any?]) -> RegisterResponse? {
-    let id = list[0] as! String;
-    let rawId = list[1] as! String;
-    let clientDataJSON = list[2] as! String;
-    let attestationObject = list[3] as! String;
+    guard list.count >= 4,
+          let id = list[0] as? String,
+          let rawId = list[1] as? String,
+          let clientDataJSON = list[2] as? String,
+          let attestationObject = list[3] as? String else {
+      return nil
+    }
 
     return RegisterResponse(
       id: id,
       rawId: rawId,
       clientDataJSON: clientDataJSON,
       attestationObject: attestationObject
-    );
-  };
-  
+    )
+  }
+
   func toList() -> [Any?] {
     return [
       id,
       rawId,
       clientDataJSON,
-      attestationObject,
-    ];
-  };
+      attestationObject
+    ]
+  }
 
   static func fromJson(_ json: [String: Any]) -> RegisterResponse? {
     guard let id = json["id"] as? String,
           let rawId = json["rawId"] as? String,
           let clientDataJSON = json["clientDataJSON"] as? String,
           let attestationObject = json["attestationObject"] as? String else {
-      return nil;
-    };
+      return nil
+    }
 
     return RegisterResponse(
       id: id,
       rawId: rawId,
       clientDataJSON: clientDataJSON,
       attestationObject: attestationObject
-    );
-  };
+    )
+  }
 
   func toJson() -> [String: Any] {
     return [
       "id": id,
       "rawId": rawId,
-      "response":[
+      "response": [
           "clientDataJSON": clientDataJSON,
-        "attestationObject": attestationObject,
+        "attestationObject": attestationObject
       ]
-    ];
-  };
-};
+    ]
+  }
+}

@@ -26,8 +26,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version =
-        await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
@@ -39,8 +38,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
     final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
       "init",
       {
-        'prefer_immediately_available_credentials':
-            preferImmediatelyAvailableCredentials,
+        'prefer_immediately_available_credentials': preferImmediatelyAvailableCredentials,
         'google_client_id': googleClientId,
       },
     );
@@ -127,8 +125,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
   }
 
   @override
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(
-      bool useButtonFlow) async {
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow) async {
     try {
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
         'save_google_credential',
