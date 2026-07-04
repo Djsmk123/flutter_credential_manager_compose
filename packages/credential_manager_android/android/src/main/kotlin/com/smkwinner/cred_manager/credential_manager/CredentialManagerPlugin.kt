@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-
 /** CredentialManagerPlugin */
 class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
@@ -52,7 +51,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                     // Handling other credential-related methods
                     when (call.method) {
                         "save_password_credentials" -> handleSavePasswordCredentials(call, result)
-                        "get_password_credentials" -> handleGetPasswordCredentials(call,result)
+                        "get_password_credentials" -> handleGetPasswordCredentials(call, result)
                         "save_google_credential" -> handleSaveGoogleCredential(call, result)
                         "save_public_key_credential" -> handleSavePublicKeyCredential(call, result)
                         "logout" -> handleLogout(result)
@@ -75,10 +74,12 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)
         } else {
-            result.success(mapOf(
-                "message" to message,
-                "isGmsAvailable" to utils.getIsGmsAvailable()
-            ))
+            result.success(
+                mapOf(
+                    "message" to message,
+                    "isGmsAvailable" to utils.getIsGmsAvailable()
+                )
+            )
         }
     }
     private suspend fun handleSavePasswordCredentials(call: MethodCall, result: Result) {
@@ -110,14 +111,18 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                 passwordCredential = jsonObject.optBoolean("passwordCredential", true)
             )
         }
-        //throw error if fetchOptions is null
+        // throw error if fetchOptions is null
         if (fetchOptions == null) {
             result.error("604", "FetchOptions is null", "FetchOptions is required")
             return
         }
-        
+
         val (exception: CredentialManagerExceptions?, credentials: CredentialManagerResponse?) =
-            utils.getPasswordCredentials(context = currentContext, requestJson = requestJson,fetchOptions=fetchOptions)
+            utils.getPasswordCredentials(
+                context = currentContext,
+                requestJson = requestJson,
+                fetchOptions = fetchOptions
+            )
 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)
@@ -162,12 +167,11 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         }
     }
 
-
     private suspend fun handleSaveGoogleCredential(call: MethodCall, result: Result) {
         val useButtonFlow: Boolean = call.argument("useButtonFlow") ?: false
 
         val (exception: CredentialManagerExceptions?, credential: GoogleIdTokenCredential?) =
-            utils.saveGoogleCredentials(useButtonFlow = useButtonFlow,context = currentContext)
+            utils.saveGoogleCredentials(useButtonFlow = useButtonFlow, context = currentContext)
 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)
@@ -184,17 +188,19 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
             result.success(credentialMap)
         }
-
     }
     private suspend fun handleSavePublicKeyCredential(call: MethodCall, result: Result) {
         val requestJson: String? = call.argument("requestJson")
         if (requestJson == null) {
             result.error("604", "Create PublicKey Credential Dom Exception", "Request is required")
         } else {
-            val (exception: CredentialManagerExceptions?, message: String) = utils.savePasskeyCredentials(context=currentContext,requestJson=requestJson.toString())
+            val (exception: CredentialManagerExceptions?, message: String) = utils.savePasskeyCredentials(
+                context = currentContext,
+                requestJson = requestJson.toString()
+            )
 
             if (exception != null) {
-                Log.d("Error in savepasskey" ,"${exception.code}, ${exception.details}, ${exception.message}")
+                Log.d("Error in savepasskey", "${exception.code}, ${exception.details}, ${exception.message}")
                 result.error(exception.code.toString(), exception.message, exception.details)
             } else {
                 result.success(message)
@@ -209,7 +215,6 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             result.success(message)
         }
     }
-
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)

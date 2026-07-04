@@ -38,11 +38,9 @@ enum class CredentialType {
     PublicKeyCredentials
 }
 
-
 data class FetchOptions(
     val passKeyOption: Boolean = true,
     val googleCredential: Boolean = true,
     val passwordCredential: Boolean = true
-
 
 )

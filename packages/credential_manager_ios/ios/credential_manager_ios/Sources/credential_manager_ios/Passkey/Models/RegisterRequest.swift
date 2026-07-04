@@ -16,7 +16,8 @@ struct RegisterRequest {
         }
 
         // Extracting exclude credential IDs properly
-        let excludeCredentialIDs: [String] = (json["excludeCredentials"] as? [[String: Any]] ?? []).compactMap { credential in
+        let excludeCredentials = json["excludeCredentials"] as? [[String: Any]] ?? []
+        let excludeCredentialIDs: [String] = excludeCredentials.compactMap { credential in
             return credential["id"] as? String
         }
 

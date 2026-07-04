@@ -11,47 +11,55 @@ import Flutter
 import Foundation
 
 @available(iOS 16.0, *)
-class RegisterController: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding, Cancellable {
+class RegisterController: NSObject, ASAuthorizationControllerDelegate,
+                           ASAuthorizationControllerPresentationContextProviding, Cancellable {
     private var completion: ((Result<RegisterResponse, Error>) -> Void)?
-    private var cancelAuthorization: (() -> Void)?;
+    private var cancelAuthorization: (() -> Void)?
 
     init(completion: @escaping ((Result<RegisterResponse, Error>) -> Void)) {
-        self.completion = completion;
+        self.completion = completion
     }
-    
+
     func run(request: ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest) {
-        
+
         let authorizationController = ASAuthorizationController(authorizationRequests: [request])
 
         authorizationController.delegate = self
         authorizationController.presentationContextProvider = self
         authorizationController.performRequests()
-        
+
         func cancel() {
-            authorizationController.cancel();
+            authorizationController.cancel()
         }
-        
+
         self.cancelAuthorization = cancel
     }
 
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    func authorizationController(
+        controller: ASAuthorizationController,
+        didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
         switch authorization.credential {
         case let credentialRegistration as ASAuthorizationPlatformPublicKeyCredentialRegistration:
+            guard let attestationObject = credentialRegistration.rawAttestationObject else {
+                completion?(.failure(FlutterError(
+                    code: CustomErrors.unexpectedAuthorizationResponse,
+                    message: "Missing attestation object in registration response"
+                )))
+                return
+            }
             let response = RegisterResponse(
                 id: credentialRegistration.credentialID.toBase64URL(),
                 rawId: credentialRegistration.credentialID.toBase64URL(),
                 clientDataJSON: credentialRegistration.rawClientDataJSON.toBase64URL(),
-                attestationObject: credentialRegistration.rawAttestationObject!.toBase64URL()
-                
+                attestationObject: attestationObject.toBase64URL()
             )
             completion?(.success(response))
-            break
         default:
-            let message = "Expected instance of ASAuthorizationPlatformPublicKeyCredentialRegistration but got: " + authorization.credential.description
+            let message = "Expected instance of ASAuthorizationPlatformPublicKeyCredentialRegistration but got: "
+                + authorization.credential.description
             completion?(.failure(FlutterError(code: CustomErrors.unexpectedAuthorizationResponse, message: message)))
-
         }
-
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError customError: Error) {
@@ -59,39 +67,37 @@ class RegisterController: NSObject, ASAuthorizationControllerDelegate, ASAuthori
             completion?(.failure(FlutterError(from: err)))
             return
         }
-        
+
         let nsErr = customError as NSError
         completion?(.failure(FlutterError(fromNSError: nsErr)))
         return
     }
 
-
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         guard let delegate = UIApplication.shared.delegate else {
             fatalError("Unable to find UIApplication delegate for presentationAnchor")
         }
-        
+
         if let flutterDelegate = delegate as? FlutterAppDelegate, let window = flutterDelegate.window {
             return window
         }
-        
+
         // Try to get window from the app delegate using key-value coding
         if let appDelegate = delegate as? NSObject, let window = appDelegate.value(forKey: "window") as? UIWindow {
             return window
         }
-        
+
         // Fallback: try to get the first window from the scene
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             return window
         }
-        
+
         fatalError("Unable to find a valid UIWindow for presentationAnchor")
     }
 
-    
     func cancel() {
-        cancelAuthorization?();
+        cancelAuthorization?()
     }
     // Parse credentials from base64 URL strings
     private func parseCredentials(credentialIDs: [String]) -> [ASAuthorizationPlatformPublicKeyCredentialDescriptor] {
