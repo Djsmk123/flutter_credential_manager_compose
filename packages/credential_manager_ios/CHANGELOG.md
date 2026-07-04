@@ -1,4 +1,9 @@
-# 2.0.8
+# 3.0.0
+- Added Swift Package Manager (SPM) support via a new `Package.swift` manifest, alongside the existing CocoaPods podspec
+- Moved Swift sources from `ios/Classes` to `ios/credential_manager_ios/Sources/credential_manager_ios` (single source of truth for both CocoaPods and SPM)
+- No breaking changes to the Dart API; existing CocoaPods-based apps continue to work unchanged
+
+## 2.0.8
 - Added `isGmsAvailable` to platform interface
 - Handle `exception code 209` for Google Play Services not available
 - on Android, Google account is not logged in, the plugin will  launch Google Sign-In flow.

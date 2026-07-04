@@ -111,6 +111,62 @@ Allow: /.well-known/`}
         Password autofill was introduced with iOS 11 and got major updates with iOS 12, including security code autofill, password suggestions, and support for third-party managers.
       </p>
 
+      <h3 className="mt-6 mb-2">Swift Package Manager (SPM) Support</h3>
+
+      <p className="mb-4">
+        Starting with version 3.0.0, <code>credential_manager_ios</code> ships a <code>Package.swift</code> alongside
+        its existing podspec, so it works with both <strong>Swift Package Manager</strong> and <strong>CocoaPods</strong>.
+        Flutter uses Swift Package Manager by default starting with Flutter 3.24, and CocoaPods' trunk registry goes
+        read-only on December 2, 2026 — after that date new plugin versions can only be published via SPM, so
+        migrating ahead of time is recommended.
+      </p>
+
+      <h4 className="mt-4 mb-2 font-semibold">Enabling SPM</h4>
+      <ol className="list-decimal pl-6 mb-6">
+        <li className="mb-2">
+          Enable Swift Package Manager support in Flutter, if it isn't already the default for your channel:
+          <CodeBlock code="flutter config --enable-swift-package-manager" language="bash" />
+        </li>
+        <li className="mb-2">
+          Run <code>flutter pub get</code> and then <code>flutter run</code> or <code>flutter build ios</code>.
+          Flutter automatically detects that <code>credential_manager_ios</code> ships a <code>Package.swift</code>{' '}
+          and integrates it as a Swift Package instead of a CocoaPods dependency.
+        </li>
+        <li className="mb-2">
+          If your project still has an <code>ios/Podfile</code> with other CocoaPods dependencies, Flutter keeps
+          using CocoaPods for those while resolving SPM-compatible plugins (like this one) through Swift Package
+          Manager — no manual migration of the whole project is required.
+        </li>
+      </ol>
+
+      <h4 className="mt-4 mb-2 font-semibold">Migrating an existing CocoaPods-only project</h4>
+      <ol className="list-decimal pl-6 mb-6">
+        <li className="mb-2">
+          Once every plugin your app depends on supports SPM, remove CocoaPods integration:
+          <CodeBlock
+            code={`cd ios
+pod deintegrate`}
+            language="bash"
+          />
+        </li>
+        <li className="mb-2">
+          Delete the generated <code>Podfile</code> and <code>Podfile.lock</code> if you have no remaining
+          CocoaPods-only dependencies.
+        </li>
+        <li className="mb-2">
+          Re-run <code>flutter build ios</code> — Flutter regenerates the Xcode project against Swift Package
+          Manager.
+        </li>
+      </ol>
+
+      <p className="mb-4">
+        See Flutter's official{' '}
+        <a href="https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers" target="_blank">
+          Swift Package Manager for app developers
+        </a>{' '}
+        guide for more details.
+      </p>
+
       <h3 className="mt-6 mb-2">Enabling Password AutoFill</h3>
 
       <ol className="list-decimal pl-6 mb-6">
