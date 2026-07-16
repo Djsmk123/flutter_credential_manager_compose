@@ -1,7 +1,7 @@
 import { ChevronDown, ListTree } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { buildHeadingUrl, setHeadingHash, useDocHeadings, type TocItem } from '@/hooks/useDocHeadings';
+import { buildHeadingUrl, setHeadingHash, type TocItem } from '@/hooks/useDocHeadings';
 
 interface TocLinksProps {
   headings: TocItem[];
@@ -38,10 +38,17 @@ const TocLinks = ({ headings, activeId, onSelect }: TocLinksProps) => {
   );
 };
 
-// Sticky right-hand rail shown on wide (xl+) viewports.
-const TableOfContents = () => {
-  const { headings, activeId, setActiveId } = useDocHeadings();
+export interface TableOfContentsProps {
+  headings: TocItem[];
+  activeId: string;
+  setActiveId: (id: string) => void;
+}
 
+// Sticky right-hand rail shown on wide (xl+) viewports. Takes heading state as props (rather
+// than calling useDocHeadings itself) because it's rendered alongside MobileTableOfContents on
+// every page — each instance calling the hook independently meant two DOM scrapes and two live
+// IntersectionObservers tracking the same scroll position. DocLayout owns the single hook call.
+const TableOfContents = ({ headings, activeId, setActiveId }: TableOfContentsProps) => {
   if (headings.length === 0) return null;
 
   return (
@@ -60,9 +67,7 @@ const TableOfContents = () => {
 };
 
 // Collapsible "On this page" panel for mobile/tablet, where the rail is hidden.
-export const MobileTableOfContents = () => {
-  const { headings, activeId, setActiveId } = useDocHeadings();
-
+export const MobileTableOfContents = ({ headings, activeId, setActiveId }: TableOfContentsProps) => {
   if (headings.length === 0) return null;
 
   return (
