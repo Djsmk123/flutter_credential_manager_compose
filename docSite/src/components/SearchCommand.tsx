@@ -61,19 +61,21 @@ export function SearchCommand({ open, setOpen }: SearchCommandProps) {
             <CommandGroup heading="Results">
               {results.map((result, idx) => {
                 const Icon = result.page.icon;
+                const matchedText = result.match === 'section' ? result.sectionText : result.page.description;
                 return (
                   <CommandItem
                     key={`${result.page.path}-${idx}`}
-                    value={`${result.page.path}-${idx}`}
+                    // Include the text we actually matched on so cmdk's own filtering agrees
+                    // with searchDocs() instead of re-filtering by a path-only value and hiding
+                    // results whose match came from a heading/description rather than the title.
+                    value={`${result.page.path}-${idx}-${result.page.title}-${matchedText}`}
                     onSelect={() => runCommand(() => navigate(result.page.path))}
                     className="flex items-start gap-2.5"
                   >
                     <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="flex flex-col">
                       <span className="font-medium">{result.page.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {result.match === 'section' ? result.sectionText : result.page.description}
-                      </span>
+                      <span className="text-xs text-muted-foreground">{matchedText}</span>
                     </div>
                   </CommandItem>
                 );

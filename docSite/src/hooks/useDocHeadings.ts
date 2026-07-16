@@ -46,19 +46,36 @@ export function useDocHeadings() {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Declared outside the timeout so the effect's own cleanup can reach it — a cleanup
+    // function returned from inside a setTimeout callback is never called by React.
+    let observer: IntersectionObserver | null = null;
+
     const timer = setTimeout(() => {
       const elements = Array.from(document.querySelectorAll<HTMLElement>('article h2, article h3'));
+      const usedSlugs = new Set<string>();
 
-      const items = elements.map((element) => {
+      const items = elements.map((element, index) => {
         const text = element.textContent?.trim() || '';
 
         if (!element.id) {
-          const slug = text
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)+/g, '');
-          element.id = slug || `heading-${Math.random().toString(36).slice(2, 11)}`;
+          const baseSlug =
+            text
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)+/g, '') || `heading-${index}`;
+
+          // Deterministic de-duplication (heading, heading-2, heading-3, ...) instead of
+          // Math.random — repeated headings need distinct, stable IDs so TOC links and
+          // shareable deep links keep working across refreshes.
+          let candidate = baseSlug;
+          let suffix = 2;
+          while (usedSlugs.has(candidate)) {
+            candidate = `${baseSlug}-${suffix}`;
+            suffix += 1;
+          }
+          element.id = candidate;
         }
+        usedSlugs.add(element.id);
 
         if (!element.dataset.anchorEnhanced) {
           element.dataset.anchorEnhanced = 'true';
@@ -66,9 +83,13 @@ export function useDocHeadings() {
 
           const anchor = document.createElement('a');
           anchor.setAttribute('aria-label', `Link to ${text || 'section'}`);
+          // Always rendered (no `hidden`/display:none) so the control stays keyboard-focusable;
+          // visibility is opacity-based so it still only *appears* on hover (desktop) or focus.
           anchor.className =
-            'heading-anchor absolute -left-5 top-1/2 hidden -translate-y-1/2 text-muted-foreground ' +
-            'hover:text-primary transition-colors no-underline md:group-hover/heading:inline-flex';
+            'heading-anchor absolute -left-5 top-1/2 inline-flex -translate-y-1/2 items-center ' +
+            'text-muted-foreground opacity-0 no-underline transition-opacity hover:text-primary ' +
+            'focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 ' +
+            'focus-visible:ring-primary/50 focus-visible:rounded md:group-hover/heading:opacity-100';
           anchor.innerHTML = ANCHOR_SVG;
           anchor.addEventListener('click', (event) => {
             event.preventDefault();
@@ -105,7 +126,7 @@ export function useDocHeadings() {
         hasScrolledToDeepLink.current = true;
       }
 
-      const observer = new IntersectionObserver(
+      observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -116,12 +137,13 @@ export function useDocHeadings() {
         { rootMargin: '0px 0px -80% 0px' }
       );
 
-      elements.forEach((element) => observer.observe(element));
-
-      return () => observer.disconnect();
+      elements.forEach((element) => observer?.observe(element));
     }, 100);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      observer?.disconnect();
+    };
   }, [location.pathname, location.search]);
 
   return { headings, activeId, setActiveId };

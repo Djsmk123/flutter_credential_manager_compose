@@ -6,6 +6,8 @@ import { docNavigation } from '@/lib/docs-utils';
 import Footer from '@/components/Footer';
 import { cn } from '@/lib/utils';
 import { useSidebarToggle } from '@/hooks/useSidebarToggle';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useDocHeadings } from '@/hooks/useDocHeadings';
 import Header from './Header';
 import TableOfContents, { MobileTableOfContents } from './TableOfContents';
 import Breadcrumbs from './Breadcrumbs';
@@ -19,6 +21,11 @@ const DocLayout = ({ children }: DocLayoutProps) => {
   const { isSidebarOpen, toggleSidebar } = useSidebarToggle();
   const location = useLocation();
   const [scrollProgress, setScrollProgress] = useState(0);
+  const isMobile = useIsMobile();
+  // Owned once here and threaded down to both TableOfContents (desktop rail) and
+  // MobileTableOfContents, which are both always mounted — calling the hook in each would run
+  // its DOM scrape and IntersectionObserver twice for the same page.
+  const { headings, activeId, setActiveId } = useDocHeadings();
 
   // Find current page index for prev/next navigation
   const currentIndex = docNavigation.findIndex(item => item.path === location.pathname);
@@ -32,13 +39,18 @@ const DocLayout = ({ children }: DocLayoutProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  // Lock body scroll while the mobile drawer is open
+  // Lock body scroll while the mobile drawer is open. Re-evaluated when `isMobile` flips (e.g.
+  // rotating/resizing past `md` with the drawer still open), so it releases the lock instead of
+  // leaving the desktop page unscrollable.
   useEffect(() => {
-    document.body.style.overflow = isSidebarOpen ? 'hidden' : '';
+    if (!isSidebarOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = isMobile ? 'hidden' : previousOverflow;
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = previousOverflow;
     };
-  }, [isSidebarOpen]);
+  }, [isSidebarOpen, isMobile]);
 
   // Handle scroll progress
   useEffect(() => {
@@ -90,7 +102,7 @@ const DocLayout = ({ children }: DocLayoutProps) => {
         <main className="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
           <div className="mx-auto w-full min-w-0">
             <Breadcrumbs contentId={DOC_CONTENT_ID} />
-            <MobileTableOfContents />
+            <MobileTableOfContents headings={headings} activeId={activeId} setActiveId={setActiveId} />
             <article
               id={DOC_CONTENT_ID}
               className={cn(
@@ -129,7 +141,7 @@ const DocLayout = ({ children }: DocLayoutProps) => {
             </article>
             <Footer />
           </div>
-          <TableOfContents />
+          <TableOfContents headings={headings} activeId={activeId} setActiveId={setActiveId} />
         </main>
       </div>
       <BackToTop />

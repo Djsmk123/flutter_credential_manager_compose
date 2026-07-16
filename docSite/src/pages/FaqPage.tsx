@@ -121,7 +121,7 @@ if (credentialManager.isSupportedPlatform) {
         <div className="bg-white shadow overflow-hidden rounded-lg border dark:bg-gray-800">
           <div className="px-4 py-5 sm:px-6 bg-gray-50 dark:bg-gray-900">
             <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-              How do handle errors?
+              How do I handle errors?
             </h3>
           </div>
           <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">

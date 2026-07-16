@@ -9,6 +9,7 @@ jobs:
     name: Detect changed paths
     runs-on: ubuntu-latest
     outputs:
+      dart: ${{ steps.filter.outputs.dart }}
       android: ${{ steps.filter.outputs.android }}
       ios: ${{ steps.filter.outputs.ios }}
     steps:
@@ -17,6 +18,12 @@ jobs:
         id: filter
         with:
           filters: |
+            dart:
+              - 'packages/**/*.dart'
+              - 'packages/**/pubspec.yaml'
+              - 'packages/**/analysis_options.yaml'
+              - 'pubspec.yaml'
+              - '.github/workflows/ci.yml'
             android:
               - 'packages/credential_manager_android/**'
               - 'packages/credential_manager_platform_interface/**'
@@ -30,6 +37,8 @@ jobs:
 
   format:
     name: Dart format (120 cols)
+    needs: changes
+    if: needs.changes.outputs.dart == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,6 +55,8 @@ jobs:
 
   analyze:
     name: Flutter analyze
+    needs: changes
+    if: needs.changes.outputs.dart == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

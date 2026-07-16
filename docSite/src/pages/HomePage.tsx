@@ -54,16 +54,14 @@ const HomePage = () => {
         </p>
 
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center md:w-auto">
-          <Link to="/installation" className="w-full sm:w-auto">
-            <Button size="lg" className="w-full gap-2 shadow-glow sm:w-auto">
+          <Button size="lg" className="w-full gap-2 shadow-glow sm:w-auto" asChild>
+            <Link to="/installation">
               Get Started <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-          <Link to="/examples" className="w-full sm:w-auto">
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              View Examples
-            </Button>
-          </Link>
+            </Link>
+          </Button>
+          <Button variant="outline" size="lg" className="w-full sm:w-auto" asChild>
+            <Link to="/examples">View Examples</Link>
+          </Button>
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
@@ -133,11 +131,11 @@ await credentialManager.logout();`}
         <p className="max-w-[600px] text-muted-foreground md:text-xl">
           Join developers building secure Flutter applications with Credential Manager.
         </p>
-        <Link to="/installation">
-          <Button size="lg" className="mt-4 gap-2 shadow-glow">
+        <Button size="lg" className="mt-4 gap-2 shadow-glow" asChild>
+          <Link to="/installation">
             Start Integration <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </section>
     </div>
   );

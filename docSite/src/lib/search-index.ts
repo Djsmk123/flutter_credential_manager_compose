@@ -82,7 +82,7 @@ const sectionsByPath: Record<string, SearchSection[]> = {
     { text: 'How do I clone the repository?' },
     { text: 'How do I initialize Credential Manager?' },
     { text: 'How do I save password-based credentials on Android?' },
-    { text: 'How do handle errors?' },
+    { text: 'How do I handle errors?' },
     { text: 'How do I logout?' },
   ],
   '/contributing': [

@@ -1,19 +1,33 @@
+import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { docNavGroups } from '@/lib/docs-utils';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DocSidebarProps {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
 
-const DocSidebar = ({ toggleSidebar }: DocSidebarProps) => {
+const DocSidebar = ({ isSidebarOpen, toggleSidebar }: DocSidebarProps) => {
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // `inert` isn't in this project's JSX typings yet, but it is a real DOM property — set it
+  // imperatively so the closed mobile drawer's links drop out of the tab order without a cast.
+  // Gated on `isMobile` (not just `isSidebarOpen`) so the desktop sidebar, where `isSidebarOpen`
+  // is a mobile-only concept, always stays focusable.
+  useEffect(() => {
+    if (wrapperRef.current) {
+      wrapperRef.current.inert = isMobile && !isSidebarOpen;
+    }
+  }, [isMobile, isSidebarOpen]);
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="sidebar-wrapper w-full">
+    <div ref={wrapperRef} className="sidebar-wrapper w-full">
       {docNavGroups.map((group) => (
         <div key={group.label} className="pb-6">
           <h4 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
