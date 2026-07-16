@@ -7,9 +7,13 @@ import Footer from '@/components/Footer';
 import { cn } from '@/lib/utils';
 import { useSidebarToggle } from '@/hooks/useSidebarToggle';
 import Header from './Header';
-import TableOfContents from './TableOfContents';
+import TableOfContents, { MobileTableOfContents } from './TableOfContents';
+import Breadcrumbs from './Breadcrumbs';
+import BackToTop from './BackToTop';
 
 type DocLayoutProps = PropsWithChildren
+
+const DOC_CONTENT_ID = 'doc-article-content';
 
 const DocLayout = ({ children }: DocLayoutProps) => {
   const { isSidebarOpen, toggleSidebar } = useSidebarToggle();
@@ -21,16 +25,26 @@ const DocLayout = ({ children }: DocLayoutProps) => {
   const prevPage = currentIndex > 0 ? docNavigation[currentIndex - 1] : null;
   const nextPage = currentIndex < docNavigation.length - 1 ? docNavigation[currentIndex + 1] : null;
 
-  // Scroll to top on page change
+  // Scroll to top on page change, and close the mobile drawer so it doesn't linger on navigate
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (isSidebarOpen) toggleSidebar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
+
+  // Lock body scroll while the mobile drawer is open
+  useEffect(() => {
+    document.body.style.overflow = isSidebarOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isSidebarOpen]);
 
   // Handle scroll progress
   useEffect(() => {
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (window.scrollY / totalHeight) * 100;
+      const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
       setScrollProgress(progress);
     };
 
@@ -42,7 +56,7 @@ const DocLayout = ({ children }: DocLayoutProps) => {
     <div className="min-h-screen flex flex-col bg-background font-sans antialiased">
       {/* Progress bar */}
       <div className="fixed top-0 left-0 w-full h-1 z-[100]">
-        <div 
+        <div
           className="h-full bg-primary transition-all duration-300 ease-linear"
           style={{ width: `${scrollProgress}%` }}
         />
@@ -50,20 +64,40 @@ const DocLayout = ({ children }: DocLayoutProps) => {
 
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
 
+      {/* Mobile backdrop, dismisses the drawer on tap */}
+      <div
+        aria-hidden="true"
+        onClick={toggleSidebar}
+        className={cn(
+          'fixed inset-0 top-14 z-40 bg-background/80 backdrop-blur-sm transition-opacity md:hidden',
+          isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        )}
+      />
+
       <div className="flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 container max-w-screen-2xl">
-        <aside className={cn(
-          "fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 md:sticky md:block overflow-y-auto border-r border-border/40 pr-2 py-6 lg:py-8",
-          isSidebarOpen && "block bg-background inset-0 z-50 w-full p-6 md:p-0"
-        )}>
+        <aside
+          className={cn(
+            'fixed top-14 z-50 h-[calc(100vh-3.5rem)] w-full max-w-xs shrink-0 overflow-y-auto border-r',
+            'border-border/40 bg-background px-6 py-6 shadow-xl transition-transform duration-300 ease-in-out',
+            'md:sticky md:z-30 md:w-full md:max-w-none md:translate-x-0 md:border-r-0 md:bg-transparent',
+            'md:px-0 md:pr-2 md:shadow-none lg:py-8',
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          )}
+        >
           <DocSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         </aside>
-        
+
         <main className="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
           <div className="mx-auto w-full min-w-0">
-            <div className={cn(
-              "prose prose-slate dark:prose-invert max-w-none",
-              "animate-fade-in"
-            )}>
+            <Breadcrumbs contentId={DOC_CONTENT_ID} />
+            <MobileTableOfContents />
+            <article
+              id={DOC_CONTENT_ID}
+              className={cn(
+                'prose prose-slate dark:prose-invert max-w-none',
+                'animate-fade-in'
+              )}
+            >
               {children}
 
               {/* Previous/Next navigation */}
@@ -92,12 +126,13 @@ const DocLayout = ({ children }: DocLayoutProps) => {
                   <div />
                 )}
               </div>
-            </div>
+            </article>
             <Footer />
           </div>
           <TableOfContents />
         </main>
       </div>
+      <BackToTop />
     </div>
   );
 };

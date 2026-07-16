@@ -1,99 +1,83 @@
-import { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { ChevronDown, ListTree } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { buildHeadingUrl, setHeadingHash, useDocHeadings, type TocItem } from '@/hooks/useDocHeadings';
 
-interface TocItem {
-  id: string;
-  text: string;
-  level: number;
+interface TocLinksProps {
+  headings: TocItem[];
+  activeId: string;
+  onSelect: (id: string) => void;
 }
 
-const TableOfContents = () => {
-  const [headings, setHeadings] = useState<TocItem[]>([]);
-  const [activeId, setActiveId] = useState<string>('');
+const TocLinks = ({ headings, activeId, onSelect }: TocLinksProps) => {
   const location = useLocation();
 
-  useEffect(() => {
-    // Small delay to ensure content is rendered
-    const timer = setTimeout(() => {
-      const elements = Array.from(document.querySelectorAll('h2, h3'));
-      
-      const items = elements.map((element) => {
-        // Generate ID if missing
-        if (!element.id) {
-          const slug = element.textContent
-            ?.toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)+/g, '');
-          element.id = slug || `heading-${Math.random().toString(36).substr(2, 9)}`;
-        }
+  return (
+    <ul className="m-0 list-none space-y-2">
+      {headings.map((heading) => (
+        <li key={heading.id} className="mt-0">
+          <a
+            href={`#${buildHeadingUrl(location.pathname, location.search, heading.id)}`}
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth' });
+              onSelect(heading.id);
+              setHeadingHash(location.pathname, location.search, heading.id);
+            }}
+            className={cn(
+              'inline-block no-underline transition-colors hover:text-foreground text-sm',
+              heading.level === 3 && 'pl-4',
+              activeId === heading.id ? 'font-medium text-primary' : 'text-muted-foreground'
+            )}
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+};
 
-        return {
-          id: element.id,
-          text: element.textContent || '',
-          level: Number(element.tagName.substring(1)),
-        };
-      });
-
-      setHeadings(items);
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveId(entry.target.id);
-            }
-          });
-        },
-        { rootMargin: '0px 0px -80% 0px' }
-      );
-
-      elements.forEach((element) => {
-        observer.observe(element);
-      });
-
-      return () => observer.disconnect();
-    }, 100); // 100ms delay to allow for rendering
-
-    return () => clearTimeout(timer);
-  }, [location.pathname]); // Re-run when path changes
+// Sticky right-hand rail shown on wide (xl+) viewports.
+const TableOfContents = () => {
+  const { headings, activeId, setActiveId } = useDocHeadings();
 
   if (headings.length === 0) return null;
 
   return (
     <div className="hidden xl:block">
-      <div className="sticky top-20 -mt-10 h-[calc(100vh-3.5rem)] overflow-hidden pt-6">
-        <div className="space-y-2">
-          <p className="font-medium text-sm text-foreground">On This Page</p>
-          <ul className="m-0 list-none">
-            {headings.map((heading) => (
-              <li key={heading.id} className="mt-0 pt-2">
-                <a
-                  href={`#${heading.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById(heading.id)?.scrollIntoView({
-                      behavior: 'smooth'
-                    });
-                    setActiveId(heading.id);
-                    window.history.pushState(null, '', `#${heading.id}`);
-                  }}
-                  className={cn(
-                    "inline-block no-underline transition-colors hover:text-foreground text-sm",
-                    heading.level === 3 && "pl-4",
-                    activeId === heading.id
-                      ? "font-medium text-foreground"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {heading.text}
-                </a>
-              </li>
-            ))}
-          </ul>
+      <div className="sticky top-20 -mt-10 h-[calc(100vh-3.5rem)] overflow-y-auto pt-6">
+        <div className="space-y-3">
+          <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+            <ListTree className="h-3.5 w-3.5" />
+            On This Page
+          </p>
+          <TocLinks headings={headings} activeId={activeId} onSelect={setActiveId} />
         </div>
       </div>
     </div>
+  );
+};
+
+// Collapsible "On this page" panel for mobile/tablet, where the rail is hidden.
+export const MobileTableOfContents = () => {
+  const { headings, activeId, setActiveId } = useDocHeadings();
+
+  if (headings.length === 0) return null;
+
+  return (
+    <details className="group/toc mb-8 rounded-lg border border-border bg-muted/30 xl:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center gap-1.5">
+          <ListTree className="h-3.5 w-3.5" />
+          On this page
+        </span>
+        <ChevronDown className="h-4 w-4 transition-transform group-open/toc:rotate-180" />
+      </summary>
+      <div className="border-t border-border/60 px-4 pb-4 pt-3">
+        <TocLinks headings={headings} activeId={activeId} onSelect={setActiveId} />
+      </div>
+    </details>
   );
 };
 

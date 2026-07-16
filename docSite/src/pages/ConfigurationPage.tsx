@@ -170,8 +170,7 @@ pod deintegrate`}
       <h3 className="mt-6 mb-2">Enabling Password AutoFill</h3>
 
       <ol className="list-decimal pl-6 mb-6">
-        <li className="mb-2">Open your project in XcoIn the Associated Domains section, add the domain that you want to associate with your app using the format applinks:yourdomain.com and webcredentials:yourdomain.com.
-        de.</li>
+        <li className="mb-2">Open your project in Xcode.</li>
         <li className="mb-2">Go to your app target &gt; Signing & Capabilities tab.</li>
         <li className="mb-2">Click "+" and select <strong>Associated Domains</strong>.</li>
         <li className="mb-2">Add domains like <code>applinks:yourdomain.com</code> and <code>webcredentials:yourdomain.com</code>.</li>

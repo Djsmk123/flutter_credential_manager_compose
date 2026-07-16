@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { docNavigation } from '@/lib/docs-utils';
+import { docNavGroups } from '@/lib/docs-utils';
 import { cn } from '@/lib/utils';
 
 interface DocSidebarProps {
@@ -7,36 +7,52 @@ interface DocSidebarProps {
   toggleSidebar: () => void;
 }
 
-const DocSidebar = ({}: DocSidebarProps) => {
+const DocSidebar = ({ toggleSidebar }: DocSidebarProps) => {
   const location = useLocation();
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="w-full">
-      <div className="pb-4">
-        <h4 className="mb-1 rounded-md px-2 py-1 text-sm font-semibold">
-          Documentation
-        </h4>
-        <div className="grid grid-flow-row auto-rows-max text-sm">
-          {docNavigation.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "group flex w-full items-center rounded-md border border-transparent px-2 py-1 hover:underline",
-                isActive(item.path)
-                  ? "font-medium text-foreground"
-                  : "text-muted-foreground"
-              )}
-            >
-              {item.title}
-            </Link>
-          ))}
+    <div className="sidebar-wrapper w-full">
+      {docNavGroups.map((group) => (
+        <div key={group.label} className="pb-6">
+          <h4 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
+            {group.label}
+          </h4>
+          <div className="grid grid-flow-row auto-rows-max gap-0.5 text-sm">
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => {
+                    // Close the mobile drawer whenever a destination is picked.
+                    if (window.innerWidth < 768) toggleSidebar();
+                  }}
+                  className={cn(
+                    'group relative flex w-full items-center gap-2.5 rounded-md border border-transparent px-2 py-1.5',
+                    'transition-colors before:absolute before:-left-2 before:top-1/2 before:h-4 before:w-0.5',
+                    'before:-translate-y-1/2 before:rounded-full before:bg-primary before:transition-opacity',
+                    active
+                      ? 'bg-primary/10 font-medium text-primary before:opacity-100'
+                      : 'text-muted-foreground before:opacity-0 hover:bg-accent hover:text-accent-foreground'
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      'h-4 w-4 shrink-0 transition-colors',
+                      active ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground'
+                    )}
+                  />
+                  <span className="truncate">{item.title}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 };

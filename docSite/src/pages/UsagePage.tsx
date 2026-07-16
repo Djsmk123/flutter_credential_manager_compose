@@ -78,7 +78,7 @@ if (!credentialManager.isGmsAvailable) {
       <CodeBlock
         language="dart"
         code={`try {
-  await credentialManager.savePasswordCredential(
+  await credentialManager.savePasswordCredentials(
     PasswordCredential(
       username: '1234567890',
       password: 'password',
@@ -546,10 +546,12 @@ print('Passkey Raw ID: \${credential.rawId}');`}
     ),
   );
   // Process result
-} catch (CredentialCancelledException e) {
-  print('User cancelled the operation');
-} catch (CredentialRequestException e) {
-  print('Credential request failed: \${e.message}');
+} on CredentialException catch (e) {
+  if (e.code == 201) {
+    print('User cancelled the operation');
+  } else {
+    print('Credential request failed (\${e.code}): \${e.message}');
+  }
 } catch (e) {
   print('Unexpected error: \${e}');
 }`}

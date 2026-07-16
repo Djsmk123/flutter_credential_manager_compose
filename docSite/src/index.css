@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 217 91% 60%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -30,7 +30,10 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 217 91% 60%;
+
+    --brand-glow-1: 217 91% 60%;
+    --brand-glow-2: 262 83% 68%;
 
     --radius: 0.5rem;
 
@@ -56,7 +59,7 @@
     --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 213 94% 68%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -73,7 +76,10 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 213 94% 68%;
+
+    --brand-glow-1: 213 94% 68%;
+    --brand-glow-2: 262 83% 74%;
 
     --sidebar-background: 222.2 47.4% 11.2%;
     --sidebar-foreground: 210 40% 98%;
@@ -96,13 +102,17 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
+  ::selection {
+    @apply bg-primary/25 text-foreground;
+  }
+
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply scroll-mt-24 font-semibold tracking-tight;
+    @apply scroll-mt-24 font-bold tracking-tight;
   }
 
   h1 {
@@ -110,11 +120,11 @@
   }
 
   h2 {
-    @apply text-3xl border-b pb-2 mt-10 mb-4;
+    @apply text-2xl md:text-3xl border-b border-border/70 pb-3 mt-12 mb-4;
   }
 
   h3 {
-    @apply text-2xl mt-8 mb-4;
+    @apply text-xl md:text-2xl mt-8 mb-3;
   }
 
   p {
@@ -261,7 +271,7 @@ pre[class*="language-"] {
 }
 
 .prose table {
-  @apply w-full my-8 border-collapse text-sm;
+  @apply w-full my-8 border-collapse overflow-hidden rounded-lg border border-border text-sm;
 }
 
 .prose thead {
@@ -278,4 +288,36 @@ pre[class*="language-"] {
 
 .prose tr:last-child td {
   @apply border-0;
+}
+
+.prose tbody tr {
+  @apply transition-colors hover:bg-muted/30;
+}
+
+.prose h1:first-child,
+.prose h2:first-child {
+  @apply mt-0;
+}
+
+/* Hero background: soft radial brand glow + faint grid, used on the homepage */
+.hero-glow {
+  background-image:
+    radial-gradient(60% 50% at 15% 0%, hsl(var(--brand-glow-1) / 0.18), transparent 70%),
+    radial-gradient(50% 40% at 85% 10%, hsl(var(--brand-glow-2) / 0.16), transparent 70%);
+}
+
+.hero-grid {
+  background-image: theme('backgroundImage.grid-pattern');
+  background-size: 42px 42px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(to right, hsl(var(--brand-glow-1)), hsl(var(--brand-glow-2)));
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow;
 }

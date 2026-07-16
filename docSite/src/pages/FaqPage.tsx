@@ -98,13 +98,13 @@ if (credentialManager.isSupportedPlatform) {
           </div>
           <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
             <p className="text-sm text-gray-500">
-              To save password-based credentials on Android, use the <code>savePasswordCredential</code> method of the <code>CredentialManager</code> object. Wrap the call in a try-catch block to handle any potential errors.
+              To save password-based credentials on Android, use the <code>savePasswordCredentials</code> method of the <code>CredentialManager</code> object. Wrap the call in a try-catch block to handle any potential errors.
             </p>
             <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto mt-4">
                 <CodeBlock
                   language="dart"
                   code={`try {
-  await credentialManager.savePasswordCredential(
+  await credentialManager.savePasswordCredentials(
     PasswordCredential(
       username: '1234567890',
       password: 'password',

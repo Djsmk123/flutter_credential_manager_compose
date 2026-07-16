@@ -6,6 +6,20 @@
 
 const changelog = [
   {
+    version: "3.0.1",
+    items: [
+      <>Bumped <code>credential_manager_ios</code> to <code>^3.0.1</code> and <code>credential_manager_android</code> to <code>^3.0.1</code>, both of which add native static analysis (SwiftLint, Detekt) with no functional or API changes.</>,
+      "No breaking changes to the Dart API.",
+    ],
+  },
+  {
+    version: "3.0.0",
+    items: [
+      <>Bumped <code>credential_manager_ios</code> to <code>^3.0.0</code>, which adds Swift Package Manager (SPM) support alongside the existing CocoaPods integration.</>,
+      "No breaking changes to the Dart API; apps still on CocoaPods continue to work unchanged.",
+    ],
+  },
+  {
     version: "2.0.8",
     items: [
       <>Added <code>isGmsAvailable</code> to platform interface.</>,
