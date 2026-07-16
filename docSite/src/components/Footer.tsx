@@ -2,7 +2,7 @@ import { Github } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-50 dark:bg-slate-950/50 border-t border-border mt-auto">
+    <footer className="bg-muted/30 border-t border-border mt-auto">
       <div className="container max-w-screen-2xl py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div className="space-y-4">

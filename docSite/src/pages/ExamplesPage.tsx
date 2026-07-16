@@ -99,7 +99,7 @@ await credentialManager.init(
         language="dart"
         code={`// Save Password Credential
 try {
-  await credentialManager.savePasswordCredential(
+  await credentialManager.savePasswordCredentials(
     PasswordCredential(
       username: emailController.text,
       password: passwordController.text,
@@ -170,12 +170,12 @@ try {
     "id": credential.id,
     "rawId": credential.rawId,
     "type": credential.type,
-    "clientDataJSON": credential.clientDataJSON,
+    "clientDataJSON": credential.response?.clientDataJSON,
     "attestationObject": credential.response?.attestationObject,
     "authenticatorData": credential.response?.authenticatorData,
-    "publicKey": credential.response?.publicKey,
-    "publicKeyAlgorithm": credential.response?.publicKeyAlgorithm,
-    "transports": credential.response?.transports,
+    "publicKey": credential.publicKey,
+    "publicKeyAlgorithm": credential.publicKeyAlgorithm,
+    "transports": credential.transports,
   };
 
   // TODO: Send registrationResponse to your server

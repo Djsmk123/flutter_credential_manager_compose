@@ -104,8 +104,15 @@ export default {
                 'pulse-soft': 'pulse-soft 3s infinite ease-in-out'
 			},
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                mono: ['JetBrains Mono', 'monospace'],
+                sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+            },
+            boxShadow: {
+                'glow': '0 0 0 1px hsl(var(--primary) / 0.1), 0 8px 30px -8px hsl(var(--primary) / 0.35)',
+            },
+            backgroundImage: {
+                'grid-pattern':
+                    'linear-gradient(to right, hsl(var(--border) / 0.6) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border) / 0.6) 1px, transparent 1px)',
             }
 		}
 	},

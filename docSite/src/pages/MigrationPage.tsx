@@ -29,7 +29,7 @@ const MigrationPage = () => {
                 <CodeBlock 
                   language="dart"
                   code={`// Save password credentials
-await credentialManager.savePasswordCredential(
+await credentialManager.savePasswordCredentials(
   PasswordCredential(
     username: 'user@example.com',
     password: 'password123',
@@ -48,7 +48,7 @@ print('Password: \${credential.password}');`}
                 <CodeBlock
                   language="dart" 
                   code={`// Save password credentials (unchanged)
-await credentialManager.savePasswordCredential(
+await credentialManager.savePasswordCredentials(
   PasswordCredential(
     username: 'user@example.com',
     password: 'password123',

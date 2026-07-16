@@ -64,7 +64,7 @@ const ApiReferencePage = () => {
             <td className="border border-gray-300 px-4 py-2">Initializes the credential manager with optional parameters.</td>
           </tr>
           <tr>
-            <td className="border border-gray-300 px-4 py-2 font-mono text-sm">savePasswordCredential()</td>
+            <td className="border border-gray-300 px-4 py-2 font-mono text-sm">savePasswordCredentials()</td>
             <td className="border border-gray-300 px-4 py-2">Saves password-based credentials.</td>
           </tr>
           <tr>

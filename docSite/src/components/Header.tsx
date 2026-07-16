@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Github, Menu, X } from 'lucide-react';
+import { Github, Menu, Search, ShieldCheck, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { Button } from './ui/button';
 import { useState } from 'react';
@@ -17,42 +17,38 @@ const Header = ({ toggleSidebar, isSidebarOpen }: HeaderProps) => {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 max-w-screen-2xl items-center">
-          <div className="mr-4 flex md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={toggleSidebar}
-            >
-              {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              <span className="sr-only">Toggle Sidebar</span>
-            </Button>
-          </div>
-          
-          <div className="mr-4 hidden md:flex">
-            <Link to="/" className="mr-6 flex items-center space-x-2">
-              <span className="hidden font-bold sm:inline-block">
-                Flutter Credential Manager
-              </span>
-            </Link>
-          </div>
+        <div className="container flex h-14 max-w-screen-2xl items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="sidebar-toggle h-8 w-8 shrink-0 md:hidden"
+            onClick={toggleSidebar}
+            aria-label="Toggle navigation menu"
+          >
+            {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
 
-          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
-              <Button
-                variant="outline"
-                className="inline-flex items-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input hover:bg-accent hover:text-accent-foreground px-4 py-2 relative h-8 w-full justify-start rounded-[0.5rem] bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-64"
-                onClick={() => setIsSearchOpen(true)}
-              >
-                <span className="hidden lg:inline-flex">Search documentation...</span>
-                <span className="inline-flex lg:hidden">Search...</span>
-                <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                  <span className="text-xs">⌘</span>K
-                </kbd>
-              </Button>
-            </div>
-            
+          <Link to="/" className="mr-4 flex items-center gap-2 shrink-0">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <span className="hidden font-bold sm:inline-block">
+              Credential Manager
+            </span>
+          </Link>
+
+          <div className="flex flex-1 items-center justify-end gap-2">
+            <Button
+              variant="outline"
+              className="relative h-9 w-full max-w-[16rem] justify-start gap-2 rounded-lg bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12"
+              onClick={() => setIsSearchOpen(true)}
+            >
+              <Search className="h-4 w-4 shrink-0" />
+              <span className="hidden lg:inline-flex">Search documentation...</span>
+              <span className="inline-flex lg:hidden">Search...</span>
+              <kbd className="pointer-events-none absolute right-1.5 top-1/2 hidden -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium sm:flex">
+                <span>⌘</span>K
+              </kbd>
+            </Button>
+
             <nav className="flex items-center">
               <Link
                 to="https://github.com/djsmk123/flutter_credential_manager_compose"
@@ -61,7 +57,8 @@ const Header = ({ toggleSidebar, isSidebarOpen }: HeaderProps) => {
               >
                 <div
                   className={cn(
-                    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 py-2 w-9 px-0"
+                    'inline-flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors',
+                    'hover:bg-accent hover:text-accent-foreground'
                   )}
                 >
                   <Github className="h-4 w-4" />
