@@ -32,11 +32,23 @@ const DocLayout = ({ children }: DocLayoutProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  // Lock body scroll while the mobile drawer is open
+  // Lock body scroll while the mobile drawer is open. Gated on the same `md` breakpoint the
+  // drawer itself uses, and re-evaluated on resize, so rotating/resizing past `md` with the
+  // drawer still open releases the lock instead of leaving the desktop page unscrollable.
   useEffect(() => {
-    document.body.style.overflow = isSidebarOpen ? 'hidden' : '';
+    if (!isSidebarOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const mql = window.matchMedia('(max-width: 767px)');
+    const applyLock = () => {
+      document.body.style.overflow = mql.matches ? 'hidden' : previousOverflow;
+    };
+
+    applyLock();
+    mql.addEventListener('change', applyLock);
     return () => {
-      document.body.style.overflow = '';
+      mql.removeEventListener('change', applyLock);
+      document.body.style.overflow = previousOverflow;
     };
   }, [isSidebarOpen]);
 
