@@ -14,10 +14,16 @@ that runs on Web must add this `<script>` tag to `web/index.html`, **before** Fl
 
 ```html
 <body>
-  <script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>
+  <script src="assets/packages/credential_manager_web/web/passkey_authenticator.js"></script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 ```
+
+Note the `assets/` prefix: `flutter build web` bundles plugin `web/` assets under
+`build/web/assets/packages/<pkg>/...`, not `build/web/packages/<pkg>/...` — there is no top-level
+`packages/` directory in a static build output. `flutter run -d chrome`'s dev server resolves the
+unprefixed `packages/...` path too (via its own asset resolver), which is why this bug can go
+unnoticed until a real static deploy (e.g. Netlify) 404s on it.
 
 Skip this and `CredentialManager().init(...)` throws:
 

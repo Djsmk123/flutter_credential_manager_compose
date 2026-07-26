@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       title: "Credential Manager Example",
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(Brightness.light),
-      darkTheme: buildAppTheme(Brightness.dark),
+      themeMode: ThemeMode.light,
       home: const LoginScreen(),
     );
   }
@@ -157,7 +157,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final isGmsAvailable = credentialManager.isGmsAvailable;
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
+
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         title: const Text("Credential Manager"),
         centerTitle: true,
@@ -171,68 +174,82 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Opacity(
                     opacity: isLoading ? 0.5 : 1,
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: _buildAutofillGroup(
-                        Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildHeader(),
-                              const SizedBox(height: 32),
-                              _buildInputField(
-                                "Username",
-                                (value) => username = value,
-                                icon: Icons.person_outline,
-                              ),
-                              if (createPassKey) ...[
-                                const SizedBox(height: 16),
-                                _buildInputField(
-                                  "Password",
-                                  (value) => password = value,
-                                  isPassword: true,
-                                  icon: Icons.lock_outline,
+                      padding: EdgeInsets.symmetric(horizontal: isCompact ? 16 : 24, vertical: 24),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 460),
+                          child: _buildAutofillGroup(
+                            Card(
+                              elevation: isCompact ? 0 : 1,
+                              color: isCompact ? Colors.transparent : Theme.of(context).colorScheme.surface,
+                              surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+                              margin: EdgeInsets.zero,
+                              child: Padding(
+                                padding: EdgeInsets.all(isCompact ? 0 : 32),
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      _buildHeader(),
+                                      const SizedBox(height: 32),
+                                      _buildInputField(
+                                        "Username",
+                                        (value) => username = value,
+                                        icon: Icons.person_outline,
+                                      ),
+                                      if (createPassKey) ...[
+                                        const SizedBox(height: 16),
+                                        _buildInputField(
+                                          "Password",
+                                          (value) => password = value,
+                                          isPassword: true,
+                                          icon: Icons.lock_outline,
+                                        ),
+                                      ],
+                                      const SizedBox(height: 24),
+                                      _buildSectionTitle("Registration"),
+                                      const SizedBox(height: 12),
+                                      _buildActionButton(
+                                        "Register with Password",
+                                        onRegister,
+                                        icon: Icons.password,
+                                        isPrimary: true,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      _buildActionButton(
+                                        "Register with Passkey",
+                                        onRegisterWithPassKey,
+                                        icon: Icons.key,
+                                      ),
+                                      if (isGoogleSignInSupported) ...[
+                                        const SizedBox(height: 12),
+                                        _buildGoogleFlowDropdown(),
+                                        const SizedBox(height: 12),
+                                        _buildActionButton(
+                                          "Register with Google",
+                                          onGoogleSignIn,
+                                          icon: Icons.g_mobiledata,
+                                        ),
+                                      ],
+                                      const SizedBox(height: 24),
+                                      _buildSectionTitle("Login"),
+                                      const SizedBox(height: 12),
+                                      _buildActionButton(
+                                        CredentialManagerPlatformManager.instance.isAndroid
+                                            ? "Login (All Methods)"
+                                            : isGoogleSignInSupported
+                                                ? "Login (Passkey + Google)"
+                                                : "Login with Passkey",
+                                        onLogin,
+                                        icon: Icons.login,
+                                        isPrimary: true,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                              const SizedBox(height: 24),
-                              _buildSectionTitle("Registration"),
-                              const SizedBox(height: 12),
-                              _buildActionButton(
-                                "Register with Password",
-                                onRegister,
-                                icon: Icons.password,
-                                isPrimary: true,
                               ),
-                              const SizedBox(height: 12),
-                              _buildActionButton(
-                                "Register with Passkey",
-                                onRegisterWithPassKey,
-                                icon: Icons.key,
-                              ),
-                              if (isGoogleSignInSupported) ...[
-                                const SizedBox(height: 12),
-                                _buildGoogleFlowDropdown(),
-                                const SizedBox(height: 12),
-                                _buildActionButton(
-                                  "Register with Google",
-                                  onGoogleSignIn,
-                                  icon: Icons.g_mobiledata,
-                                ),
-                              ],
-                              const SizedBox(height: 24),
-                              _buildSectionTitle("Login"),
-                              const SizedBox(height: 12),
-                              _buildActionButton(
-                                CredentialManagerPlatformManager.instance.isAndroid
-                                    ? "Login (All Methods)"
-                                    : isGoogleSignInSupported
-                                        ? "Login (Passkey + Google)"
-                                        : "Login with Passkey",
-                                onLogin,
-                                icon: Icons.login,
-                                isPrimary: true,
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),

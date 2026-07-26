@@ -276,7 +276,7 @@ if (!credentialManager.isGmsAvailable) {
         <CodeBlock
           language="plaintext"
           code={`<!-- web/index.html, inside <body>, before flutter_bootstrap.js -->
-<script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>`}
+<script src="assets/packages/credential_manager_web/web/passkey_authenticator.js"></script>`}
         />
       </div>
 

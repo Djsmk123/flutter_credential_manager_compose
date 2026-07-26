@@ -80,7 +80,7 @@ Web must add this to `web/index.html`, before Flutter boots (see `references/web
 full guide):
 
 ```html
-<script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>
+<script src="assets/packages/credential_manager_web/web/passkey_authenticator.js"></script>
 ```
 
 Without it, `init()` throws `CredentialException(code: 101, message: 'Initialization failure: JavaScript not loaded')`.
