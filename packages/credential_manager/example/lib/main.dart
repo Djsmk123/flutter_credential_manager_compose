@@ -8,9 +8,15 @@ import 'dart:developer';
 //   flutter run --dart-define=GOOGLE_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
 // CI supplies this from the GOOGLE_CLIENT_ID repository secret.
 const String googleClientId = String.fromEnvironment('GOOGLE_CLIENT_ID');
-// For localhost testing, use "localhost" as rpId
-// For production, use your actual domain
-final String rpId = CredentialManagerPlatformManager.instance.isWeb ? "localhost" : "blogs-deeplink-example.vercel.app";
+// Web's rpId must match the origin the app is actually served from, so it's
+// configurable at build/run time, e.g.:
+//   flutter run --dart-define=RP_ID=localhost
+//   flutter build web --dart-define=RP_ID=credential-manager-compose-example.netlify.app
+// Defaults to "localhost" for local web development. Android/iOS keep a fixed
+// domain since their rpId is tied to the hosted Digital Asset Links /
+// apple-app-site-association files, not the client build.
+const String _webRpId = String.fromEnvironment('RP_ID', defaultValue: 'localhost');
+final String rpId = CredentialManagerPlatformManager.instance.isWeb ? _webRpId : "blogs-deeplink-example.vercel.app";
 final CredentialManager credentialManager = CredentialManager();
 
 void main() async {
@@ -122,6 +128,12 @@ class _LoginScreenState extends State<LoginScreen> {
   late CredentialLoginOptions passKeyLoginOption;
   bool isGoogleEnabled = false;
 
+  // Google Sign-In flow, selectable via the dropdown shown for Android/Web:
+  // - false: One Tap / passive (GetGoogleIdOption on Android, One Tap on Web)
+  // - true: button/active flow (GetSignInWithGoogleOption on Android, a
+  //   rendered Google button click on Web)
+  bool useGoogleButtonFlow = false;
+
   @override
   void initState() {
     super.initState();
@@ -198,6 +210,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 icon: Icons.key,
                               ),
                               if (isGoogleSignInSupported) ...[
+                                const SizedBox(height: 12),
+                                _buildGoogleFlowDropdown(),
                                 const SizedBox(height: 12),
                                 _buildActionButton(
                                   "Register with Google",
@@ -299,6 +313,25 @@ class _LoginScreenState extends State<LoginScreen> {
       avatar: Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
       label: Text('Running on $label'),
       visualDensity: VisualDensity.compact,
+    );
+  }
+
+  /// Lets the user pick between Google's One Tap/passive flow and its
+  /// button/active flow. Both platforms that support Google Sign-In
+  /// (Android + Web) accept the same `useButtonFlow` bool, so one dropdown
+  /// covers both - see `saveGoogleCredential(bool useButtonFlow, {String? nonce})`.
+  Widget _buildGoogleFlowDropdown() {
+    return DropdownButtonFormField<bool>(
+      initialValue: useGoogleButtonFlow,
+      decoration: const InputDecoration(
+        labelText: "Google Sign-In flow",
+        prefixIcon: Icon(Icons.tune),
+      ),
+      items: const [
+        DropdownMenuItem(value: false, child: Text("One Tap (passive)")),
+        DropdownMenuItem(value: true, child: Text("Button flow (active)")),
+      ],
+      onChanged: (value) => setState(() => useGoogleButtonFlow = value ?? false),
     );
   }
 
@@ -443,6 +476,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // FedCM IdentityProvider on web). Supply your own when you need to tie
       // the sign-in request to a value your backend already issued.
       final credential = await credentialManager.saveGoogleCredential(
+        useButtonFlow: useGoogleButtonFlow,
         nonce: EncryptData.getEncodedChallenge(),
       );
       _showSnackBar("Successfully retrieved credential");
