@@ -18,14 +18,14 @@ final credentialManager = CredentialManager();
 
 | Member | Signature |
 |---|---|
-| `isSupportedPlatform` | `bool` getter — `Platform.isAndroid \|\| Platform.isIOS` |
-| `isGmsAvailable` | `bool` getter — Android Play Services availability, always `true` on iOS, set during `init` |
+| `isSupportedPlatform` | `bool` getter — `CredentialManagerPlatformManager.instance.isAndroid \|\| .isIOS \|\| .isWeb` |
+| `isGmsAvailable` | `bool` getter — Android Play Services availability, always `true` on iOS/Web, set during `init` |
 | `getPlatformVersion()` | `Future<String?>` |
 | `init(...)` | `Future<void> init({required bool preferImmediatelyAvailableCredentials, String? googleClientId})` |
 | `savePasswordCredentials(credential)` | `Future<void> savePasswordCredentials(PasswordCredential credential)` |
 | `savePasskeyCredentials(...)` | `Future<PublicKeyCredential> savePasskeyCredentials({required CredentialCreationOptions request})` |
 | `getCredentials(...)` | `Future<Credentials> getCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions})` |
-| `saveGoogleCredential(...)` | `Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false})` |
+| `saveGoogleCredential(...)` | `Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false, String? nonce})` |
 | `logout()` | `Future<void> logout()` |
 
 `preferImmediatelyAvailableCredentials`: when `true`, tells the authorization controller to prefer
@@ -33,8 +33,18 @@ credentials already available on-device rather than round-tripping to platform n
 Defaults to `false` when omitted (note the constructor makes it a *required* named param on
 `CredentialManager.init`, even though the underlying platform interface treats it as a plain bool).
 
-`useButtonFlow`: `true` = classic "Sign in with Google" button/alert-dialog flow. `false` = the
-newer Credential Manager one-tap UI.
+`useButtonFlow`: `true` = classic "Sign in with Google" button/alert-dialog flow (Android) or a
+rendered Google Sign-In button click (Web). `false` = the newer Credential Manager one-tap UI
+(Android) or Google One Tap (Web). Android + Web only — `saveGoogleCredential` is not implemented
+on iOS.
+
+`nonce`: optional caller-supplied nonce for replay protection, added alongside Web support. Omit it
+and a securely-generated random nonce is used instead (Android: `SecureRandom`; Web:
+`crypto.getRandomValues`) — mirrors the capabilities Android already configured on
+`GetGoogleIdOption`/`GetSignInWithGoogleOption`. Note: `CredentialManagerPlatform.saveGoogleCredential`
+(the platform-interface level, one layer below `CredentialManager`) takes `useButtonFlow` as a
+**positional** bool — `Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce})`
+— only the umbrella `CredentialManager.saveGoogleCredential` makes it a named, defaulted param.
 
 ## Models
 

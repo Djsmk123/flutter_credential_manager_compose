@@ -26,7 +26,18 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import java.security.SecureRandom
+
 class CredentialManagerUtils {
+    /**
+     * Generates a cryptographically random nonce for Google Sign-In requests
+     * when the caller does not supply one.
+     */
+    private fun generateSecureNonce(): String {
+        val bytes = ByteArray(NONCE_BYTE_LENGTH)
+        SecureRandom().nextBytes(bytes)
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
 
     private lateinit var credentialManager: CredentialManager
     private var preferImmediatelyAvailableCredentials: Boolean = true
@@ -205,7 +216,7 @@ class CredentialManagerUtils {
                     addCredentialOption(
                         GetGoogleIdOption.Builder()
                             .setFilterByAuthorizedAccounts(false)
-                            .setNonce(System.currentTimeMillis().toString())
+                            .setNonce(generateSecureNonce())
                             .setServerClientId(serverClientID)
                             .build()
                     )
@@ -344,6 +355,7 @@ class CredentialManagerUtils {
      */
     suspend fun saveGoogleCredentials(
         useButtonFlow: Boolean,
+        nonce: String? = null,
         context: Context
     ): Pair<CredentialManagerExceptions?, GoogleIdTokenCredential?> {
         // Check if Google Play Services is available
@@ -369,14 +381,15 @@ class CredentialManagerUtils {
             )
         }
 
+        val effectiveNonce = nonce ?: generateSecureNonce()
         val googleCredentialOption = if (useButtonFlow) {
             GetSignInWithGoogleOption.Builder(serverClientID)
-                .setNonce(System.currentTimeMillis().toString())
+                .setNonce(effectiveNonce)
                 .build()
         } else {
             GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
-                .setNonce(System.currentTimeMillis().toString())
+                .setNonce(effectiveNonce)
                 .setServerClientId(serverClientID)
                 .build()
         }
@@ -560,5 +573,9 @@ class CredentialManagerUtils {
      */
     fun getIsGmsAvailable(): Boolean {
         return isGmsAvailable
+    }
+
+    companion object {
+        private const val NONCE_BYTE_LENGTH = 32
     }
 }

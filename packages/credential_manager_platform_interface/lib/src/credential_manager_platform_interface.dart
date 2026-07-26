@@ -84,9 +84,11 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   /// Saves Google credentials.
   ///
   /// [useButtonFlow] - Whether to use the button flow for saving Google credentials.
+  /// [nonce] - Optional caller-supplied nonce used to protect the request against replay.
+  /// If omitted, a securely-generated random nonce is used instead.
   ///
   /// Returns a [Future] that completes with [GoogleIdTokenCredential] representing the saved Google credentials.
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow);
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce});
 
   /// Saves credentials using passkey.
   ///

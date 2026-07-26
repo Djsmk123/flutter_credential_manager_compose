@@ -250,7 +250,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Future<void> _handleLogout(BuildContext context) async {
-    if (Platform.isAndroid) {
+    if (CredentialManagerPlatformManager.instance.isAndroid) {
       final bool? shouldLogout = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) => AlertDialog(
@@ -277,6 +277,7 @@ class HomeScreen extends StatelessWidget {
         Navigator.of(context).pop();
       }
     } else {
+      // iOS and Web have nothing server-side to clear; just leave this screen.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Logged out successfully')),
       );

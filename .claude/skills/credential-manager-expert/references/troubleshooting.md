@@ -72,8 +72,39 @@ it will fail to compile.
   must be the **Web application** OAuth client, not the Android one.
 - **"Nothing happens when I focus the password field on iOS"** → the field is missing
   `autofillHints`, or it's not inside an `AutofillGroup`, or Associated Domains/AASA isn't set up.
-- **"Works on Android, nothing on iOS" for Google Sign-In** → expected. `saveGoogleCredential` /
-  `FetchOptionsAndroid(googleCredential: true)` are Android-only in practice.
+- **"Works on Android, nothing on iOS" for Google Sign-In** → expected. `saveGoogleCredential` is
+  implemented for Android and Web, but **not** iOS.
 - **"getCredentials returns nothing but doesn't throw"** → check on Android specifically: an empty
   `Credentials` (all fields null) is a valid non-error "nothing found" result, distinct from a
   thrown 202. Always null-check the result even inside a successful `try` block.
+
+## Web-specific issues
+
+See `references/web-setup.md` for the full setup guide. Quick triage:
+
+- **`CredentialException(code: 101, message: 'Initialization failure: JavaScript not loaded')`** →
+  the `<script src="packages/credential_manager_web/web/passkey_authenticator.js">` tag is missing
+  from `web/index.html`, or the app is served from a base path where that relative path doesn't
+  resolve.
+- **Error 400 from Google after picking an account, or sign-in silently fails** → the app's exact
+  origin (scheme + host + port, no trailing slash) isn't in the Google Cloud OAuth Web client's
+  "Authorized JavaScript origins." This is required for Web even though it's optional for
+  Android-only projects.
+- **`[GSI_LOGGER]: FedCM get() rejects with NetworkError: Error retrieving a token` /
+  "FedCM was disabled either temporarily based on previous user action or permanently via site
+  settings"** → not a plugin bug. The browser has disabled FedCM prompts for this site (repeated
+  dismissals trigger a cooldown, or the user/an extension turned it off). Tell the user to click the
+  icon left of the URL bar (or visit `chrome://settings/content/federatedIdentityApi`) to re-enable
+  third-party sign-in for the site.
+- **`HTTP ERROR 403 / Access to localhost was denied`** while testing locally on macOS → almost
+  always port `5000` or `7000`, which macOS's ControlCenter/AirPlay Receiver reserves. Not a Flutter
+  or plugin issue — use a different port (e.g. `5173`) and update the OAuth client's authorized
+  origins to match.
+- **Do not suggest reintroducing raw FedCM** (`navigator.credentials.get({identity: {providers:
+  [{configURL: 'https://accounts.google.com/gsi/fedcm.json', ...}]}})`) as "a simpler alternative" to
+  GIS if someone asks to remove the GIS dependency — this repo tried exactly that and hit a 403
+  (wrong path) then a `Required parameter is missing: response_type` error from Google's backend
+  after fixing the path. GIS is the documented, working integration; don't regress to raw FedCM.
+- **Password credential *retrieval* on Web** → not exposed on the public API at all currently
+  (`savePasswordCredentials` works; there's no public `getPasswordCredentials`/fetch path on Web).
+  Don't invent one — say so.
