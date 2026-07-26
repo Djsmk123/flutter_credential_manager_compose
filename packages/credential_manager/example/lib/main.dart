@@ -30,6 +30,8 @@ void main() async {
       );
     } on CredentialException catch (e) {
       log("Error initializing credential manager: ${e.message}");
+    } catch (e) {
+      log("Error initializing credential manager: $e");
     }
   }
   log("current platform: ${CredentialManagerPlatformManager.instance.isAndroid ? "android" : CredentialManagerPlatformManager.instance.isIOS ? "ios" : "web"}");
@@ -142,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
       rpId: rpId,
       userVerification: "required",
       //only for ios, true only when we want to show the passkey popup on keyboard otherwise false
-      conditionalUI: true,
+      conditionalUI: CredentialManagerPlatformManager.instance.isIOS,
     );
     isGoogleEnabled = googleClientId.isNotEmpty;
   }

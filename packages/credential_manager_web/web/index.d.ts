@@ -92,10 +92,11 @@ declare class CredentialManagerWeb {
     /**
      * Initialize with preferences
      * @param preferImmediatelyAvailableCredentials - Whether to prefer immediately available credentials
-     * @param _googleClientId - Google client ID (optional, reserved for future use)
+     * @param googleClientId - Google Web OAuth client ID used for Google Identity Services
+     *   initialization (required for saveGoogleCredential; pass null if Google Sign-In isn't used)
      * @returns Promise resolving to success message
      */
-    static initialize(preferImmediatelyAvailableCredentials: boolean, _googleClientId: string | null): Promise<string>;
+    static initialize(preferImmediatelyAvailableCredentials: boolean, googleClientId: string | null): Promise<string>;
     /**
      * Save password credentials
      * @param credentialData - JSON string containing credential data

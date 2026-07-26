@@ -95,7 +95,7 @@ final credentials = await credentialManager.getCredentials(
 
 ## Response Format
 
-`saveGoogleCredential`/`getCredentials` return a `GoogleIdTokenCredential`, matching Android/iOS:
+`saveGoogleCredential` returns a `GoogleIdTokenCredential` directly, matching Android/iOS:
 
 ```dart
 GoogleIdTokenCredential(
@@ -108,6 +108,9 @@ GoogleIdTokenCredential(
   profilePictureUri: Uri.parse('https://...'),
 )
 ```
+
+`getCredentials` returns a `Credentials` wrapper instead — read the same data via
+`credentials.googleIdTokenCredential`.
 
 ## Security Considerations
 

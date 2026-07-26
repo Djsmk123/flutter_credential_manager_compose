@@ -35,18 +35,30 @@
 <body>
   <!-- Load CredentialManagerWeb JavaScript before Flutter -->
   <script>
-    // Load the JavaScript bundle - try multiple possible paths
+    // Load the JavaScript bundle - try multiple possible paths. flutter_bootstrap.js is only
+    // loaded once this resolves (success or final failure), so Flutter never reaches
+    // CredentialManager.init() before passkey_authenticator.js has registered itself.
     (function() {
+      function loadFlutterBootstrap() {
+        var bootstrap = document.createElement('script');
+        bootstrap.src = 'flutter_bootstrap.js';
+        bootstrap.async = true;
+        document.body.appendChild(bootstrap);
+      }
       var script = document.createElement('script');
       script.src = 'assets/packages/credential_manager_web/web/passkey_authenticator.js';
+      script.onload = loadFlutterBootstrap;
       script.onerror = function() {
         // Try alternative path (flutter run dev server)
         var fallback = document.createElement('script');
         fallback.src = 'packages/credential_manager_web/web/passkey_authenticator.js';
+        fallback.onload = loadFlutterBootstrap;
         fallback.onerror = function() {
           // Final fallback
           var rootFallback = document.createElement('script');
           rootFallback.src = 'passkey_authenticator.js';
+          rootFallback.onload = loadFlutterBootstrap;
+          rootFallback.onerror = loadFlutterBootstrap;
           document.head.appendChild(rootFallback);
         };
         document.head.appendChild(fallback);
@@ -54,6 +66,5 @@
       document.head.appendChild(script);
     })();
   </script>
-  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

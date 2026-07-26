@@ -1,6 +1,6 @@
 name: credential_manager_ios
 description: iOS implementation of the credential_manager plugin using Keychain and Autofill.
-version: 3.0.1
+version: 3.1.0
 homepage: https://djsmk123.github.io/flutter_credential_manager_compose
 repository: https://github.com/Djsmk123/flutter_credential_manager_compose$
 
@@ -13,7 +13,7 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-  credential_manager_platform_interface: ^2.0.8
+  credential_manager_platform_interface: ^3.0.0
   cbor: ^6.3.5
 
 dev_dependencies:

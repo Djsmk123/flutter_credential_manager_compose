@@ -53,15 +53,13 @@ class CredentialManagerIos extends CredentialManagerPlatform {
 
   @override
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
-    try {
-      // Nothing on ios simply return
-      return;
-    } on PlatformException catch (e) {
-      throw PlatformExceptionHandler.handlePlatformException(
-        e,
-        CredentialType.passwordCredentials,
-      );
-    }
+    // There is no native Swift handler for this method (only passkeys and init are wired up on
+    // iOS today), so fail explicitly rather than silently reporting success without saving.
+    throw CredentialException(
+      code: 103,
+      message: "Not implemented",
+      details: "savePasswordCredentials is not supported on iOS",
+    );
   }
 
   @override
@@ -100,26 +98,14 @@ class CredentialManagerIos extends CredentialManagerPlatform {
 
   @override
   Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce}) async {
-    try {
-      final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
-        'save_google_credential',
-        {"useButtonFlow": useButtonFlow, "nonce": nonce},
-      );
-
-      if (res == null) {
-        throw CredentialException(
-          code: 505,
-          message: "Google credential decode error",
-          details: "Null response received",
-        );
-      }
-      return GoogleIdTokenCredential.fromJson(jsonDecode(jsonEncode(res)));
-    } on PlatformException catch (e) {
-      throw PlatformExceptionHandler.handlePlatformException(
-        e,
-        CredentialType.googleIdTokenCredentials,
-      );
-    }
+    // There is no native Swift handler for "save_google_credential" (CredentialManagerPlugin.handle
+    // only dispatches passkey/init methods), so calling through would surface an unhandled
+    // MissingPluginException. Fail explicitly instead.
+    throw CredentialException(
+      code: 103,
+      message: "Not implemented",
+      details: "saveGoogleCredential is not supported on iOS",
+    );
   }
 
   @override
