@@ -1,4 +1,43 @@
 /**
+ * Minimal ambient typings for the Google Identity Services (GIS) client
+ * library (https://accounts.google.com/gsi/client), loaded lazily.
+ * Reference: https://developers.google.com/identity/gsi/web/reference/js-reference
+ */
+interface GsiCredentialResponse {
+    credential: string;
+    select_by?: string;
+}
+interface GsiInitializeConfig {
+    client_id: string;
+    callback: (response: GsiCredentialResponse) => void;
+    nonce?: string;
+    auto_select?: boolean;
+    use_fedcm_for_prompt?: boolean;
+    use_fedcm_for_button?: boolean;
+    itp_support?: boolean;
+}
+interface GsiPromptMomentNotification {
+    isNotDisplayed: () => boolean;
+    getNotDisplayedReason: () => string;
+    isSkippedMoment: () => boolean;
+    getSkippedReason: () => string;
+}
+interface GsiAccountsId {
+    initialize: (config: GsiInitializeConfig) => void;
+    prompt: (callback?: (notification: GsiPromptMomentNotification) => void) => void;
+    renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
+    cancel: () => void;
+}
+declare global {
+    interface Window {
+        google?: {
+            accounts: {
+                id: GsiAccountsId;
+            };
+        };
+    }
+}
+/**
  * CredentialManagerWeb class for WebAuthn and FedCM operations
  */
 declare class CredentialManagerWeb {
@@ -74,22 +113,36 @@ declare class CredentialManagerWeb {
      * GetGoogleIdOption/GetSignInWithGoogleOption builders.
      */
     private static _generateSecureNonce;
+    private static _gisScriptPromise;
+    private static _gisButtonContainer;
     /**
-     * Save Google credential using FedCM (Federated Credential Management API)
-     * @param useButtonFlow - Whether to use button flow (active mode) or passive mode
+     * Lazily loads the Google Identity Services client library.
+     * @returns Promise that resolves once `window.google.accounts.id` is available
+     */
+    private static _loadGoogleIdentityServices;
+    /**
+     * Returns the (created-once) off-screen container used to render GIS's
+     * button for the button-flow path, clearing any previously rendered button.
+     */
+    private static _getGisButtonContainer;
+    /**
+     * Save Google credential using Google Identity Services (GIS), Google's
+     * officially documented and supported integration - internally backed by
+     * FedCM when the browser supports it.
+     * Reference: https://developers.google.com/identity/sign-in/web/gsi-with-fedcm
+     * @param useButtonFlow - Whether to use button flow (active mode) or passive One Tap mode
      * @param nonce - Optional caller-supplied nonce for replay protection. If omitted,
-     *   a securely-generated random nonce is used instead.
+     *   a securely-generated random nonce is used instead. Mirrors the capabilities
+     *   Android configures on its GetGoogleIdOption (One Tap)/GetSignInWithGoogleOption
+     *   (button flow) builders, both of which set a per-request nonce.
      * @returns Promise resolving to JSON string of Google credential data
      */
     static saveGoogleCredential(useButtonFlow: boolean, nonce?: string | null): Promise<string | null>;
     /**
-     * Exchange FedCM token for Google ID token
-     * @param fedcmToken - Token received from FedCM (should be an ID token JWT)
-     * @param _identityProvider - Identity provider information (unused, reserved for future)
-     * @param _clientId - Google client ID (unused, reserved for future)
-     * @returns Promise resolving to ID token response
+     * Decodes a Google ID token (JWT) into the GoogleIdTokenCredential JSON shape.
+     * @param idToken - The ID token JWT returned by Google Identity Services
      */
-    private static _exchangeFedCMTokenForIdToken;
+    private static _decodeGoogleIdToken;
     /**
      * Logout (clear credentials)
      * @returns Promise resolving to success message

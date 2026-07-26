@@ -1,27 +1,50 @@
 import { create, get } from '@github/webauthn-json';
 
 /**
- * Type definitions for FedCM (Federated Credential Management)
- * Based on: https://developer.chrome.com/docs/identity/fedcm/overview
+ * Minimal ambient typings for the Google Identity Services (GIS) client
+ * library (https://accounts.google.com/gsi/client), loaded lazily.
+ * Reference: https://developers.google.com/identity/gsi/web/reference/js-reference
  */
-interface IdentityProvider {
-  configURL: string;
-  clientId: string;
+interface GsiCredentialResponse {
+  credential: string;
+  select_by?: string;
+}
+
+interface GsiInitializeConfig {
+  client_id: string;
+  callback: (response: GsiCredentialResponse) => void;
   nonce?: string;
+  auto_select?: boolean;
+  // Route the handshake through the browser's native FedCM UI (the same
+  // mechanism Android's Credential Manager relies on) instead of GIS's
+  // legacy iframe-based prompt.
+  use_fedcm_for_prompt?: boolean;
+  use_fedcm_for_button?: boolean;
+  itp_support?: boolean;
 }
 
-interface IdentityCredentialRequestOptions {
-  providers: IdentityProvider[];
+interface GsiPromptMomentNotification {
+  isNotDisplayed: () => boolean;
+  getNotDisplayedReason: () => string;
+  isSkippedMoment: () => boolean;
+  getSkippedReason: () => string;
 }
 
-interface IdentityCredential extends Credential {
-  token: string;
-  identityProvider: IdentityProvider;
+interface GsiAccountsId {
+  initialize: (config: GsiInitializeConfig) => void;
+  prompt: (callback?: (notification: GsiPromptMomentNotification) => void) => void;
+  renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
+  cancel: () => void;
 }
 
-// Extend CredentialRequestOptions to include identity property for FedCM
-interface FedCMCredentialRequestOptions extends CredentialRequestOptions {
-  identity?: IdentityCredentialRequestOptions;
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: GsiAccountsId;
+      };
+    };
+  }
 }
 
 /**
@@ -310,161 +333,172 @@ class CredentialManagerWeb {
     return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
   }
 
+  // Cached promise for the lazily-loaded GIS <script> tag.
+  private static _gisScriptPromise: Promise<void> | null = null;
+
+  // Off-screen container GIS renders its real "Sign in with Google" button
+  // into. Google only drives the flow from a genuine click on its own
+  // button, so button flow renders here and forwards the app's click to it.
+  private static _gisButtonContainer: HTMLElement | null = null;
+
   /**
-   * Save Google credential using FedCM (Federated Credential Management API)
-   * @param useButtonFlow - Whether to use button flow (active mode) or passive mode
-   * @param nonce - Optional caller-supplied nonce for replay protection. If omitted,
-   *   a securely-generated random nonce is used instead.
-   * @returns Promise resolving to JSON string of Google credential data
+   * Lazily loads the Google Identity Services client library.
+   * @returns Promise that resolves once `window.google.accounts.id` is available
    */
-  static async saveGoogleCredential(useButtonFlow: boolean, nonce?: string | null): Promise<string | null> {
-    try {
-      // Check if FedCM is supported
-      if (!navigator.credentials || !navigator.credentials.get) {
-        throw new Error('Credential Management API is not supported');
-      }
-
-      // Check if Google Client ID is configured
-      if (!CredentialManagerWeb._googleClientId) {
-        throw new Error('Google Client ID is not configured. Please provide googleClientId in init()');
-      }
-
-      // FedCM configuration for Google
-      // Reference: https://developer.chrome.com/docs/identity/fedcm/overview
-      // Google's FedCM implementation uses the configURL approach
-      // The configURL points to Google's FedCM configuration endpoint
-      //
-      // The nonce mirrors the capabilities Android configures on its
-      // GetGoogleIdOption (passive/One Tap) and GetSignInWithGoogleOption
-      // (button flow) builders, both of which set a per-request nonce for
-      // replay protection. `useButtonFlow` maps to the same distinction
-      // Android makes: passive One Tap (mediation "optional") vs an explicit
-      // Sign in with Google button click (mediation "required").
-      const identityProvider: IdentityProvider = {
-        configURL: 'https://accounts.google.com/gsi/fedcm/config.json',
-        clientId: CredentialManagerWeb._googleClientId,
-        nonce: nonce || this._generateSecureNonce(),
-      };
-
-      // Configure FedCM options
-      const credentialRequestOptions: FedCMCredentialRequestOptions = {
-        identity: {
-          providers: [identityProvider],
-        },
-        // Active mode requires user interaction (button click)
-        // Passive mode shows automatically
-        mediation: useButtonFlow ? 'required' : 'optional',
-      };
-
-      // Request credential using FedCM
-      let credential: Credential | null;
-      try {
-        credential = await navigator.credentials.get(credentialRequestOptions);
-      } catch (fedcmError: any) {
-        // FedCM specific error handling
-        const errorMessage = fedcmError?.message || String(fedcmError);
-        
-        // Provide more helpful error messages
-        if (errorMessage.includes('network') || errorMessage.includes('retrieving')) {
-          throw new Error(`FedCM network error: ${errorMessage}. Please check:\n1. Google Client ID is correctly configured in Google Cloud Console\n2. JavaScript origins include your domain (e.g., http://localhost:port)\n3. OAuth consent screen is properly configured\n4. Browser allows third-party sign-in (chrome://settings/content/federatedIdentityApi)`);
-        }
-        if (errorMessage.includes('user') || errorMessage.includes('cancel')) {
-          throw new Error('User canceled or no account available');
-        }
-        throw new Error(`FedCM error: ${errorMessage}`);
-      }
-
-      if (!credential || credential.type !== 'identity') {
-        throw new Error('No Google credential returned from FedCM');
-      }
-
-      // Cast to IdentityCredential
-      const identityCred = credential as IdentityCredential;
-
-      // Extract token from the credential
-      // FedCM returns the ID token directly as a JWT
-      const token = identityCred.token;
-
-      if (!token) {
-        throw new Error('No token received from FedCM. The identity provider may not have returned a token.');
-      }
-
-      // Exchange the FedCM token for Google ID token
-      // This requires calling Google's token endpoint
-      const idTokenResponse = await this._exchangeFedCMTokenForIdToken(
-        token,
-        identityCred.identityProvider,
-        CredentialManagerWeb._googleClientId!
-      );
-
-      // Build response matching GoogleIdTokenCredential structure
-      const response = {
-        id: idTokenResponse.email || idTokenResponse.sub,
-        idToken: idTokenResponse.id_token,
-        displayName: idTokenResponse.name,
-        givenName: idTokenResponse.given_name,
-        familyName: idTokenResponse.family_name,
-        phoneNumber: idTokenResponse.phone_number,
-        profilePictureUri: idTokenResponse.picture,
-      };
-
-      return JSON.stringify(response);
-    } catch (error) {
-      throw new Error(`Failed to save Google credential: ${error instanceof Error ? error.message : String(error)}`);
+  private static _loadGoogleIdentityServices(): Promise<void> {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return Promise.reject(new Error('Google Identity Services requires a browser environment'));
     }
+    if (window.google?.accounts?.id) {
+      return Promise.resolve();
+    }
+    if (!CredentialManagerWeb._gisScriptPromise) {
+      CredentialManagerWeb._gisScriptPromise = new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load Google Identity Services script'));
+        document.head.appendChild(script);
+      });
+    }
+    return CredentialManagerWeb._gisScriptPromise;
   }
 
   /**
-   * Exchange FedCM token for Google ID token
-   * @param fedcmToken - Token received from FedCM (should be an ID token JWT)
-   * @param _identityProvider - Identity provider information (unused, reserved for future)
-   * @param _clientId - Google client ID (unused, reserved for future)
-   * @returns Promise resolving to ID token response
+   * Returns the (created-once) off-screen container used to render GIS's
+   * button for the button-flow path, clearing any previously rendered button.
    */
-  private static async _exchangeFedCMTokenForIdToken(
-    fedcmToken: string,
-    _identityProvider: any,
-    _clientId: string
-  ): Promise<any> {
-    try {
-      // Google's FedCM implementation returns the ID token directly as a JWT
-      // We need to decode it to extract user information
-      
-      // Parse JWT token
-      const parts = fedcmToken.split('.');
-      if (parts.length !== 3) {
-        throw new Error('Invalid JWT token format received from FedCM');
-      }
-      
-      // Decode the JWT payload (base64url decode)
-      let payload: any;
-      try {
-        // Base64url decode: replace - with +, _ with /, and add padding if needed
-        let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-        // Add padding if needed
-        while (base64.length % 4) {
-          base64 += '=';
-        }
-        const decodedPayload = atob(base64);
-        payload = JSON.parse(decodedPayload);
-      } catch (decodeError) {
-        throw new Error(`Failed to decode JWT payload: ${decodeError instanceof Error ? decodeError.message : String(decodeError)}`);
-      }
-      
-      // Extract user information from JWT claims
-      return {
-        id_token: fedcmToken,
-        email: payload.email || payload['email'],
-        sub: payload.sub || payload['sub'],
-        name: payload.name || payload['name'],
-        given_name: payload.given_name || payload['given_name'],
-        family_name: payload.family_name || payload['family_name'],
-        picture: payload.picture || payload['picture'],
-        phone_number: payload.phone_number || payload['phone_number'],
-      };
-    } catch (error) {
-      throw new Error(`Token processing failed: ${error instanceof Error ? error.message : String(error)}`);
+  private static _getGisButtonContainer(): HTMLElement {
+    if (!CredentialManagerWeb._gisButtonContainer) {
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '-9999px';
+      container.style.left = '-9999px';
+      container.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(container);
+      CredentialManagerWeb._gisButtonContainer = container;
     }
+    CredentialManagerWeb._gisButtonContainer.innerHTML = '';
+    return CredentialManagerWeb._gisButtonContainer;
+  }
+
+  /**
+   * Save Google credential using Google Identity Services (GIS), Google's
+   * officially documented and supported integration - internally backed by
+   * FedCM when the browser supports it.
+   * Reference: https://developers.google.com/identity/sign-in/web/gsi-with-fedcm
+   * @param useButtonFlow - Whether to use button flow (active mode) or passive One Tap mode
+   * @param nonce - Optional caller-supplied nonce for replay protection. If omitted,
+   *   a securely-generated random nonce is used instead. Mirrors the capabilities
+   *   Android configures on its GetGoogleIdOption (One Tap)/GetSignInWithGoogleOption
+   *   (button flow) builders, both of which set a per-request nonce.
+   * @returns Promise resolving to JSON string of Google credential data
+   */
+  static async saveGoogleCredential(useButtonFlow: boolean, nonce?: string | null): Promise<string | null> {
+    if (!CredentialManagerWeb._googleClientId) {
+      throw new Error('Google Client ID is not configured. Please provide googleClientId in init()');
+    }
+
+    try {
+      await CredentialManagerWeb._loadGoogleIdentityServices();
+    } catch (error) {
+      throw new Error(
+        `Failed to load Google Identity Services: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+
+    const google = window.google;
+    if (!google?.accounts?.id) {
+      throw new Error('Google Identity Services failed to initialize');
+    }
+
+    const clientId = CredentialManagerWeb._googleClientId;
+    const effectiveNonce = nonce || CredentialManagerWeb._generateSecureNonce();
+
+    return new Promise<string | null>((resolve, reject) => {
+      let settled = false;
+
+      google.accounts.id.initialize({
+        client_id: clientId,
+        nonce: effectiveNonce,
+        auto_select: false,
+        use_fedcm_for_prompt: true,
+        use_fedcm_for_button: true,
+        itp_support: true,
+        callback: (response: GsiCredentialResponse) => {
+          if (settled) return;
+          settled = true;
+          try {
+            resolve(JSON.stringify(CredentialManagerWeb._decodeGoogleIdToken(response.credential)));
+          } catch (error) {
+            reject(error instanceof Error ? error : new Error(String(error)));
+          }
+        },
+      });
+
+      if (useButtonFlow) {
+        const container = CredentialManagerWeb._getGisButtonContainer();
+        google.accounts.id.renderButton(container, { type: 'standard' });
+
+        // GIS only starts the flow on a genuine click of its own rendered
+        // button. Forwarding the click here relies on the transient user
+        // activation from the app's own "Sign in with Google" button click
+        // that led to this call (the same approach the official
+        // google_sign_in_web plugin uses).
+        const clickable = container.querySelector<HTMLElement>('div[role="button"]');
+        if (!clickable) {
+          settled = true;
+          reject(new Error('Failed to render Google Sign-In button'));
+          return;
+        }
+        clickable.click();
+      } else {
+        google.accounts.id.prompt((notification: GsiPromptMomentNotification) => {
+          if (settled) return;
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            settled = true;
+            const reason = notification.isNotDisplayed()
+              ? notification.getNotDisplayedReason()
+              : notification.getSkippedReason();
+            reject(new Error(`Google One Tap was not shown or was dismissed: ${reason}`));
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Decodes a Google ID token (JWT) into the GoogleIdTokenCredential JSON shape.
+   * @param idToken - The ID token JWT returned by Google Identity Services
+   */
+  private static _decodeGoogleIdToken(idToken: string): Record<string, unknown> {
+    const parts = idToken.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format received from Google Identity Services');
+    }
+
+    let payload: any;
+    try {
+      let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+      payload = JSON.parse(atob(base64));
+    } catch (error) {
+      throw new Error(`Failed to decode Google ID token payload: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    return {
+      id: payload.email ?? payload.sub,
+      idToken,
+      displayName: payload.name,
+      givenName: payload.given_name,
+      familyName: payload.family_name,
+      phoneNumber: payload.phone_number,
+      profilePictureUri: payload.picture,
+    };
   }
 
   /**
