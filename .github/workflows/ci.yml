@@ -149,40 +149,21 @@ jobs:
         working-directory: packages/credential_manager_ios
         run: swiftlint lint --strict
 
-  web-deploy:
-    name: Web build & deploy (Netlify preview)
+  web-build:
+    name: Web build (example app)
     needs: changes
     if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
-    env:
-      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
         with:
           channel: stable
       - name: Get dependencies
-        if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
         working-directory: packages/credential_manager/example
         run: flutter pub get
       - name: Build web
-        if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
         working-directory: packages/credential_manager/example
         env:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         run: flutter build web --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
-      - name: Deploy to Netlify
-        if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
-        uses: nwtgck/actions-netlify@v4.0
-        with:
-          publish-dir: packages/credential_manager/example/build/web
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Deploy from PR #${{ github.event.pull_request.number }}'
-          enable-pull-request-comment: true
-          enable-commit-comment: false
-      - name: Skipped (Netlify secrets not configured)
-        if: env.NETLIFY_AUTH_TOKEN == '' || env.NETLIFY_SITE_ID == ''
-        run: echo "Set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repo secrets to enable Netlify deploys."
