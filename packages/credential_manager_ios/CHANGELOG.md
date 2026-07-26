@@ -1,4 +1,15 @@
-# 3.0.1
+# 3.1.0
+- Bumped `credential_manager_platform_interface` to `^3.0.0` (required — the previously-declared
+  `^2.0.8` resolves to a published version that predates the `nonce` parameter this package's
+  `saveGoogleCredential` override already relies on)
+- `savePasswordCredentials` and `saveGoogleCredential` now throw an explicit `CredentialException`
+  (code 103, "Not implemented") instead of silently reporting success without saving
+  (`savePasswordCredentials`) or surfacing an uncaught `MissingPluginException` from a
+  method-channel call with no native handler (`saveGoogleCredential`) — neither has a native Swift
+  implementation on iOS today
+- No breaking changes to the public Dart API
+
+## 3.0.1
 - Added SwiftLint configuration and CI checks; fixed all reported violations (force casts replaced with safe casts, wrapped long lines, aligned switch cases, extracted long functions)
 - No functional or API changes
 

@@ -89,7 +89,12 @@ Allow: /.well-known/`}
         <li className="mb-2">Go to the <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a></li>
         <li className="mb-2">Create or select a project</li>
         <li className="mb-2">Configure the OAuth consent screen</li>
-        <li className="mb-2">Create OAuth client ID credentials for Android and Web</li>
+        <li className="mb-2">
+          Create OAuth client ID credentials: an <strong>Android</strong> type client (tied to your SHA-1 +
+          package name, so Google trusts the calling app — you don't use this client ID directly in code), and
+          a separate <strong>Web application</strong> type client (its client ID is what you actually pass as{' '}
+          <code>googleClientId</code>, for both Android and Web)
+        </li>
         <li className="mb-2">
           <p>For Android, obtain SHA-1 certificate fingerprint:</p>
           <CodeBlock code={`cd android && ./gradlew signingReport`} language="bash" />
@@ -256,9 +261,9 @@ pod deintegrate`}
         <a href="https://developers.google.com/identity/gsi/web/guides/overview" target="_blank" rel="noopener noreferrer">
           Google Identity Services
         </a>{' '}
-        (GIS), which uses FedCM under the hood in supporting browsers. Reuse the same Web OAuth client ID you created
-        for Android above, but this time fill in <strong>Authorized JavaScript origins</strong> with every origin
-        you'll run the app from:
+        (GIS), which uses FedCM under the hood in supporting browsers. Reuse the same <strong>Web application</strong>{' '}
+        OAuth client ID from above (not the Android-type client) — but this time fill in{' '}
+        <strong>Authorized JavaScript origins</strong> with every origin you'll run the app from:
       </p>
       <ul className="list-disc pl-6 mb-6">
         <li className="mb-2">Local development: <code>http://localhost:PORT</code> (pick a fixed port; avoid 5000/7000 on macOS — reserved by AirPlay Receiver / ControlCenter)</li>
