@@ -216,7 +216,10 @@ class CredentialManagerUtils {
                     addCredentialOption(
                         GetGoogleIdOption.Builder()
                             .setFilterByAuthorizedAccounts(false)
-                            .setNonce(generateSecureNonce())
+                            // No nonce here: this unified fetch path has no way to surface it to
+                            // the caller/backend for verification, so a generated-and-discarded
+                            // nonce would be misleading rather than real replay protection. Use
+                            // saveGoogleCredential(nonce: ...) when nonce verification is needed.
                             .setServerClientId(serverClientID)
                             .build()
                     )

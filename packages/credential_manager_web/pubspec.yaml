@@ -1,11 +1,11 @@
 name: credential_manager_web
 description: Web implementation of the credential_manager plugin using Web Authentication API (WebAuthn) and Credential Management API.
-version: 2.1.0
+version: 2.2.0
 homepage: https://djsmk123.github.io/flutter_credential_manager_compose
 repository: https://github.com/Djsmk123/flutter_credential_manager_compose
 environment:
   sdk: '>=3.5.0 <4.0.0'
-  flutter: '>=3.3.0'
+  flutter: '>=3.24.0'
 
 resolution: workspace
 
@@ -14,7 +14,7 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  credential_manager_platform_interface: ^2.0.8
+  credential_manager_platform_interface: ^3.0.0
 
 dev_dependencies:
   flutter_test:

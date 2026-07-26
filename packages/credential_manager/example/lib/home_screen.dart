@@ -277,6 +277,13 @@ class HomeScreen extends StatelessWidget {
         Navigator.of(context).pop();
       }
     } else {
+      if (CredentialManagerPlatformManager.instance.isIOS) {
+        try {
+          await credentialManager.logout();
+        } catch (_) {
+          // No native iOS logout handler is wired up yet; nothing server-side to clear either way.
+        }
+      }
       // iOS and Web have nothing server-side to clear; just leave this screen.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Logged out successfully')),

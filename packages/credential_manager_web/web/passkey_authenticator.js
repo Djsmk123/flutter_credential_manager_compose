@@ -329,8 +329,10 @@ var CredentialManagerWeb = (function () {
        * Cancel the current authenticator operation
        */
       static cancelCurrentAuthenticatorOperation() {
-          // WebAuthn doesn't provide a direct cancel method
-          // This is a placeholder for any cleanup needed
+          var _a, _b, _c;
+          // WebAuthn doesn't provide a direct cancel method.
+          // Cancel any in-flight Google Identity Services flow.
+          (_c = (_b = (_a = window.google) === null || _a === void 0 ? void 0 : _a.accounts) === null || _b === void 0 ? void 0 : _b.id) === null || _c === void 0 ? void 0 : _c.cancel();
       }
       /**
        * Check if user-verifying platform authenticator is available
@@ -382,17 +384,18 @@ var CredentialManagerWeb = (function () {
       /**
        * Initialize with preferences
        * @param preferImmediatelyAvailableCredentials - Whether to prefer immediately available credentials
-       * @param _googleClientId - Google client ID (optional, reserved for future use)
+       * @param googleClientId - Google Web OAuth client ID used for Google Identity Services
+       *   initialization (required for saveGoogleCredential; pass null if Google Sign-In isn't used)
        * @returns Promise resolving to success message
        */
-      static async initialize(preferImmediatelyAvailableCredentials, _googleClientId) {
+      static async initialize(preferImmediatelyAvailableCredentials, googleClientId) {
           // Check if Credential Management API is available
           if (!navigator.credentials) {
               throw new Error('Credential Management API is not supported in this browser');
           }
           // Store initialization parameters
           CredentialManagerWeb.preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials;
-          CredentialManagerWeb._googleClientId = _googleClientId;
+          CredentialManagerWeb._googleClientId = googleClientId;
           return 'Initialization successful';
       }
       /**
@@ -427,12 +430,10 @@ var CredentialManagerWeb = (function () {
               if (!navigator.credentials || !navigator.credentials.get) {
                   throw new Error('Credential Management API is not supported');
               }
+              // TypeScript's lib.dom.d.ts doesn't model the Credential Management API's `password`
+              // option on CredentialRequestOptions, so this needs an escape hatch to `any`.
               const options = {
-                  publicKey: {
-                      challenge: new Uint8Array(32),
-                      rpId: CredentialManagerWeb._googleClientId || 'localhost',
-                      userVerification: 'required',
-                  },
+                  password: true,
                   mediation: (CredentialManagerWeb.preferImmediatelyAvailableCredentials
                       ? 'silent'
                       : 'optional')
@@ -541,6 +542,7 @@ var CredentialManagerWeb = (function () {
           const effectiveNonce = nonce || CredentialManagerWeb._generateSecureNonce();
           return new Promise((resolve, reject) => {
               let settled = false;
+              let timeoutId;
               google.accounts.id.initialize({
                   client_id: clientId,
                   nonce: effectiveNonce,
@@ -552,6 +554,8 @@ var CredentialManagerWeb = (function () {
                       if (settled)
                           return;
                       settled = true;
+                      if (timeoutId !== undefined)
+                          clearTimeout(timeoutId);
                       try {
                           resolve(JSON.stringify(CredentialManagerWeb._decodeGoogleIdToken(response.credential)));
                       }
@@ -577,11 +581,21 @@ var CredentialManagerWeb = (function () {
                   clickable.click();
               }
               else {
+                  // Under FedCM, isNotDisplayed()/getNotDisplayedReason() are deprecated and the browser
+                  // (not this callback) controls prompt visibility, so a skip/no-display doesn't always
+                  // reach this notification. Fall back to a timeout so the Promise can't hang forever.
+                  timeoutId = setTimeout(() => {
+                      if (settled)
+                          return;
+                      settled = true;
+                      reject(new Error('Google One Tap timed out waiting for a prompt response'));
+                  }, 30000);
                   google.accounts.id.prompt((notification) => {
                       if (settled)
                           return;
                       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
                           settled = true;
+                          clearTimeout(timeoutId);
                           const reason = notification.isNotDisplayed()
                               ? notification.getNotDisplayedReason()
                               : notification.getSkippedReason();

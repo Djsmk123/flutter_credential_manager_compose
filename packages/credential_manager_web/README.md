@@ -64,7 +64,7 @@ This package uses:
 - `@github/webauthn-json` library for WebAuthn operations
 - Native `navigator.credentials` API for password credentials
 - Google Identity Services (`https://accounts.google.com/gsi/client`), lazily loaded, for Google Sign-In
-- Dart FFI (`dart:js_interop`) for JavaScript interop
+- Dart JavaScript interop (`dart:js_interop`)
 
 ## Documentation
 
@@ -77,5 +77,5 @@ This package uses:
 
 ## License
 
-See the [LICENSE](../LICENSE) file for details.
+See the [LICENSE](LICENSE) file for details.
 

@@ -181,8 +181,9 @@ class CredentialManagerWeb {
    * Cancel the current authenticator operation
    */
   static cancelCurrentAuthenticatorOperation(): void {
-    // WebAuthn doesn't provide a direct cancel method
-    // This is a placeholder for any cleanup needed
+    // WebAuthn doesn't provide a direct cancel method.
+    // Cancel any in-flight Google Identity Services flow.
+    window.google?.accounts?.id?.cancel();
   }
 
   /**
@@ -237,12 +238,13 @@ class CredentialManagerWeb {
   /**
    * Initialize with preferences
    * @param preferImmediatelyAvailableCredentials - Whether to prefer immediately available credentials
-   * @param _googleClientId - Google client ID (optional, reserved for future use)
+   * @param googleClientId - Google Web OAuth client ID used for Google Identity Services
+   *   initialization (required for saveGoogleCredential; pass null if Google Sign-In isn't used)
    * @returns Promise resolving to success message
    */
   static async initialize(
     preferImmediatelyAvailableCredentials: boolean,
-    _googleClientId: string | null
+    googleClientId: string | null
   ): Promise<string> {
     // Check if Credential Management API is available
     if (!navigator.credentials) {
@@ -251,7 +253,7 @@ class CredentialManagerWeb {
 
     // Store initialization parameters
     CredentialManagerWeb.preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials;
-    CredentialManagerWeb._googleClientId = _googleClientId;
+    CredentialManagerWeb._googleClientId = googleClientId;
     return 'Initialization successful';
   }
 
@@ -290,16 +292,14 @@ class CredentialManagerWeb {
         throw new Error('Credential Management API is not supported');
       }
 
-      const options: CredentialRequestOptions = {
-        publicKey: {
-          challenge: new Uint8Array(32),
-          rpId: CredentialManagerWeb._googleClientId || 'localhost',
-          userVerification: 'required', 
-        },
-        mediation: (CredentialManagerWeb.preferImmediatelyAvailableCredentials 
-          ? 'silent' 
+      // TypeScript's lib.dom.d.ts doesn't model the Credential Management API's `password`
+      // option on CredentialRequestOptions, so this needs an escape hatch to `any`.
+      const options = {
+        password: true,
+        mediation: (CredentialManagerWeb.preferImmediatelyAvailableCredentials
+          ? 'silent'
           : 'optional') as CredentialMediationRequirement
-      };
+      } as any;
 
       const credential = await navigator.credentials.get(options);
 
@@ -419,6 +419,7 @@ class CredentialManagerWeb {
 
     return new Promise<string | null>((resolve, reject) => {
       let settled = false;
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
       google.accounts.id.initialize({
         client_id: clientId,
@@ -430,6 +431,7 @@ class CredentialManagerWeb {
         callback: (response: GsiCredentialResponse) => {
           if (settled) return;
           settled = true;
+          if (timeoutId !== undefined) clearTimeout(timeoutId);
           try {
             resolve(JSON.stringify(CredentialManagerWeb._decodeGoogleIdToken(response.credential)));
           } catch (error) {
@@ -455,10 +457,20 @@ class CredentialManagerWeb {
         }
         clickable.click();
       } else {
+        // Under FedCM, isNotDisplayed()/getNotDisplayedReason() are deprecated and the browser
+        // (not this callback) controls prompt visibility, so a skip/no-display doesn't always
+        // reach this notification. Fall back to a timeout so the Promise can't hang forever.
+        timeoutId = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          reject(new Error('Google One Tap timed out waiting for a prompt response'));
+        }, 30000);
+
         google.accounts.id.prompt((notification: GsiPromptMomentNotification) => {
           if (settled) return;
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
             settled = true;
+            clearTimeout(timeoutId);
             const reason = notification.isNotDisplayed()
               ? notification.getNotDisplayedReason()
               : notification.getSkippedReason();

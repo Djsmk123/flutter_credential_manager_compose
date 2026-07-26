@@ -38,6 +38,11 @@ rendered Google Sign-In button click (Web). `false` = the newer Credential Manag
 (Android) or Google One Tap (Web). Android + Web only — `saveGoogleCredential` is not implemented
 on iOS.
 
+On Web, `googleClientId` must be provided during `init()` for Google Sign-In; omitting it causes
+`saveGoogleCredential()` to throw a `CredentialException` (code 505, "Google credential decode
+error" — the JS side's "Google Client ID is not configured" error gets wrapped generically, unlike
+Android's dedicated code 503 for the same situation).
+
 `nonce`: optional caller-supplied nonce for replay protection, added alongside Web support. Omit it
 and a securely-generated random nonce is used instead (Android: `SecureRandom`; Web:
 `crypto.getRandomValues`) — mirrors the capabilities Android already configured on

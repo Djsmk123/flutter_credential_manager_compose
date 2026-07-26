@@ -1,6 +1,18 @@
 # Changelog
 
-# 4.0.0
+# 4.1.0
+- **Fixes a critical issue in 4.0.0**: that release depended on `credential_manager_platform_interface:
+  ^2.0.8`, but the actual pub.dev `2.0.8` release predates the `nonce` parameter this package's
+  Google Sign-In call relies on, breaking `flutter pub get`/analysis for anyone resolving from
+  pub.dev (the pana/dartdoc score drop and `UNDEFINED_NAMED_PARAMETER` error some users saw). Now
+  depends on `credential_manager_platform_interface: ^3.0.0`, which correctly ships `nonce`.
+- Bumped `credential_manager_android` to `^3.1.0` and `credential_manager_ios` to `^3.1.0` (nonce
+  fix, plus iOS now fails explicitly instead of silently/uncaught for two unimplemented methods —
+  see their own CHANGELOGs) and `credential_manager_web` to `^2.2.0` (JS bug fixes — see its
+  CHANGELOG)
+- No breaking changes to this package's own public Dart API
+
+## 4.0.0
 - **New: Web platform support.** Adds `credential_manager_web: ^2.1.0` as a dependency, bringing
   passkey (WebAuthn), password credential, and Google Sign-In (GIS/FedCM) support to Flutter Web —
   see `credential_manager_web`'s own CHANGELOG and README for setup (a `<script>` tag is required in
