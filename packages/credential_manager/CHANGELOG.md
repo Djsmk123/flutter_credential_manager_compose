@@ -1,6 +1,13 @@
 # Changelog
 
-# 3.0.1
+# 3.1.0
+- Bumped `credential_manager_web` to `^2.1.0`, which fixes the `passkey_authenticator.js` `<script>`
+  path documented for Web setup (was 404ing on static deploys; see that package's CHANGELOG)
+- Removed a stale `publish_to: none` left over from a previous release prep that would have blocked
+  this package from publishing to pub.dev
+- No breaking changes to the Dart API
+
+## 3.0.1
 - Bumped `credential_manager_ios` to `^3.0.1` and `credential_manager_android` to `^3.0.1`, both of which add native static analysis (SwiftLint, Detekt) with no functional or API changes
 - No breaking changes to the Dart API
 
