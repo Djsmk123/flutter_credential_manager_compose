@@ -3,7 +3,7 @@ description: >
   Credential Manager plugin. Provides one-tap login functionality and stores credentials
   in the user's Google account on Android and in the Keychain on iOS.
 
-version: 3.1.0
+version: 4.0.0
 homepage: https://djsmk123.github.io/flutter_credential_manager_compose
 repository: https://github.com/Djsmk123/flutter_credential_manager_compose
 
