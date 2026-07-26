@@ -1,19 +1,17 @@
 name: Deploy Web Example to Netlify
 
 on:
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'packages/credential_manager_web/**'
-      - 'packages/credential_manager_platform_interface/**'
-      - 'packages/credential_manager/**'
-      - '.github/workflows/netlify-deploy.yml'
   push:
     branches: [main]
     paths:
-      - 'packages/credential_manager_web/**'
-      - 'packages/credential_manager_platform_interface/**'
-      - 'packages/credential_manager/**'
+      - 'packages/credential_manager_web/lib/**'
+      - 'packages/credential_manager_web/web/**'
+      - 'packages/credential_manager_web/pubspec.yaml'
+      - 'packages/credential_manager_platform_interface/lib/**'
+      - 'packages/credential_manager_platform_interface/pubspec.yaml'
+      - 'packages/credential_manager/lib/**'
+      - 'packages/credential_manager/pubspec.yaml'
+      - 'packages/credential_manager/example/**'
       - '.github/workflows/netlify-deploy.yml'
 
 jobs:
@@ -52,28 +50,16 @@ jobs:
         env:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           # Must match the exact origin the build is deployed to, or passkey
-          # rpId validation fails. PR previews get a different subdomain per
-          # PR, so only the production (push to main) domain is set here.
-          RP_ID: ${{ github.event_name == 'push' && 'credential-manager-compose-example.netlify.app' || 'localhost' }}
+          # rpId validation fails.
+          RP_ID: credential-manager-compose-example.netlify.app
         run: flutter build web --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" --dart-define=RP_ID="$RP_ID"
 
       - name: Install Netlify CLI
         if: steps.check.outputs.configured == 'true'
         run: npm install -g netlify-cli@17
 
-      - name: Deploy preview (pull request)
-        if: steps.check.outputs.configured == 'true' && github.event_name == 'pull_request'
-        working-directory: packages/credential_manager/example
-        run: |
-          netlify deploy \
-            --dir=build/web \
-            --auth="$NETLIFY_AUTH_TOKEN" \
-            --site="$NETLIFY_SITE_ID" \
-            --message="PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}" \
-            --alias="pr-${{ github.event.pull_request.number }}"
-
-      - name: Deploy production (push to main)
-        if: steps.check.outputs.configured == 'true' && github.event_name == 'push'
+      - name: Deploy to Netlify (production)
+        if: steps.check.outputs.configured == 'true'
         working-directory: packages/credential_manager/example
         run: |
           netlify deploy \
