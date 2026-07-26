@@ -244,7 +244,7 @@ pod deintegrate`}
         language="plaintext"
         code={`<body>
   <!-- Load CredentialManagerWeb before Flutter -->
-  <script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>
+  <script src="assets/packages/credential_manager_web/web/passkey_authenticator.js"></script>
   <script src="flutter_bootstrap.js" async></script>
 </body>`}
       />

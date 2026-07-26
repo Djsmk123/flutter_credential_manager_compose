@@ -26,7 +26,7 @@ Add this to `web/index.html`, before `flutter_bootstrap.js`, in every app that d
 **not** injected automatically):
 
 ```html
-<script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>
+<script src="assets/packages/credential_manager_web/web/passkey_authenticator.js"></script>
 ```
 
 ### 2. Google Sign-In (Google Identity Services)
