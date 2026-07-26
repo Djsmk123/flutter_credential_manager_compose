@@ -1,11 +1,13 @@
 # Changelog
 
-# 3.1.0
-- Bumped `credential_manager_web` to `^2.1.0`, which fixes the `passkey_authenticator.js` `<script>`
-  path documented for Web setup (was 404ing on static deploys; see that package's CHANGELOG)
+# 4.0.0
+- **New: Web platform support.** Adds `credential_manager_web: ^2.1.0` as a dependency, bringing
+  passkey (WebAuthn), password credential, and Google Sign-In (GIS/FedCM) support to Flutter Web —
+  see `credential_manager_web`'s own CHANGELOG and README for setup (a `<script>` tag is required in
+  `web/index.html`, not wired up automatically)
 - Removed a stale `publish_to: none` left over from a previous release prep that would have blocked
   this package from publishing to pub.dev
-- No breaking changes to the Dart API
+- No breaking changes to the existing Android/iOS Dart API
 
 ## 3.0.1
 - Bumped `credential_manager_ios` to `^3.0.1` and `credential_manager_android` to `^3.0.1`, both of which add native static analysis (SwiftLint, Detekt) with no functional or API changes

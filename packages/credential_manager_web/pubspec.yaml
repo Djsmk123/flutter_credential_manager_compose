@@ -3,7 +3,6 @@ description: Web implementation of the credential_manager plugin using Web Authe
 version: 2.1.0
 homepage: https://djsmk123.github.io/flutter_credential_manager_compose
 repository: https://github.com/Djsmk123/flutter_credential_manager_compose
-publish_to: none
 environment:
   sdk: '>=3.5.0 <4.0.0'
   flutter: '>=3.3.0'
