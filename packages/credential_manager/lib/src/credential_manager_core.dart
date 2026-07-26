@@ -3,7 +3,11 @@ import 'package:credential_manager/credential_manager.dart';
 // Import platform-specific plugin registration classes
 import 'package:credential_manager_android/credential_manager_android.dart' as android_plugin;
 import 'package:credential_manager_ios/credential_manager_ios.dart' as ios_plugin;
-import 'package:credential_manager_web/credential_manager_web.dart' as web_plugin;
+
+// `credential_manager_web` uses dart:js_interop, which only resolves when
+// compiling for the web target. Swap in the real registration only there so
+// Android/iOS builds don't try to compile web-only code.
+import 'web_registration_stub.dart' if (dart.library.js_interop) 'web_registration_web.dart' as web_registration;
 
 /// A class that provides a high-level interface for interacting with the
 /// Credential Manager.
@@ -24,7 +28,7 @@ class CredentialManager {
     } else if (CredentialManagerPlatformManager.instance.isIOS) {
       ios_plugin.CredentialManagerIosPlugin.registerWith();
     } else if (CredentialManagerPlatformManager.instance.isWeb) {
-      web_plugin.CredentialManagerWebPlugin.registerWithManual();
+      web_registration.registerWebPlugin();
     }
   }
 

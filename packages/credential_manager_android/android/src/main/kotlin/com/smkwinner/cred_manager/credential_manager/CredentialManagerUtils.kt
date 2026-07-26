@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.util.Log
-import java.security.SecureRandom
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest
@@ -27,17 +26,18 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import java.security.SecureRandom
+
 class CredentialManagerUtils {
     /**
      * Generates a cryptographically random nonce for Google Sign-In requests
      * when the caller does not supply one.
      */
     private fun generateSecureNonce(): String {
-        val bytes = ByteArray(32)
+        val bytes = ByteArray(NONCE_BYTE_LENGTH)
         SecureRandom().nextBytes(bytes)
         return bytes.joinToString("") { "%02x".format(it) }
     }
-
 
     private lateinit var credentialManager: CredentialManager
     private var preferImmediatelyAvailableCredentials: Boolean = true
@@ -573,5 +573,9 @@ class CredentialManagerUtils {
      */
     fun getIsGmsAvailable(): Boolean {
         return isGmsAvailable
+    }
+
+    companion object {
+        private const val NONCE_BYTE_LENGTH = 32
     }
 }
