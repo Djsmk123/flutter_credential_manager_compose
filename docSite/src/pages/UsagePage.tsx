@@ -69,7 +69,7 @@ if (!credentialManager.isGmsAvailable) {
       <h2 className="text-2xl font-semibold mt-8 mb-4">Password Based Credentials</h2>
 
       <p className="mb-4">
-        Mechanism of storing and retrieving password based credentials in Android uses native APIs of <a href="https://developer.android.com/jetpack/androidx/releases/credentials" className="text-blue-600 hover:underline">Credential Manager</a> and for iOS it uses autofill service which use keychain to store the credentials.
+        Mechanism of storing and retrieving password based credentials in Android uses native APIs of <a href="https://developer.android.com/jetpack/androidx/releases/credentials" className="text-blue-600 hover:underline">Credential Manager</a> and for iOS it uses autofill service which use keychain to store the credentials. On Web, <code>savePasswordCredentials</code>/<code>getPasswordCredentials</code> use the browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Credential_Management_API" className="text-blue-600 hover:underline">Credential Management API</a> directly; the unified <code>getCredentials(fetchOptions: ...)</code> call does not fetch password credentials on Web (only passkeys and Google Sign-In).
       </p>
 
       <h3 className="text-xl font-semibold mt-6 mb-3">Android</h3>
@@ -181,7 +181,7 @@ if (!credentialManager.isGmsAvailable) {
         </div>
       </div>
 
-      <h2 className="text-2xl font-semibold mt-8 mb-4">Google Sign-In (Only For Android)</h2>
+      <h2 className="text-2xl font-semibold mt-8 mb-4">Google Sign-In (Android &amp; Web)</h2>
 
       <p className="mb-2">
         Follow these steps to set up Google Sign-In for your application:
@@ -232,7 +232,13 @@ if (!credentialManager.isGmsAvailable) {
           <p>Go back to the Credentials page</p>
           <p>Click "Create Credentials" and then "OAuth client ID" again</p>
           <p>Select "Web application" as the Application Type</p>
-          <p>You can leave "Authorized JavaScript Origins" and "Authorized redirect URIs" blank for now</p>
+          <p>
+            If you're targeting the <strong>Web</strong> platform, add every origin you'll run the app from under
+            "Authorized JavaScript Origins" (e.g. <code>http://localhost:5173</code> for local development,{' '}
+            <code>https://yourdomain.com</code> for production). Google Identity Services validates the calling
+            origin against this list, so requests fail with a <code>400</code> error if it's missing. Android-only
+            projects can leave this blank for now.
+          </p>
           <p>Click "Create"</p>
         </li>
       </ol>
@@ -260,6 +266,20 @@ if (!credentialManager.isGmsAvailable) {
         </li>
       </ol>
 
+      <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg my-4">
+        <p className="text-amber-800 dark:text-amber-300">
+          <strong>Web only:</strong> add the plugin's script bundle to <code>web/index.html</code> before your
+          Flutter app boots, and provide <code>googleClientId</code> when calling <code>init</code>. It powers
+          passkeys, password credentials, and Google Sign-In (via Google Identity Services, which uses FedCM under
+          the hood) — it is <strong>not</strong> bundled automatically.
+        </p>
+        <CodeBlock
+          language="plaintext"
+          code={`<!-- web/index.html, inside <body>, before flutter_bootstrap.js -->
+<script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>`}
+        />
+      </div>
+
       <h3 className="text-xl font-semibold mt-6 mb-3">Sign-In with Google</h3>
       <p className="mb-2">
         Sign up using Google account and then you will be able to see the saved credentials in the app:
@@ -268,7 +288,12 @@ if (!credentialManager.isGmsAvailable) {
         language="dart"
         code={`try {
   final GoogleIdTokenCredential credential = await credentialManager.saveGoogleCredential(
-    useButtonFlow: false
+    useButtonFlow: false,
+    // Optional: supply your own nonce (e.g. a value your backend issued) for
+    // replay protection. If omitted, a securely-generated random nonce is
+    // used instead - on Android via GetGoogleIdOption/GetSignInWithGoogleOption,
+    // on Web via Google Identity Services.
+    nonce: null,
   );
 
 } on CredentialException catch (e) {
@@ -287,7 +312,7 @@ if (!credentialManager.isGmsAvailable) {
 
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg my-4">
         <p className="text-blue-700 dark:text-blue-400">
-          <strong>Note:</strong> <code>useButtonFlow</code> is <code>true</code> for traditional Google sign in alert dialog flow and <code>false</code> for new Google one tap sign in flow with Credential Manager UI.
+          <strong>Note:</strong> <code>useButtonFlow</code> is <code>true</code> for traditional Google sign in alert dialog flow and <code>false</code> for new Google one tap sign in flow with Credential Manager UI. On Web, this maps to a rendered Google Sign-In button click (<code>true</code>) versus a One Tap prompt (<code>false</code>).
         </p>
       </div>
 
@@ -561,6 +586,7 @@ print('Passkey Raw ID: \${credential.rawId}');`}
       <ul className="list-disc pl-6 mb-6 space-y-2">
         <li><strong>Android</strong>: Full support for password credentials, Google Sign-In, and passkeys (Android 14+)</li>
         <li><strong>iOS</strong>: Support for password credentials and passkeys (iOS 16+)</li>
+        <li><strong>Web</strong>: Support for passkeys (WebAuthn), password credentials (Credential Management API), and Google Sign-In (Google Identity Services + FedCM) on Chromium-based browsers</li>
       </ul>
 
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-8">

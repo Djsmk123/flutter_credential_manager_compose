@@ -12,7 +12,7 @@ const ConfigurationPage = () => {
       </p>
 
       <p className="my-4">
-        Both Android and iOS have some configuration to ensure that the library works properly.
+        Android, iOS, and Web each have some configuration to ensure that the library works properly.
       </p>
 
       <h2 className="mt-8 mb-4">Android Configuration</h2>
@@ -230,6 +230,64 @@ pod deintegrate`}
 }`}
         language="json"
       />
+
+      <h2 className="mt-8 mb-4">Web Configuration</h2>
+
+      <h3 className="mt-6 mb-2">Load the JavaScript Bundle</h3>
+
+      <p className="mb-2">
+        Unlike Android/iOS, the Web implementation is not wired up automatically. Add a <code>&lt;script&gt;</code>{' '}
+        tag to <code>web/index.html</code>, before Flutter boots, so passkeys, password credentials, and Google
+        Sign-In are available:
+      </p>
+      <CodeBlock
+        language="plaintext"
+        code={`<body>
+  <!-- Load CredentialManagerWeb before Flutter -->
+  <script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>`}
+      />
+
+      <h3 className="mt-6 mb-2">Google Sign-In (Google Identity Services)</h3>
+
+      <p className="mb-2">
+        Google Sign-In on Web is powered by{' '}
+        <a href="https://developers.google.com/identity/gsi/web/guides/overview" target="_blank" rel="noopener noreferrer">
+          Google Identity Services
+        </a>{' '}
+        (GIS), which uses FedCM under the hood in supporting browsers. Reuse the same Web OAuth client ID you created
+        for Android above, but this time fill in <strong>Authorized JavaScript origins</strong> with every origin
+        you'll run the app from:
+      </p>
+      <ul className="list-disc pl-6 mb-6">
+        <li className="mb-2">Local development: <code>http://localhost:PORT</code> (pick a fixed port; avoid 5000/7000 on macOS — reserved by AirPlay Receiver / ControlCenter)</li>
+        <li className="mb-2">Production: <code>https://yourdomain.com</code></li>
+      </ul>
+      <CodeBlock
+        language="dart"
+        code={`await credentialManager.init(
+  preferImmediatelyAvailableCredentials: true,
+  googleClientId: '<your-web-client-id>.apps.googleusercontent.com',
+);`}
+      />
+
+      <div className="mt-4 p-4 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 rounded-r-md">
+        <p className="text-amber-800 dark:text-amber-300">
+          <strong>Note:</strong> GIS requires the exact origin (scheme + host + port) to match one of the
+          "Authorized JavaScript origins" entries, or sign-in fails with a <code>400</code> error. There's no
+          trailing-slash tolerance — double check for typos if you hit this.
+        </p>
+      </div>
+
+      <h3 className="mt-6 mb-2">Passkeys &amp; Password Credentials (WebAuthn)</h3>
+
+      <p className="mb-4">
+        Passkeys use the browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API" target="_blank" rel="noopener noreferrer">WebAuthn API</a>, and password credentials use the{' '}
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Credential_Management_API" target="_blank" rel="noopener noreferrer">Credential Management API</a> — no extra native setup is required, but both require a secure context
+        (HTTPS, or <code>localhost</code> during development). Reuse the <code>rpId</code> you'd configure for
+        iOS/Android's Digital Asset Links / Associated Domains — for local testing set it to <code>localhost</code>.
+      </p>
 
       <p className="my-4">
         After completing these configurations, your application will be ready to use all features of the Credential Manager plugin.
