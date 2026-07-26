@@ -12,6 +12,7 @@ jobs:
       dart: ${{ steps.filter.outputs.dart }}
       android: ${{ steps.filter.outputs.android }}
       ios: ${{ steps.filter.outputs.ios }}
+      web: ${{ steps.filter.outputs.web }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -31,6 +32,11 @@ jobs:
               - '.github/workflows/ci.yml'
             ios:
               - 'packages/credential_manager_ios/**'
+              - 'packages/credential_manager_platform_interface/**'
+              - 'packages/credential_manager/**'
+              - '.github/workflows/ci.yml'
+            web:
+              - 'packages/credential_manager_web/**'
               - 'packages/credential_manager_platform_interface/**'
               - 'packages/credential_manager/**'
               - '.github/workflows/ci.yml'
@@ -92,7 +98,9 @@ jobs:
         run: flutter pub get
       - name: Build Android APK (debug)
         working-directory: packages/credential_manager/example
-        run: flutter build apk --debug
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        run: flutter build apk --debug --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
 
   android-lint:
     name: Android lint (Detekt)
@@ -140,3 +148,34 @@ jobs:
       - name: Run SwiftLint
         working-directory: packages/credential_manager_ios
         run: swiftlint lint --strict
+
+  web-deploy:
+    name: Web build & deploy (Netlify preview)
+    needs: changes
+    if: needs.changes.outputs.web == 'true' && secrets.NETLIFY_AUTH_TOKEN != '' && secrets.NETLIFY_SITE_ID != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Get dependencies
+        working-directory: packages/credential_manager/example
+        run: flutter pub get
+      - name: Build web
+        working-directory: packages/credential_manager/example
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        run: flutter build web --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v4.0
+        with:
+          publish-dir: packages/credential_manager/example/build/web
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Deploy from PR #${{ github.event.pull_request.number }}'
+          enable-pull-request-comment: true
+          enable-commit-comment: false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

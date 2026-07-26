@@ -4,7 +4,10 @@ import 'package:credential_manager_example/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 
-const String googleClientId = "<your-web-client-id>";
+// Provide at build/run time, e.g.:
+//   flutter run --dart-define=GOOGLE_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
+// CI supplies this from the GOOGLE_CLIENT_ID repository secret.
+const String googleClientId = String.fromEnvironment('GOOGLE_CLIENT_ID');
 // For localhost testing, use "localhost" as rpId
 // For production, use your actual domain
 final String rpId = CredentialManagerPlatformManager.instance.isWeb ? "localhost" : "blogs-deeplink-example.vercel.app";
