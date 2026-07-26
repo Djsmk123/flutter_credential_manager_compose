@@ -21,6 +21,27 @@ credential_manager_android   credential_manager_ios   (each depends on platform_
 
 Package locations: `packages/<name>/pubspec.yaml` + `packages/<name>/CHANGELOG.md`.
 
+## Fast path: `packages/scripts/auto-release.sh`
+
+For a routine release with no unusual judgment calls, `packages/scripts/auto-release.sh` automates
+Steps 1–5 below: it diffs each package's source paths against `origin/main`, asks `claude -p`
+(headless, default model `haiku`) to classify each changed package as `minor`/`major` per this
+repo's convention, bumps `pubspec.yaml` + drafts a `CHANGELOG.md` entry from commit subjects,
+propagates the bump to dependents, runs `make check`, and opens a PR against `develop`.
+
+```
+packages/scripts/auto-release.sh --dry-run   # show the plan, change nothing
+packages/scripts/auto-release.sh             # apply it and open the PR (prompts for confirmation)
+```
+
+It deliberately stops there — it never merges the PR, promotes `develop` → `main`, or runs
+`flutter pub publish` (dry-run or real). Continue from Step 6 onward manually once the PR looks
+right (the drafted CHANGELOG entries are a starting point from commit subjects, not final prose —
+review and edit them before merging). Skip this script and do Steps 1–5 by hand for anything with
+real judgment calls (e.g. this file already predates the `credential_manager_web` package being
+added to the dependency graph — see the live `pubspec.yaml` files as ground truth over this
+diagram if they disagree).
+
 ## Step 1 — Determine version bump type
 
 Ask the user (or infer from the change) what kind of change this is, per this repo's convention:
