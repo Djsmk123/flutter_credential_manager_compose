@@ -4,6 +4,11 @@ import 'package:credential_manager/credential_manager.dart';
 import 'package:credential_manager_android/credential_manager_android.dart' as android_plugin;
 import 'package:credential_manager_ios/credential_manager_ios.dart' as ios_plugin;
 
+// `credential_manager_web` uses dart:js_interop, which only resolves when
+// compiling for the web target. Swap in the real registration only there so
+// Android/iOS builds don't try to compile web-only code.
+import 'web_registration_stub.dart' if (dart.library.js_interop) 'web_registration_web.dart' as web_registration;
+
 /// A class that provides a high-level interface for interacting with the
 /// Credential Manager.
 ///
@@ -13,26 +18,17 @@ import 'package:credential_manager_ios/credential_manager_ios.dart' as ios_plugi
 /// see the “Extensions” section in the docs:
 /// https://djsmk123.github.io/flutter_credential_manager_compose/#/
 class CredentialManager {
-  // /// Ensures the platform implementation is registered
-  // static void _ensureInitialized() {
-  //   if (!_initialized) {
-  //     if (Platform.isAndroid) {
-  //       android_plugin.CredentialManagerAndroidPlugin.registerWith();
-  //     } else if (Platform.isIOS) {
-  //       ios_plugin.CredentialManagerIosPlugin.registerWith();
-  //     }
-  //     _initialized = true;
-  //   }
-  // }
   /// Creates a [CredentialManager] and ensures the appropriate platform
   /// implementation is registered. If you ship a forked Android/iOS package,
   /// update the imports above or register your plugin before instantiating this
   /// class (see docs linked in the class comment).
   CredentialManager() {
-    if (Platform.isAndroid) {
+    if (CredentialManagerPlatformManager.instance.isAndroid) {
       android_plugin.CredentialManagerAndroidPlugin.registerWith();
-    } else if (Platform.isIOS) {
+    } else if (CredentialManagerPlatformManager.instance.isIOS) {
       ios_plugin.CredentialManagerIosPlugin.registerWith();
+    } else if (CredentialManagerPlatformManager.instance.isWeb) {
+      web_registration.registerWebPlugin();
     }
   }
 
@@ -88,10 +84,12 @@ class CredentialManager {
   /// Saves Google credentials.
   ///
   /// [useButtonFlow] - Whether to use the button flow for saving Google credentials.
+  /// [nonce] - Optional caller-supplied nonce used to protect the request against replay.
+  /// If omitted, a securely-generated random nonce is used instead.
   ///
   /// Returns a [Future] that completes with [GoogleIdTokenCredential] representing the saved Google credentials.
-  Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false}) async {
-    return CredentialManagerPlatform.instance.saveGoogleCredential(useButtonFlow);
+  Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false, String? nonce}) async {
+    return CredentialManagerPlatform.instance.saveGoogleCredential(useButtonFlow, nonce: nonce);
   }
 
   /// Logs out the user.
@@ -104,7 +102,10 @@ class CredentialManager {
   /// Checks if the Credential Manager is supported on the current platform.
   ///
   /// Returns `true` if the platform is supported, otherwise `false`.
-  bool get isSupportedPlatform => Platform.isAndroid || Platform.isIOS;
+  bool get isSupportedPlatform =>
+      CredentialManagerPlatformManager.instance.isAndroid ||
+      CredentialManagerPlatformManager.instance.isIOS ||
+      CredentialManagerPlatformManager.instance.isWeb;
 
   /// Checks if Google Play Services is available on the device.
   ///

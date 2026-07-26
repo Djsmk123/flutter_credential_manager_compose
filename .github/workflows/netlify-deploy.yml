@@ -1,0 +1,84 @@
+name: Deploy Web Example to Netlify
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'packages/credential_manager_web/**'
+      - 'packages/credential_manager_platform_interface/**'
+      - 'packages/credential_manager/**'
+      - '.github/workflows/netlify-deploy.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/credential_manager_web/**'
+      - 'packages/credential_manager_platform_interface/**'
+      - 'packages/credential_manager/**'
+      - '.github/workflows/netlify-deploy.yml'
+
+jobs:
+  deploy:
+    name: Build & deploy to Netlify
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Netlify secrets are configured
+        id: check
+        run: |
+          if [ -n "$NETLIFY_AUTH_TOKEN" ] && [ -n "$NETLIFY_SITE_ID" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Skipping Netlify deploy - set the NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repository secrets to enable it."
+          fi
+
+      - uses: subosito/flutter-action@v2
+        if: steps.check.outputs.configured == 'true'
+        with:
+          channel: stable
+
+      - name: Get dependencies
+        if: steps.check.outputs.configured == 'true'
+        working-directory: packages/credential_manager/example
+        run: flutter pub get
+
+      - name: Build web
+        if: steps.check.outputs.configured == 'true'
+        working-directory: packages/credential_manager/example
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          # Must match the exact origin the build is deployed to, or passkey
+          # rpId validation fails. PR previews get a different subdomain per
+          # PR, so only the production (push to main) domain is set here.
+          RP_ID: ${{ github.event_name == 'push' && 'credential-manager-compose-example.netlify.app' || 'localhost' }}
+        run: flutter build web --dart-define=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" --dart-define=RP_ID="$RP_ID"
+
+      - name: Install Netlify CLI
+        if: steps.check.outputs.configured == 'true'
+        run: npm install -g netlify-cli@17
+
+      - name: Deploy preview (pull request)
+        if: steps.check.outputs.configured == 'true' && github.event_name == 'pull_request'
+        working-directory: packages/credential_manager/example
+        run: |
+          netlify deploy \
+            --dir=build/web \
+            --auth="$NETLIFY_AUTH_TOKEN" \
+            --site="$NETLIFY_SITE_ID" \
+            --message="PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}" \
+            --alias="pr-${{ github.event.pull_request.number }}"
+
+      - name: Deploy production (push to main)
+        if: steps.check.outputs.configured == 'true' && github.event_name == 'push'
+        working-directory: packages/credential_manager/example
+        run: |
+          netlify deploy \
+            --dir=build/web \
+            --auth="$NETLIFY_AUTH_TOKEN" \
+            --site="$NETLIFY_SITE_ID" \
+            --message="${{ github.sha }}" \
+            --prod

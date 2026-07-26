@@ -32,6 +32,13 @@ const InstallationPage = () => {
         />
       </div>
       
+      <div className="my-8 p-4 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 rounded-r-md">
+        <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Targeting Web?</h3>
+        <p className="text-amber-700 dark:text-amber-200">
+          Android and iOS work out of the box, but Web requires one extra step: adding a <code>&lt;script&gt;</code> tag to <code>web/index.html</code>. See the <a href="/configuration" className="font-medium underline hover:text-amber-500 transition-colors">Web Configuration</a> section below.
+        </p>
+      </div>
+
       <div className="mt-12 p-4 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700 rounded-r-md">
         <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Next Steps</h3>
         <p className="text-blue-700 dark:text-blue-200">After installing the package, check out the <a href="/configuration" className="font-medium underline hover:text-blue-500 transition-colors">Configuration</a> section to properly set up the credential manager.</p>

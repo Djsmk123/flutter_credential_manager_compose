@@ -169,9 +169,10 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
     private suspend fun handleSaveGoogleCredential(call: MethodCall, result: Result) {
         val useButtonFlow: Boolean = call.argument("useButtonFlow") ?: false
+        val nonce: String? = call.argument("nonce")
 
         val (exception: CredentialManagerExceptions?, credential: GoogleIdTokenCredential?) =
-            utils.saveGoogleCredentials(useButtonFlow = useButtonFlow, context = currentContext)
+            utils.saveGoogleCredentials(useButtonFlow = useButtonFlow, nonce = nonce, context = currentContext)
 
         if (exception != null) {
             result.error(exception.code.toString(), exception.message, exception.details)

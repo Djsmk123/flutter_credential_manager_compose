@@ -1,27 +1,35 @@
 ---
 name: credential-manager-expert
-description: Expert on the flutter_credential_manager_compose plugin (pub.dev package "credential_manager") — Android Jetpack Credential Manager, iOS Keychain/AutoFill, passkeys (FIDO2/WebAuthn), password credentials, and Google Sign-In in Flutter. Use this skill whenever the user asks about implementing passkeys, biometric sign-in, password autofill, "one tap" or "one-tap" Google sign-in, Credential Manager errors/exception codes, Digital Asset Links / assetlinks.json, Associated Domains / apple-app-site-association, Swift Package Manager vs CocoaPods for this plugin, or when writing/reviewing/debugging any Dart code that imports credential_manager, credential_manager_platform_interface, credential_manager_android, or credential_manager_ios. Also use it for questions phrased generically like "how do I save a login in my Flutter app" or "how do I let iOS/Android suggest a password" — those almost always mean this plugin's password-credential or passkey flow. Trigger even if the user doesn't name the package explicitly, as long as they're working in this repo or clearly building on this plugin.
+description: Expert on the flutter_credential_manager_compose plugin (pub.dev package "credential_manager") — Android Jetpack Credential Manager, iOS Keychain/AutoFill, Web (WebAuthn + Credential Management API + Google Identity Services/FedCM), passkeys (FIDO2/WebAuthn), password credentials, and Google Sign-In in Flutter. Use this skill whenever the user asks about implementing passkeys, biometric sign-in, password autofill, "one tap" or "one-tap" Google sign-in, Google Identity Services (GIS), FedCM, Credential Manager errors/exception codes, Digital Asset Links / assetlinks.json, Associated Domains / apple-app-site-association, Swift Package Manager vs CocoaPods for this plugin, the `<script>` tag required in `web/index.html`, or when writing/reviewing/debugging any Dart code that imports credential_manager, credential_manager_platform_interface, credential_manager_android, credential_manager_ios, or credential_manager_web. Also use it for questions phrased generically like "how do I save a login in my Flutter app" or "how do I let iOS/Android/browsers suggest a password" — those almost always mean this plugin's password-credential or passkey flow. Trigger even if the user doesn't name the package explicitly, as long as they're working in this repo or clearly building on this plugin.
 ---
 
 # Credential Manager Expert
 
 You are acting as the resident expert on `flutter_credential_manager_compose`, a federated Flutter
-plugin that wraps Android's Jetpack Credential Manager and iOS Keychain/AutoFill behind one Dart
-API. Your job is to write, review, and debug code against the *actual* current API — not the
-plausible-sounding API an LLM might guess at. This plugin has a real history of docs drifting from
-code (wrong method names, wrong field nesting, invented exception classes), so treat every claim in
-this file as ground truth extracted directly from source, and re-verify against source if the code
-in this repo has moved on since.
+plugin that wraps Android's Jetpack Credential Manager, iOS Keychain/AutoFill, and Web's WebAuthn +
+Credential Management API + Google Identity Services behind one Dart API. Your job is to write,
+review, and debug code against the *actual* current API — not the plausible-sounding API an LLM
+might guess at. This plugin has a real history of docs drifting from code (wrong method names,
+wrong field nesting, invented exception classes), so treat every claim in this file as ground truth
+extracted directly from source, and re-verify against source if the code in this repo has moved on
+since.
 
 ## Package layout
 
 ```
 credential_manager_platform_interface   (Dart contracts: models, exceptions, CredentialManagerPlatform)
-        ^                    ^
-credential_manager_android   credential_manager_ios      (native Kotlin / Swift implementations)
-        ^                            ^
+        ^              ^              ^
+credential_manager_android   credential_manager_ios   credential_manager_web
+   (Kotlin)                     (Swift)               (dart:js_interop + JS bundle)
+        ^              ^              ^
               credential_manager     (umbrella package — this is what apps actually import)
 ```
+
+`credential_manager_web`'s Dart code uses `dart:js_interop`, which only resolves when compiling for
+the web target. `credential_manager_core.dart` therefore registers it through a conditional import
+(`web_registration_stub.dart` / `web_registration_web.dart`, gated on `dart.library.js_interop`) —
+never add a direct, unconditional `import 'package:credential_manager_web/...'` anywhere reachable
+from non-web builds, or Android/iOS builds break with `'JSString' isn't a type` and similar errors.
 
 Always `import 'package:credential_manager/credential_manager.dart';` in application code — it
 re-exports everything from the platform interface (models, exceptions, `CredentialManager`).
@@ -35,7 +43,7 @@ static methods. This has been a recurring source of hallucination; there is no
 ```dart
 final credentialManager = CredentialManager();
 
-if (credentialManager.isSupportedPlatform) {   // Platform.isAndroid || Platform.isIOS
+if (credentialManager.isSupportedPlatform) {   // Android || iOS || Web
   await credentialManager.init(
     preferImmediatelyAvailableCredentials: true,  // required named param
     googleClientId: '<your-web-client-id>',       // optional, only needed for Google Sign-In
@@ -43,23 +51,39 @@ if (credentialManager.isSupportedPlatform) {   // Platform.isAndroid || Platform
 }
 
 if (!credentialManager.isGmsAvailable) {
-  // Android-only signal (always true on iOS). False means Google Play Services is missing —
+  // Android-only signal (always true on iOS/Web). False means Google Play Services is missing —
   // don't launch Google flows, you'll otherwise hit exception code 209.
 }
 ```
+
+`isSupportedPlatform` checks `CredentialManagerPlatformManager.instance` (`isAndroid || isIOS ||
+isWeb`) — Web included. On Web, remember the plugin's JS bundle is **not** injected automatically;
+see the "Web setup" note below.
 
 Full method surface (get the exact signature right — these are commonly mis-typed):
 
 | Method | Signature | Notes |
 |---|---|---|
-| `savePasswordCredentials` | `Future<void> savePasswordCredentials(PasswordCredential credential)` | **Plural** "Credentials". `savePasswordCredential` (singular) does not exist — this exact typo has shipped in the docs before. |
-| `savePasskeyCredentials` | `Future<PublicKeyCredential> savePasskeyCredentials({required CredentialCreationOptions request})` | Registers/creates a passkey. |
-| `getCredentials` | `Future<Credentials> getCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions})` | One entry point for reading back password, passkey, or Google credentials. |
-| `saveGoogleCredential` | `Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false})` | Android-only in practice. |
-| `logout` | `Future<void> logout()` | Android-only effect (clears session); no-op on iOS. |
+| `savePasswordCredentials` | `Future<void> savePasswordCredentials(PasswordCredential credential)` | **Plural** "Credentials". `savePasswordCredential` (singular) does not exist — this exact typo has shipped in the docs before. Android + iOS + Web. |
+| `savePasskeyCredentials` | `Future<PublicKeyCredential> savePasskeyCredentials({required CredentialCreationOptions request})` | Registers/creates a passkey. Android + iOS + Web (WebAuthn). |
+| `getCredentials` | `Future<Credentials> getCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions})` | One entry point for reading back password, passkey, or Google credentials. On Web this tries passkey first, then Google Sign-In — it does **not** fetch password credentials even if `FetchOptionsAndroid.passwordCredential` is true. |
+| `saveGoogleCredential` | `Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce})` | Android + Web only (not iOS). `nonce` is optional — omit it and the plugin generates a securely-random one itself (Android: `SecureRandom`; Web: `crypto.getRandomValues`). Note the umbrella `CredentialManager.saveGoogleCredential` wraps this with named/defaulted params: `{bool useButtonFlow = false, String? nonce}`. |
+| `logout` | `Future<void> logout()` | Android-only real effect (clears session); no-op on iOS/Web. |
 | `getPlatformVersion` | `Future<String?> getPlatformVersion()` | Diagnostic only. |
 
 Getters: `isSupportedPlatform` (bool), `isGmsAvailable` (bool, set during `init`).
+
+### Web setup (easy to forget)
+
+Unlike Android/iOS, `credential_manager_web` is **not** wired up automatically. Every app targeting
+Web must add this to `web/index.html`, before Flutter boots (see `references/web-setup.md` for the
+full guide):
+
+```html
+<script src="packages/credential_manager_web/web/passkey_authenticator.js"></script>
+```
+
+Without it, `init()` throws `CredentialException(code: 101, message: 'Initialization failure: JavaScript not loaded')`.
 
 ## Models — get the field nesting right
 
@@ -92,6 +116,8 @@ found" result comes back as an empty `Credentials` object rather than throwing.
 
 **`FetchOptionsAndroid`**: `passKey`, `googleCredential`, `passwordCredential` (all default `false`
 in the constructor — pass the ones you want `true`). Android-specific; harmless but unused on iOS.
+On Web, `passwordCredential` is likewise accepted but silently has no effect — Web's
+`getCredentials` only ever returns passkey or Google results.
 
 **`CredentialLoginOptions`** (for reading a passkey): `challenge` and `rpId` required,
 `userVerification` required, `timeout` (default 1800000ms/30min), `conditionalUI` (iOS-only,
@@ -130,12 +156,21 @@ every code and when it fires: `references/troubleshooting.md`.
 ## Platform support matrix
 
 - **Passwords**: Android (Credential Manager) + iOS (Keychain/AutoFill via `AutofillGroup` +
-  `autofillHints`). Both platforms.
-- **Passkeys**: Android 14+ and iOS 16+ only. Older OS versions throw — always gate passkey UI
-  behind a version/capability check rather than assuming availability.
-- **Google Sign-In**: Android only in practice (`saveGoogleCredential`/`googleCredential` fetch
-  option). Don't wire it into an iOS-only code path.
-- **`logout()`**: clears Android session state; no meaningful effect on iOS.
+  `autofillHints`) + Web (`savePasswordCredentials` via the browser's Credential Management API).
+  **Retrieval is save-only on Web** — there is no public API to fetch password credentials back on
+  Web (the unified `getCredentials()` never returns them there, and Web's internal
+  `getPasswordCredentials()` isn't exposed on `CredentialManagerPlatform`/`CredentialManager`).
+- **Passkeys**: Android 14+ and iOS 16+ only on native; Web works on any WebAuthn-capable browser
+  (no OS version gate needed there). On native platforms, older OS versions throw — always gate
+  passkey UI behind a version/capability check rather than assuming availability.
+- **Google Sign-In**: Android + Web (`saveGoogleCredential`/`googleCredential` fetch option). **Not
+  implemented on iOS** — don't wire it into an iOS-only code path, and gate the UI with something
+  like `CredentialManagerPlatformManager.instance.isAndroid || CredentialManagerPlatformManager.instance.isWeb`.
+  On Web this goes through Google Identity Services (GIS), backed by FedCM on supporting browsers —
+  see `references/web-setup.md` for OAuth client / authorized-origins setup, which Web additionally
+  requires beyond what Android needs.
+- **`logout()`**: clears Android session state; no meaningful effect on iOS or Web (there's no
+  server-side session to clear — it's a local no-op placeholder on both).
 
 ## When you need native setup details
 
@@ -147,6 +182,9 @@ wrong (wrong relation strings in `assetlinks.json`, wrong Associated Domains pre
   OAuth client, SHA-1 fingerprints): `references/android-setup.md`
 - **iOS native setup** (Associated Domains, `apple-app-site-association`, Keychain Sharing
   capability, SPM vs CocoaPods): `references/ios-setup.md`
+- **Web setup** (the required `<script>` tag, Google Identity Services/FedCM OAuth client +
+  authorized JavaScript origins, browser support, the conditional-import architecture that keeps
+  `dart:js_interop` out of native builds): `references/web-setup.md`
 - **Full API reference** (every class/method/field, JSON shapes for passkey creation options):
   `references/api-reference.md`
 - **Exception code table + common failure scenarios and fixes**: `references/troubleshooting.md`
