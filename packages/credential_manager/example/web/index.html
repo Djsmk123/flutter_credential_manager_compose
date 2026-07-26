@@ -38,11 +38,18 @@
     // Load the JavaScript bundle - try multiple possible paths
     (function() {
       var script = document.createElement('script');
-      script.src = 'packages/credential_manager_web/web/passkey_authenticator.js';
+      script.src = 'assets/packages/credential_manager_web/web/passkey_authenticator.js';
       script.onerror = function() {
-        // Try alternative path
-        script.src = 'passkey_authenticator.js';
-        document.head.appendChild(script);
+        // Try alternative path (flutter run dev server)
+        var fallback = document.createElement('script');
+        fallback.src = 'packages/credential_manager_web/web/passkey_authenticator.js';
+        fallback.onerror = function() {
+          // Final fallback
+          var rootFallback = document.createElement('script');
+          rootFallback.src = 'passkey_authenticator.js';
+          document.head.appendChild(rootFallback);
+        };
+        document.head.appendChild(fallback);
       };
       document.head.appendChild(script);
     })();

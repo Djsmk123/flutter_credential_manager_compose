@@ -137,7 +137,7 @@ the forwarded click on Google's hidden button. Make sure `saveGoogleCredential` 
 click handler (no `await` before it) and isn't delayed by other work.
 
 ### Initialization error: "CredentialManagerWeb JavaScript bundle not found"
-The `<script>` tag for `packages/credential_manager_web/web/passkey_authenticator.js` is missing from
+The `<script>` tag for `assets/packages/credential_manager_web/web/passkey_authenticator.js` is missing from
 `web/index.html`, or the app was served from a path where that relative path doesn't resolve.
 
 ## Additional Resources

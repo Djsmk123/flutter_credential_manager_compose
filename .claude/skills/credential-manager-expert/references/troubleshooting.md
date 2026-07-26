@@ -83,7 +83,7 @@ it will fail to compile.
 See `references/web-setup.md` for the full setup guide. Quick triage:
 
 - **`CredentialException(code: 101, message: 'Initialization failure: JavaScript not loaded')`** →
-  the `<script src="packages/credential_manager_web/web/passkey_authenticator.js">` tag is missing
+  the `<script src="assets/packages/credential_manager_web/web/passkey_authenticator.js">` tag is missing
   from `web/index.html`, or the app is served from a base path where that relative path doesn't
   resolve.
 - **Error 400 from Google after picking an account, or sign-in silently fails** → the app's exact
