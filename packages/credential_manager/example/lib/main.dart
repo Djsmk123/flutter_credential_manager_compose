@@ -37,23 +37,70 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Credential Manager Example",
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: buildAppTheme(Brightness.light),
+      darkTheme: buildAppTheme(Brightness.dark),
       home: const LoginScreen(),
     );
   }
+}
+
+/// Shared Material 3 theme for both light and dark mode, seeded from a single
+/// brand color so every component (buttons, cards, inputs, chips, snack bars)
+/// stays visually consistent across the app.
+ThemeData buildAppTheme(Brightness brightness) {
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: const Color(0xFF3762F5),
+    brightness: brightness,
+  );
+
+  return ThemeData(
+    useMaterial3: true,
+    colorScheme: colorScheme,
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    appBarTheme: AppBarTheme(
+      centerTitle: true,
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
+      surfaceTintColor: colorScheme.surfaceTint,
+      elevation: 0,
+    ),
+    cardTheme: CardThemeData(
+      elevation: 1,
+      surfaceTintColor: colorScheme.surfaceTint,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: colorScheme.surfaceContainerHighest,
+      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      side: BorderSide.none,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: colorScheme.surfaceContainerHighest,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+      ),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+  );
 }
 
 class LoginScreen extends StatefulWidget {
@@ -230,7 +277,25 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
           textAlign: TextAlign.center,
         ),
+        const SizedBox(height: 12),
+        _buildPlatformChip(),
       ],
+    );
+  }
+
+  Widget _buildPlatformChip() {
+    final platformManager = CredentialManagerPlatformManager.instance;
+    final (icon, label) = switch ((platformManager.isAndroid, platformManager.isIOS, platformManager.isWeb)) {
+      (true, _, _) => (Icons.android, 'Android'),
+      (_, true, _) => (Icons.apple, 'iOS'),
+      (_, _, true) => (Icons.public, 'Web'),
+      _ => (Icons.devices_other, 'Unknown'),
+    };
+
+    return Chip(
+      avatar: Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+      label: Text('Running on $label'),
+      visualDensity: VisualDensity.compact,
     );
   }
 
@@ -270,11 +335,6 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         labelText: hint,
         prefixIcon: icon != null ? Icon(icon) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
     );
   }
@@ -289,30 +349,14 @@ class _LoginScreenState extends State<LoginScreen> {
       return FilledButton.icon(
         onPressed: onPressed,
         icon: icon != null ? Icon(icon) : const SizedBox.shrink(),
-        label: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(label),
-        ),
-        style: FilledButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+        label: Text(label),
       );
     }
 
     return OutlinedButton.icon(
       onPressed: onPressed,
       icon: icon != null ? Icon(icon) : const SizedBox.shrink(),
-      label: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Text(label),
-      ),
-      style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
+      label: Text(label),
     );
   }
 
