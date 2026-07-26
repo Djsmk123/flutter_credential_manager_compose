@@ -125,11 +125,11 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
   }
 
   @override
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow) async {
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce}) async {
     try {
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
         'save_google_credential',
-        {"useButtonFlow": useButtonFlow},
+        {"useButtonFlow": useButtonFlow, "nonce": nonce},
       );
 
       if (res == null) {

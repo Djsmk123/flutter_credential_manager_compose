@@ -54,8 +54,8 @@ class CredentialManagerIos extends CredentialManagerPlatform {
   @override
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
     try {
-     // Nothing on ios simply return
-     return;
+      // Nothing on ios simply return
+      return;
     } on PlatformException catch (e) {
       throw PlatformExceptionHandler.handlePlatformException(
         e,
@@ -99,11 +99,11 @@ class CredentialManagerIos extends CredentialManagerPlatform {
   }
 
   @override
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow) async {
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce}) async {
     try {
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
         'save_google_credential',
-        {"useButtonFlow": useButtonFlow},
+        {"useButtonFlow": useButtonFlow, "nonce": nonce},
       );
 
       if (res == null) {

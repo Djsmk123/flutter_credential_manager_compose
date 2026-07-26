@@ -18,4 +18,3 @@ class CredentialManagerWebPlugin {
     CredentialManagerPlatform.instance = CredentialManagerWeb();
   }
 }
-

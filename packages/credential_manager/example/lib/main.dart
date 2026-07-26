@@ -14,18 +14,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (credentialManager.isSupportedPlatform) {
-    try{
+    try {
       await credentialManager.init(
-      preferImmediatelyAvailableCredentials: true,
-      googleClientId: googleClientId.isNotEmpty ? googleClientId : null,
-    );
+        preferImmediatelyAvailableCredentials: true,
+        googleClientId: googleClientId.isNotEmpty ? googleClientId : null,
+      );
     } on CredentialException catch (e) {
       log("Error initializing credential manager: ${e.message}");
     }
-  
   }
-    log("current platform: ${CredentialManagerPlatformManager.instance.isAndroid?"android":CredentialManagerPlatformManager.instance.isIOS?"ios":"web"}");
-    log("is supported platform: ${credentialManager.isSupportedPlatform}");
+  log("current platform: ${CredentialManagerPlatformManager.instance.isAndroid ? "android" : CredentialManagerPlatformManager.instance.isIOS ? "ios" : "web"}");
+  log("is supported platform: ${credentialManager.isSupportedPlatform}");
 
   runApp(const MyApp());
 }
@@ -148,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onRegisterWithPassKey,
                                 icon: Icons.key,
                               ),
-                              if (CredentialManagerPlatformManager.instance.isAndroid) ...[
+                              if (isGoogleSignInSupported) ...[
                                 const SizedBox(height: 12),
                                 _buildActionButton(
                                   "Register with Google",
@@ -162,7 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               _buildActionButton(
                                 CredentialManagerPlatformManager.instance.isAndroid
                                     ? "Login (All Methods)"
-                                    : "Login with Passkey",
+                                    : isGoogleSignInSupported
+                                        ? "Login (Passkey + Google)"
+                                        : "Login with Passkey",
                                 onLogin,
                                 icon: Icons.login,
                                 isPrimary: true,
@@ -191,7 +192,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  bool enableInlineAutofill = CredentialManagerPlatformManager.instance.isIOS || CredentialManagerPlatformManager.instance.isWeb;
+  bool enableInlineAutofill =
+      CredentialManagerPlatformManager.instance.isIOS || CredentialManagerPlatformManager.instance.isWeb;
+
+  // Google Sign-In is implemented on Android (Credential Manager) and Web (FedCM).
+  bool get isGoogleSignInSupported =>
+      isGoogleEnabled &&
+      (CredentialManagerPlatformManager.instance.isAndroid || CredentialManagerPlatformManager.instance.isWeb);
 
   Widget _buildHeader() {
     return Column(
@@ -357,7 +364,7 @@ class _LoginScreenState extends State<LoginScreen> {
         };
 
         if (!CredentialManagerPlatformManager.instance.isIOS) {
-          credentialCreationOptions.addAll({  
+          credentialCreationOptions.addAll({
             "pubKeyCredParams": [
               {"type": "public-key", "alg": -7},
               {"type": "public-key", "alg": -257}
@@ -383,7 +390,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> onGoogleSignIn() async {
     await _performAction(() async {
-      final credential = await credentialManager.saveGoogleCredential();
+      // Passing a nonce is optional. If you omit it, the plugin generates a
+      // securely-random one for you (see CredentialManagerPlatformManager
+      // capabilities: GetGoogleIdOption/GetSignInWithGoogleOption on Android,
+      // FedCM IdentityProvider on web). Supply your own when you need to tie
+      // the sign-in request to a value your backend already issued.
+      final credential = await credentialManager.saveGoogleCredential(
+        nonce: EncryptData.getEncodedChallenge(),
+      );
       _showSnackBar("Successfully retrieved credential");
       _navigateToHomeScreen(Credential.google, googleIdTokenCredential: credential);
     });
@@ -396,7 +410,7 @@ class _LoginScreenState extends State<LoginScreen> {
         fetchOptions: FetchOptionsAndroid(
           passKey: true,
           passwordCredential: true,
-          googleCredential: isGoogleEnabled,
+          googleCredential: isGoogleSignInSupported,
         ),
       );
       _showLoginSuccessDialog(credential);
@@ -408,7 +422,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await action();
     } on CredentialException catch (e) {
-      log("Error performing action: ${e.message}, code: ${e.code} , details: ${e.details}"); 
+      log("Error performing action: ${e.message}, code: ${e.code} , details: ${e.details}");
       _showSnackBar(e.message.toString());
     } finally {
       if (mounted) setState(() => isLoading = false);

@@ -300,11 +300,24 @@ class CredentialManagerWeb {
   }
 
   /**
+   * Generate a cryptographically random nonce, used when the caller does not
+   * supply one. Mirrors Android generating a fresh nonce for its
+   * GetGoogleIdOption/GetSignInWithGoogleOption builders.
+   */
+  private static _generateSecureNonce(): string {
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  /**
    * Save Google credential using FedCM (Federated Credential Management API)
    * @param useButtonFlow - Whether to use button flow (active mode) or passive mode
+   * @param nonce - Optional caller-supplied nonce for replay protection. If omitted,
+   *   a securely-generated random nonce is used instead.
    * @returns Promise resolving to JSON string of Google credential data
    */
-  static async saveGoogleCredential(useButtonFlow: boolean): Promise<string | null> {
+  static async saveGoogleCredential(useButtonFlow: boolean, nonce?: string | null): Promise<string | null> {
     try {
       // Check if FedCM is supported
       if (!navigator.credentials || !navigator.credentials.get) {
@@ -320,9 +333,17 @@ class CredentialManagerWeb {
       // Reference: https://developer.chrome.com/docs/identity/fedcm/overview
       // Google's FedCM implementation uses the configURL approach
       // The configURL points to Google's FedCM configuration endpoint
+      //
+      // The nonce mirrors the capabilities Android configures on its
+      // GetGoogleIdOption (passive/One Tap) and GetSignInWithGoogleOption
+      // (button flow) builders, both of which set a per-request nonce for
+      // replay protection. `useButtonFlow` maps to the same distinction
+      // Android makes: passive One Tap (mediation "optional") vs an explicit
+      // Sign in with Google button click (mediation "required").
       const identityProvider: IdentityProvider = {
         configURL: 'https://accounts.google.com/gsi/fedcm/config.json',
         clientId: CredentialManagerWeb._googleClientId,
+        nonce: nonce || this._generateSecureNonce(),
       };
 
       // Configure FedCM options

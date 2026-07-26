@@ -69,11 +69,19 @@ declare class CredentialManagerWeb {
      */
     static getPasswordCredentials(): Promise<string>;
     /**
+     * Generate a cryptographically random nonce, used when the caller does not
+     * supply one. Mirrors Android generating a fresh nonce for its
+     * GetGoogleIdOption/GetSignInWithGoogleOption builders.
+     */
+    private static _generateSecureNonce;
+    /**
      * Save Google credential using FedCM (Federated Credential Management API)
      * @param useButtonFlow - Whether to use button flow (active mode) or passive mode
+     * @param nonce - Optional caller-supplied nonce for replay protection. If omitted,
+     *   a securely-generated random nonce is used instead.
      * @returns Promise resolving to JSON string of Google credential data
      */
-    static saveGoogleCredential(useButtonFlow: boolean): Promise<string | null>;
+    static saveGoogleCredential(useButtonFlow: boolean, nonce?: string | null): Promise<string | null>;
     /**
      * Exchange FedCM token for Google ID token
      * @param fedcmToken - Token received from FedCM (should be an ID token JWT)

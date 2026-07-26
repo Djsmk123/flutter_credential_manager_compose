@@ -1,4 +1,3 @@
-
 // Export platform interface and models from platform_interface
 export 'package:credential_manager_platform_interface/credential_manager_platform_interface.dart';
 

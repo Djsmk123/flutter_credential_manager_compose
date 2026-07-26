@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'dart:js_interop';
 
 import 'package:credential_manager_platform_interface/credential_manager_platform_interface.dart';
-import 'package:credential_manager_web/src/passkey_authenticator_interop.dart'
-    as passkey_interop;
+import 'package:credential_manager_web/src/passkey_authenticator_interop.dart' as passkey_interop;
 
 /// Web implementation of Credential Manager using JavaScript interop.
 class CredentialManagerWeb extends CredentialManagerPlatform {
-
   @override
   Future<String?> getPlatformVersion() async {
     final jsVersion = passkey_interop.getPlatformVersion();
@@ -27,10 +25,11 @@ class CredentialManagerWeb extends CredentialManagerPlatform {
         throw CredentialException(
           code: 101,
           message: 'Initialization failure: JavaScript not loaded',
-          details: 'CredentialManagerWeb JavaScript bundle not found. Make sure passkey_authenticator.js is loaded in index.html',
+          details:
+              'CredentialManagerWeb JavaScript bundle not found. Make sure passkey_authenticator.js is loaded in index.html',
         );
       }
-      
+
       // Initialize with preferences
       final jsPromise = passkey_interop.initialize(
         preferImmediatelyAvailableCredentials.toJS,
@@ -98,27 +97,28 @@ class CredentialManagerWeb extends CredentialManagerPlatform {
       // Use unified getCredentials method (similar to Android's Credential Manager)
       // This method tries passkeys first, then Google Sign-In via FedCM
       // Based on fetchOptions configuration
-      
+
       // Prepare options for unified credential fetch
       final optionsMap = <String, dynamic>{
         'passKeyOption': passKeyOption?.toJson(),
-        'fetchOptions': fetchOptions?.toJson() ?? {
-          'passKey': passKeyOption != null,
-          'googleCredential': true,
-          'passwordCredential': false, // Not supported via FedCM on web
-        },
+        'fetchOptions': fetchOptions?.toJson() ??
+            {
+              'passKey': passKeyOption != null,
+              'googleCredential': true,
+              'passwordCredential': false, // Not supported via FedCM on web
+            },
       };
-      
+
       final optionsJson = jsonEncode(optionsMap);
-      
+
       // Call the unified JavaScript getCredentials method
       final jsPromise = passkey_interop.getCredentials(optionsJson.toJS);
       final jsResult = await jsPromise.toDart;
       final resultString = jsResult.toDart;
-      
+
       // Parse the JSON response
       final responseData = jsonDecode(resultString) as Map<String, dynamic>;
-      
+
       // The response is already in the correct format for CredentialResponseParser
       // It has 'type' and 'data' fields
       return CredentialResponseParser.parseCredentialResponse(responseData);
@@ -135,12 +135,11 @@ class CredentialManagerWeb extends CredentialManagerPlatform {
   }
 
   @override
-  Future<GoogleIdTokenCredential?> saveGoogleCredential(
-      bool useButtonFlow) async {
+  Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce}) async {
     try {
-      final jsPromise = passkey_interop.saveGoogleCredential(useButtonFlow.toJS);
+      final jsPromise = passkey_interop.saveGoogleCredential(useButtonFlow.toJS, nonce?.toJS);
       final jsResult = await jsPromise.toDart;
-      
+
       // Google Sign-In on web requires OAuth 2.0 implementation
       // This will throw an error from JavaScript
       if (jsResult == null) {
@@ -150,7 +149,7 @@ class CredentialManagerWeb extends CredentialManagerPlatform {
           details: 'Google Sign-In on web requires OAuth 2.0 implementation',
         );
       }
-      
+
       final resultString = jsResult.toDart;
       final credentialData = jsonDecode(resultString) as Map<String, dynamic>;
       return GoogleIdTokenCredential.fromJson(credentialData);
@@ -173,18 +172,18 @@ class CredentialManagerWeb extends CredentialManagerPlatform {
     try {
       // Convert request to JSON string for JavaScript interop
       final requestJson = jsonEncode(request.toJson());
-      
+
       // Call the JavaScript interop function
       final jsPromise = passkey_interop.authenticatorRegister(requestJson.toJS);
       final jsResult = await jsPromise.toDart;
-      
+
       // Convert JSString to Dart String
       final resultString = jsResult.toDart;
-      
+
       // Parse the JSON response
       final credentialData = jsonDecode(resultString) as Map<String, dynamic>;
       final credential = PublicKeyCredential.fromJson(credentialData);
-      
+
       return credential;
     } catch (e) {
       if (e is CredentialException) {
@@ -226,4 +225,3 @@ class CredentialManagerWeb extends CredentialManagerPlatform {
     }
   }
 }
-

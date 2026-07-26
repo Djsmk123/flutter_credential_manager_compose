@@ -250,7 +250,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Future<void> _handleLogout(BuildContext context) async {
-      if (CredentialManagerPlatformManager.instance.isAndroid) {
+    if (CredentialManagerPlatformManager.instance.isAndroid) {
       final bool? shouldLogout = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) => AlertDialog(

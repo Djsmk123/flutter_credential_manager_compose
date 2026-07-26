@@ -80,10 +80,12 @@ class CredentialManager {
   /// Saves Google credentials.
   ///
   /// [useButtonFlow] - Whether to use the button flow for saving Google credentials.
+  /// [nonce] - Optional caller-supplied nonce used to protect the request against replay.
+  /// If omitted, a securely-generated random nonce is used instead.
   ///
   /// Returns a [Future] that completes with [GoogleIdTokenCredential] representing the saved Google credentials.
-  Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false}) async {
-    return CredentialManagerPlatform.instance.saveGoogleCredential(useButtonFlow);
+  Future<GoogleIdTokenCredential?> saveGoogleCredential({bool useButtonFlow = false, String? nonce}) async {
+    return CredentialManagerPlatform.instance.saveGoogleCredential(useButtonFlow, nonce: nonce);
   }
 
   /// Logs out the user.
