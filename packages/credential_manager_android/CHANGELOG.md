@@ -1,4 +1,12 @@
-# 3.1.0
+# 3.2.0
+- Migrated to Flutter's built-in Kotlin support: removed the explicit `kotlin-android` plugin
+  application and `ext.kotlin_version`/`kotlin-gradle-plugin` classpath from `android/build.gradle`.
+  Fixes the "applies the Kotlin Gradle Plugin, which will cause build failures in future versions
+  of Flutter" warning consuming apps saw on Flutter 3.44+; see
+  https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+- No functional or API changes
+
+## 3.1.0
 - Bumped `credential_manager_platform_interface` to `^3.0.0` (required — the previously-declared
   `^2.0.8` resolves to a published version that predates the `nonce` parameter this package's
   `saveGoogleCredential` override already relies on)
