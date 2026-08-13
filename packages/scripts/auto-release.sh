@@ -93,8 +93,17 @@ bump_version() {
   fi
 }
 
+[ "$(git branch --show-current)" = "develop" ] || fail "Run this script from develop (checkout develop first)"
+[ -z "$(git status --porcelain)" ] || fail "Working tree is not clean — commit, stash, or discard changes first"
+info "Fast-forwarding develop..."
+git fetch origin develop --quiet || fail "Could not fetch origin/develop"
+git merge --ff-only origin/develop || fail "develop has local commits not on origin/develop — reconcile first"
+
 info "Fetching $BASE_REF..."
-git fetch origin "${BASE_REF#origin/}" --quiet 2>/dev/null || true
+if [[ "$BASE_REF" == origin/* ]]; then
+  git fetch origin "${BASE_REF#origin/}" --quiet || fail "Could not fetch $BASE_REF"
+fi
+git rev-parse --verify --quiet "${BASE_REF}^{commit}" >/dev/null || fail "Base ref does not resolve: $BASE_REF"
 
 # bash 3.2 (macOS default) has no associative arrays, so per-package decision/
 # version state lives in a scratch dir instead of `declare -A`.
@@ -198,8 +207,6 @@ if [ "$ASSUME_YES" != true ]; then
   [[ $REPLY =~ ^[Yy]$ ]] || { info "Aborted."; exit 0; }
 fi
 
-git checkout develop
-git pull origin develop --quiet
 slug="auto-release-$(date +%Y%m%d-%H%M%S)"
 git checkout -b "$slug"
 
