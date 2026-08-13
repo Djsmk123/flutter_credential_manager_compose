@@ -8,6 +8,12 @@ protocol Cancellable {
 
 public class CredentialManagerPlugin: NSObject, FlutterPlugin {
     var preferImmediatelyAvailableCredentials: Bool = false
+    // Keeps the in-flight PasskeyService alive until its FlutterResult fires. Without this,
+    // the local `PasskeyService` in savePassKeyCredentials/getPasskeyCredentials below is the
+    // only strong reference to it; it deallocates as soon as that method returns, and since
+    // ASAuthorizationController's delegate/presentationContextProvider are weak, the completion
+    // callback (success or failure) is silently dropped and the Dart Future hangs forever.
+    private var inFlightPasskeyService: AnyObject?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "credential_manager", binaryMessenger: registrar.messenger())
@@ -31,8 +37,12 @@ public class CredentialManagerPlugin: NSObject, FlutterPlugin {
     }
     private func savePassKeyCredentials(call: FlutterMethodCall, result: @escaping FlutterResult) {
         if #available(iOS 16.0, *) {
-            let passkeyService: PasskeyService = PasskeyService()
-            passkeyService.registerPasskeyCredentials(call: call, result: result)
+            let passkeyService = PasskeyService()
+            inFlightPasskeyService = passkeyService
+            passkeyService.registerPasskeyCredentials(call: call) { [weak self] res in
+                self?.inFlightPasskeyService = nil
+                result(res)
+            }
         } else {
             result(FlutterError(
                 code: String(describing: CustomErrors.unsupportedPlatform),
@@ -43,10 +53,14 @@ public class CredentialManagerPlugin: NSObject, FlutterPlugin {
     }
     private func getPasskeyCredentials(call: FlutterMethodCall, result: @escaping FlutterResult) {
         if #available(iOS 16.0, *) {
-            let passkeyService: PasskeyService = PasskeyService()
+            let passkeyService = PasskeyService()
+            inFlightPasskeyService = passkeyService
             passkeyService.getPasskeyCredentials(
                 call: call,
-                result: result,
+                result: { [weak self] res in
+                    self?.inFlightPasskeyService = nil
+                    result(res)
+                },
                 preferImmediatelyAvailableCredentials: preferImmediatelyAvailableCredentials
             )
         } else {

@@ -1,4 +1,17 @@
-# 3.1.0
+# 3.2.0
+- **Fixes #92: passkey registration/authentication silently hangs since 3.0.1.** `savePassKeyCredentials`
+  and `getPasskeyCredentials` created `PasskeyService` as a local variable with no strong reference
+  held anywhere; once the enclosing method returned, it deallocated immediately. Since
+  `ASAuthorizationController`'s delegate and presentation-context-provider are held weakly, this
+  silently dropped the completion callback (success or failure) and the Dart `Future` never
+  resolved — no exception, no error code, forever. `[weak self]` in `PasskeyService`'s own
+  completion closures (added in 3.0.1's SwiftLint cleanup) is what exposed this: previously an
+  unintentional retain cycle kept the object graph alive long enough to mask the bug.
+- `CredentialManagerPlugin` now holds a strong `inFlightPasskeyService` reference for the duration
+  of each passkey call, cleared once its `FlutterResult` fires.
+- No breaking changes to the public Dart API
+
+## 3.1.0
 - Bumped `credential_manager_platform_interface` to `^3.0.0` (required — the previously-declared
   `^2.0.8` resolves to a published version that predates the `nonce` parameter this package's
   `saveGoogleCredential` override already relies on)

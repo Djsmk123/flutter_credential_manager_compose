@@ -1,6 +1,12 @@
 # Changelog
 
-# 4.1.0
+# 4.2.0
+- Bumped `credential_manager_ios` to `^3.2.0`, fixing #92: passkey registration/authentication
+  could silently hang forever on iOS (no exception, no error code) due to a native retain-cycle
+  bug introduced in `credential_manager_ios` 3.0.1 — see its own CHANGELOG for details
+- No breaking changes to this package's own public Dart API
+
+## 4.1.0
 - **Fixes a critical issue in 4.0.0**: that release depended on `credential_manager_platform_interface:
   ^2.0.8`, but the actual pub.dev `2.0.8` release predates the `nonce` parameter this package's
   Google Sign-In call relies on, breaking `flutter pub get`/analysis for anyone resolving from
