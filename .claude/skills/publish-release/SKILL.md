@@ -29,7 +29,7 @@ Steps 1–5 below: it diffs each package's source paths against `origin/main`, a
 repo's convention, bumps `pubspec.yaml` + drafts a `CHANGELOG.md` entry from commit subjects,
 propagates the bump to dependents, runs `make check`, and opens a PR against `develop`.
 
-```
+```bash
 packages/scripts/auto-release.sh --dry-run   # show the plan, change nothing
 packages/scripts/auto-release.sh             # apply it and open the PR (prompts for confirmation)
 ```
