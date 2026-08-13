@@ -1,6 +1,12 @@
 # Changelog
 
-# 4.2.0
+# 4.3.0
+- Bumped `credential_manager_android` to `^3.2.0` (migrated to Flutter's built-in Kotlin support,
+  fixing a "will cause build failures in future versions of Flutter" warning on Flutter 3.44+ —
+  see its own CHANGELOG for details)
+- No breaking changes to this package's own public Dart API
+
+## 4.2.0
 - Bumped `credential_manager_ios` to `^3.2.0`, fixing #92: passkey registration/authentication
   could silently hang forever on iOS (no exception, no error code) due to a native retain-cycle
   bug introduced in `credential_manager_ios` 3.0.1 — see its own CHANGELOG for details
