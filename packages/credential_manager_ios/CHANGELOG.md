@@ -7,8 +7,10 @@
   resolved — no exception, no error code, forever. `[weak self]` in `PasskeyService`'s own
   completion closures (added in 3.0.1's SwiftLint cleanup) is what exposed this: previously an
   unintentional retain cycle kept the object graph alive long enough to mask the bug.
-- `CredentialManagerPlugin` now holds a strong `inFlightPasskeyService` reference for the duration
-  of each passkey call, cleared once its `FlutterResult` fires.
+- `CredentialManagerPlugin` now holds a strong reference to each in-flight `PasskeyService` for the
+  duration of its call, removed once its own `FlutterResult` fires. Uses a collection rather than a
+  single slot, so overlapping passkey calls (e.g. register and get in flight together) don't cause
+  one call's `PasskeyService` to release another's out from under its still-active authorization.
 - No breaking changes to the public Dart API
 
 ## 3.1.0
