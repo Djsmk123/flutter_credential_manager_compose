@@ -1,6 +1,13 @@
 # Changelog
 
-# 4.2.0
+# 4.3.0
+- Republishes 4.2.0's contents with a clean `example/` directory. 4.2.0's published archive
+  accidentally included 4 locally-modified-but-uncommitted `example/ios/` files (Xcode-project
+  migration churn from local tooling, not a deliberate change) instead of what's committed to
+  `main` — cosmetic only (demo app scaffolding, not `lib/` or native plugin source), but
+  corrected here for a clean package listing. No functional or API changes.
+
+## 4.2.0
 - Bumped `credential_manager_ios` to `^3.2.0`, fixing #92: passkey registration/authentication
   could silently hang forever on iOS (no exception, no error code) because `PasskeyService` was
   deallocated before authorization completed in `credential_manager_ios` 3.0.1 — see its own
