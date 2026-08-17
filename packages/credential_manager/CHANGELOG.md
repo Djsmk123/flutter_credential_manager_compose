@@ -1,5 +1,9 @@
 # Changelog
 
+# Unreleased
+- Added `prepareCredentials`, which prefetches a matching Android credential request on Android 14 and newer and
+  returns `false` on unsupported platforms.
+
 # 4.3.0
 - Republishes 4.2.0's contents with a clean `example/` directory. 4.2.0's published archive
   accidentally included 4 locally-modified-but-uncommitted `example/ios/` files (Xcode-project

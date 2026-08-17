@@ -1,3 +1,8 @@
+# Unreleased
+- `getCredentials` now applies the `preferImmediatelyAvailableCredentials` value supplied during initialization.
+- Added Android 14+ credential preparation. A matching `getCredentials` call consumes the prepared handle and falls
+  back to the normal request if the prefetched data can no longer be used.
+
 # 3.1.0
 - Bumped `credential_manager_platform_interface` to `^3.0.0` (required — the previously-declared
   `^2.0.8` resolves to a published version that predates the `nonce` parameter this package's
@@ -29,4 +34,3 @@
 - Initial release of Android implementation package
 - Android-specific implementation using Jetpack Credential Manager API
 - Supports password credentials, passkeys, and Google Sign-In
-

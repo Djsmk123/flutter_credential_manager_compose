@@ -51,6 +51,7 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
                     // Handling other credential-related methods
                     when (call.method) {
                         "save_password_credentials" -> handleSavePasswordCredentials(call, result)
+                        "prepare_credentials" -> handlePrepareCredentials(call, result, utils)
                         "get_password_credentials" -> handleGetPasswordCredentials(call, result)
                         "save_google_credential" -> handleSaveGoogleCredential(call, result)
                         "save_public_key_credential" -> handleSavePublicKeyCredential(call, result)
@@ -101,18 +102,8 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
 
     private suspend fun handleGetPasswordCredentials(call: MethodCall, result: Result) {
-        val requestJson: String? = call.argument("passKeyOption")
-        val fetchOptionsJson: String? = call.argument("fetchOptions")
-        val fetchOptions: FetchOptions? = fetchOptionsJson?.let {
-            val jsonObject = JSONObject(it)
-            FetchOptions(
-                passKeyOption = jsonObject.optBoolean("passKey", true),
-                googleCredential = jsonObject.optBoolean("googleCredential", true),
-                passwordCredential = jsonObject.optBoolean("passwordCredential", true)
-            )
-        }
-        // throw error if fetchOptions is null
-        if (fetchOptions == null) {
+        val request = call.credentialRequestArguments()
+        if (request == null) {
             result.error("604", "FetchOptions is null", "FetchOptions is required")
             return
         }
@@ -120,8 +111,8 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         val (exception: CredentialManagerExceptions?, credentials: CredentialManagerResponse?) =
             utils.getPasswordCredentials(
                 context = currentContext,
-                requestJson = requestJson,
-                fetchOptions = fetchOptions
+                requestJson = request.requestJson,
+                fetchOptions = request.fetchOptions
             )
 
         if (exception != null) {
@@ -235,5 +226,45 @@ class CredentialManagerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
     override fun onDetachedFromActivity() {
         activity = null
+    }
+}
+
+private data class CredentialRequestArguments(
+    val requestJson: String?,
+    val fetchOptions: FetchOptions
+)
+
+private fun MethodCall.credentialRequestArguments(): CredentialRequestArguments? {
+    val fetchOptionsJson: String = argument("fetchOptions") ?: return null
+    val jsonObject = JSONObject(fetchOptionsJson)
+    return CredentialRequestArguments(
+        requestJson = argument("passKeyOption"),
+        fetchOptions = FetchOptions(
+            passKeyOption = jsonObject.optBoolean("passKey", true),
+            googleCredential = jsonObject.optBoolean("googleCredential", true),
+            passwordCredential = jsonObject.optBoolean("passwordCredential", true)
+        )
+    )
+}
+
+private suspend fun handlePrepareCredentials(
+    call: MethodCall,
+    result: Result,
+    utils: CredentialManagerUtils
+) {
+    val request = call.credentialRequestArguments()
+    if (request == null) {
+        result.error("604", "FetchOptions is null", "FetchOptions is required")
+        return
+    }
+
+    val (exception: CredentialManagerExceptions?, prepared: Boolean) = utils.prepareCredentials(
+        requestJson = request.requestJson,
+        fetchOptions = request.fetchOptions
+    )
+    if (exception != null) {
+        result.error(exception.code.toString(), exception.message, exception.details)
+    } else {
+        result.success(prepared)
     }
 }

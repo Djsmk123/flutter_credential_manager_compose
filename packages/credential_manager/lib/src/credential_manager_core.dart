@@ -45,10 +45,7 @@ class CredentialManager {
   /// [googleClientId] - The Google client ID to be used for Google credentials.
   ///
   /// Returns a [Future] that completes when initialization is successful.
-  Future<void> init({
-    required bool preferImmediatelyAvailableCredentials,
-    String? googleClientId,
-  }) async {
+  Future<void> init({required bool preferImmediatelyAvailableCredentials, String? googleClientId}) async {
     return CredentialManagerPlatform.instance.init(preferImmediatelyAvailableCredentials, googleClientId);
   }
 
@@ -79,6 +76,18 @@ class CredentialManager {
   /// Returns an empty [Credentials] object if no credentials are found.
   Future<Credentials> getCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions}) async {
     return CredentialManagerPlatform.instance.getCredentials(passKeyOption: passKeyOption, fetchOptions: fetchOptions);
+  }
+
+  /// Prepares a later credential request on platforms that support prefetching.
+  ///
+  /// The next [getCredentials] call with matching options consumes the
+  /// prepared request. Unsupported platforms return `false` and continue to
+  /// use the normal credential flow.
+  Future<bool> prepareCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions}) async {
+    return CredentialManagerPlatform.instance.prepareCredentials(
+      passKeyOption: passKeyOption,
+      fetchOptions: fetchOptions,
+    );
   }
 
   /// Saves Google credentials.
