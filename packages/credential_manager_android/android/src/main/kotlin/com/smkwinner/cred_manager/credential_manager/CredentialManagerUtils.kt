@@ -2,8 +2,10 @@ package com.smkwinner.cred_manager.credential_manager
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest
@@ -14,6 +16,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PasswordCredential
+import androidx.credentials.PrepareGetCredentialResponse
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
@@ -27,6 +30,13 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import java.security.SecureRandom
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private data class PreparedCredentialRequest(
+    val requestJson: String?,
+    val fetchOptions: FetchOptions,
+    val handle: PrepareGetCredentialResponse.PendingGetCredentialHandle
+)
 
 class CredentialManagerUtils {
     /**
@@ -43,6 +53,7 @@ class CredentialManagerUtils {
     private var preferImmediatelyAvailableCredentials: Boolean = true
     private lateinit var serverClientID: String
     private var isGmsAvailable: Boolean = false
+    private var preparedCredentialRequest: PreparedCredentialRequest? = null
 
     /**
      * Initialize the CredentialManagerUtils.
@@ -70,6 +81,7 @@ class CredentialManagerUtils {
 
             credentialManager = CredentialManager.create(context = context)
             this.preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
+            preparedCredentialRequest = null
             if (gClientId != null) {
                 serverClientID = gClientId
             }
@@ -156,81 +168,39 @@ class CredentialManagerUtils {
         fetchOptions: FetchOptions
     ): Pair<CredentialManagerExceptions?, CredentialManagerResponse?> {
         return try {
-            // Check if all fetch options are disabled
-            if (!isAnyOptionEnabled(fetchOptions)) {
-                return Pair(
-                    CredentialManagerExceptions(
-                        code = 206,
-                        message = "Credential fetch options are not enabled",
-                        details = "Enable at least one credential fetch option (passkey, Google, or password)."
-                    ),
-                    null
-                )
-            }
-            val googleClientId = if (this::serverClientID.isInitialized) serverClientID else ""
-            // Validate serverClientID if Google sign-in is enabled
-            if (fetchOptions.googleCredential && googleClientId.isEmpty()) {
-                return Pair(
-                    CredentialManagerExceptions(
-                        code = 503,
-                        message = "Google client not initialized",
-                        details = "Ensure Google credentials are provided."
-                    ),
-                    null
-                )
-            }
+            validateCredentialRequest(requestJson, fetchOptions)?.let { return Pair(it, null) }
 
-            // Check if Google Play Services is available for Google credentials
-            if (fetchOptions.googleCredential && !isGmsAvailable) {
-                return Pair(
-                    CredentialManagerExceptions(
-                        code = 209,
-                        message = "Google Play Services not available",
-                        details = "Google Sign-In requires Google Play Services"
-                    ),
-                    null
-                )
+            val getCredRequest = buildGetCredentialRequest(requestJson, fetchOptions)
+            val preparedRequest = preparedCredentialRequest?.takeIf {
+                it.requestJson == requestJson && it.fetchOptions == fetchOptions
             }
-
-            // Validate requestJson for Passkey or Google Sign-In
-            if (fetchOptions.passKeyOption && requestJson == null) {
-                return Pair(
-                    CredentialManagerExceptions(
-                        code = 208,
-                        message = "RequestJson is required",
-                        details = "Provide requestJson for passkey."
-                    ),
-                    null
-                )
-            }
-
-            // Build the credential request based on enabled options
-            val getCredRequest = GetCredentialRequest.Builder().apply {
-                if (fetchOptions.passwordCredential) {
-                    addCredentialOption(GetPasswordOption())
-                }
-                if (fetchOptions.passKeyOption && requestJson != null) {
-                    addCredentialOption(GetPublicKeyCredentialOption(requestJson))
-                }
-                if (fetchOptions.googleCredential) {
-                    addCredentialOption(
-                        GetGoogleIdOption.Builder()
-                            .setFilterByAuthorizedAccounts(false)
-                            // No nonce here: this unified fetch path has no way to surface it to
-                            // the caller/backend for verification, so a generated-and-discarded
-                            // nonce would be misleading rather than real replay protection. Use
-                            // saveGoogleCredential(nonce: ...) when nonce verification is needed.
-                            .setServerClientId(serverClientID)
-                            .build()
-                    )
-                }
-            }.build()
+            preparedCredentialRequest = null
 
             // Fetch credentials using the credentialManager
-            val credentialResponse = credentialManager.getCredential(
-                request = getCredRequest,
-                context = context
-            )
+            val credentialResponse = if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                preparedRequest != null
+            ) {
+                try {
+                    credentialManager.getCredential(
+                        context = context,
+                        pendingGetCredentialHandle = preparedRequest.handle
+                    )
+                } catch (e: GetCredentialCancellationException) {
+                    throw e
+                } catch (e: GetCredentialException) {
+                    Log.d("CredentialManager", "Prepared request failed; retrying without prefetched data", e)
+                    credentialManager.getCredential(
+                        request = getCredRequest,
+                        context = context
+                    )
+                }
+            } else {
+                credentialManager.getCredential(
+                    request = getCredRequest,
+                    context = context
+                )
+            }
 
             val response = when (val credential = credentialResponse.credential) {
                 is PasswordCredential -> {
@@ -350,6 +320,114 @@ class CredentialManagerUtils {
     }
 
     /**
+     * Prepares a credential request for a lower-latency selector on Android 14 and newer.
+     * The next [getPasswordCredentials] call with matching options consumes the prepared request.
+     */
+    suspend fun prepareCredentials(
+        requestJson: String?,
+        fetchOptions: FetchOptions
+    ): Pair<CredentialManagerExceptions?, Boolean> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            preparedCredentialRequest = null
+            return Pair(null, false)
+        }
+        validateCredentialRequest(requestJson, fetchOptions)?.let { return Pair(it, false) }
+
+        return prepareCredentialsForAndroid14(requestJson, fetchOptions)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private suspend fun prepareCredentialsForAndroid14(
+        requestJson: String?,
+        fetchOptions: FetchOptions
+    ): Pair<CredentialManagerExceptions?, Boolean> {
+        preparedCredentialRequest = null
+        return try {
+            val response = credentialManager.prepareGetCredential(buildGetCredentialRequest(requestJson, fetchOptions))
+            val handle = response.pendingGetCredentialHandle ?: return Pair(null, false)
+            preparedCredentialRequest = PreparedCredentialRequest(
+                requestJson = requestJson,
+                fetchOptions = fetchOptions,
+                handle = handle
+            )
+            Pair(null, true)
+        } catch (e: NoCredentialException) {
+            preparedCredentialRequest = null
+            Log.d("CredentialManager", "No credentials available during preparation", e)
+            Pair(null, false)
+        } catch (e: GetCredentialException) {
+            preparedCredentialRequest = null
+            Pair(
+                CredentialManagerExceptions(
+                    code = 204,
+                    message = "Credential preparation failed ${e.localizedMessage}",
+                    details = e.stackTraceToString()
+                ),
+                false
+            )
+        }
+    }
+
+    private fun validateCredentialRequest(
+        requestJson: String?,
+        fetchOptions: FetchOptions
+    ): CredentialManagerExceptions? {
+        if (!isAnyOptionEnabled(fetchOptions)) {
+            return CredentialManagerExceptions(
+                code = 206,
+                message = "Credential fetch options are not enabled",
+                details = "Enable at least one credential fetch option (passkey, Google, or password)."
+            )
+        }
+
+        val googleClientId = if (this::serverClientID.isInitialized) serverClientID else ""
+        if (fetchOptions.googleCredential && googleClientId.isEmpty()) {
+            return CredentialManagerExceptions(
+                code = 503,
+                message = "Google client not initialized",
+                details = "Ensure Google credentials are provided."
+            )
+        }
+        if (fetchOptions.googleCredential && !isGmsAvailable) {
+            return CredentialManagerExceptions(
+                code = 209,
+                message = "Google Play Services not available",
+                details = "Google Sign-In requires Google Play Services"
+            )
+        }
+        if (fetchOptions.passKeyOption && requestJson == null) {
+            return CredentialManagerExceptions(
+                code = 208,
+                message = "RequestJson is required",
+                details = "Provide requestJson for passkey."
+            )
+        }
+        return null
+    }
+
+    private fun buildGetCredentialRequest(
+        requestJson: String?,
+        fetchOptions: FetchOptions
+    ): GetCredentialRequest = GetCredentialRequest.Builder().apply {
+        setPreferImmediatelyAvailableCredentials(preferImmediatelyAvailableCredentials)
+        if (fetchOptions.passwordCredential) {
+            addCredentialOption(GetPasswordOption())
+        }
+        if (fetchOptions.passKeyOption && requestJson != null) {
+            addCredentialOption(GetPublicKeyCredentialOption(requestJson))
+        }
+        if (fetchOptions.googleCredential) {
+            addCredentialOption(
+                GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    // This unified path cannot surface a nonce for backend verification.
+                    .setServerClientId(serverClientID)
+                    .build()
+            )
+        }
+    }.build()
+
+    /**
      * Save Google credentials.
      *
      * @param context The Android context.
@@ -398,6 +476,7 @@ class CredentialManagerUtils {
         }
 
         val request: GetCredentialRequest = GetCredentialRequest.Builder()
+            .setPreferImmediatelyAvailableCredentials(preferImmediatelyAvailableCredentials)
             .addCredentialOption(googleCredentialOption)
             .build()
 
