@@ -52,10 +52,7 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   /// [googleClientId] - The Google client ID to be used for Google credentials.
   ///
   /// Returns a [Future] that completes when initialization is successful.
-  Future<void> init(
-    bool preferImmediatelyAvailableCredentials,
-    String? googleClientId,
-  );
+  Future<void> init(bool preferImmediatelyAvailableCredentials, String? googleClientId);
 
   /// Saves password credentials.
   ///
@@ -71,10 +68,19 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   ///
   /// Returns a [Future] that completes with [Credentials] representing the retrieved credentials.
   /// Returns an empty [Credentials] object if no credentials are found.
-  Future<Credentials> getCredentials({
-    CredentialLoginOptions? passKeyOption,
-    FetchOptionsAndroid? fetchOptions,
-  });
+  Future<Credentials> getCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions});
+
+  /// Prepares a later credential request so supported platforms can show the
+  /// credential selector with less latency.
+  ///
+  /// [passKeyOption] - Options for passkey login.
+  /// [fetchOptions] - Options for fetching specific types of credentials.
+  ///
+  /// Returns `true` when the platform prepared a request. Platforms that do
+  /// not support preparation return `false` and continue to work through
+  /// [getCredentials].
+  Future<bool> prepareCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions}) async =>
+      false;
 
   /// Retrieves the platform version information.
   ///
@@ -95,9 +101,7 @@ abstract class CredentialManagerPlatform extends PlatformInterface {
   /// [request] - The credentials to be saved.
   ///
   /// Returns a [Future] that completes with [PublicKeyCredential] representing the saved credentials.
-  Future<PublicKeyCredential> savePasskeyCredentials({
-    required CredentialCreationOptions request,
-  });
+  Future<PublicKeyCredential> savePasskeyCredentials({required CredentialCreationOptions request});
 
   /// Logs out the user.
   ///
