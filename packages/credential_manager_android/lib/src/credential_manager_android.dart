@@ -31,75 +31,42 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
   }
 
   @override
-  Future<void> init(
-    bool preferImmediatelyAvailableCredentials,
-    String? googleClientId,
-  ) async {
-    final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
-      "init",
-      {
-        'prefer_immediately_available_credentials': preferImmediatelyAvailableCredentials,
-        'google_client_id': googleClientId,
-      },
-    );
+  Future<void> init(bool preferImmediatelyAvailableCredentials, String? googleClientId) async {
+    final res = await methodChannel.invokeMethod<Map<Object?, Object?>>("init", {
+      'prefer_immediately_available_credentials': preferImmediatelyAvailableCredentials,
+      'google_client_id': googleClientId,
+    });
 
     if (res != null && res['message'] == "Initialization successful") {
       _isGmsAvailable = res['isGmsAvailable'] as bool? ?? true;
       return;
     }
 
-    throw CredentialException(
-      code: 101,
-      message: "Initialization failure",
-      details: null,
-    );
+    throw CredentialException(code: 101, message: "Initialization failure", details: null);
   }
 
   @override
   Future<void> savePasswordCredentials(PasswordCredential credential) async {
     try {
-      final res = await methodChannel.invokeMethod<String>(
-        'save_password_credentials',
-        credential.toJson(),
-      );
+      final res = await methodChannel.invokeMethod<String>('save_password_credentials', credential.toJson());
 
       if (res != null && res == "Credentials saved") {
         return;
       }
 
-      throw CredentialException(
-        code: 302,
-        message: "Create Credentials failed",
-        details: null,
-      );
+      throw CredentialException(code: 302, message: "Create Credentials failed", details: null);
     } on PlatformException catch (e) {
-      throw PlatformExceptionHandler.handlePlatformException(
-        e,
-        CredentialType.passwordCredentials,
-      );
+      throw PlatformExceptionHandler.handlePlatformException(e, CredentialType.passwordCredentials);
     }
   }
 
   @override
-  Future<Credentials> getCredentials({
-    CredentialLoginOptions? passKeyOption,
-    FetchOptionsAndroid? fetchOptions,
-  }) async {
+  Future<Credentials> getCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions}) async {
     CredentialType credentialType = CredentialType.passwordCredentials;
     try {
-      String methodName = "get_password_credentials";
-      var methodParams = {};
-
-      if (passKeyOption != null) {
-        methodParams = {"passKeyOption": jsonEncode(passKeyOption.toJson())};
-      }
-
-      fetchOptions ??= FetchOptionsAndroid.all();
-      methodParams.addAll({"fetchOptions": jsonEncode(fetchOptions.toJson())});
-
       final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
-        methodName,
-        methodParams,
+        'get_password_credentials',
+        _credentialRequestParameters(passKeyOption: passKeyOption, fetchOptions: fetchOptions),
       );
 
       if (res != null) {
@@ -117,20 +84,43 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       if (e.code == '202') {
         return Credentials();
       }
-      throw PlatformExceptionHandler.handlePlatformException(
-        e,
-        credentialType,
-      );
+      throw PlatformExceptionHandler.handlePlatformException(e, credentialType);
     }
+  }
+
+  @override
+  Future<bool> prepareCredentials({CredentialLoginOptions? passKeyOption, FetchOptionsAndroid? fetchOptions}) async {
+    try {
+      final prepared = await methodChannel.invokeMethod<bool>(
+        'prepare_credentials',
+        _credentialRequestParameters(passKeyOption: passKeyOption, fetchOptions: fetchOptions),
+      );
+      return prepared ?? false;
+    } on PlatformException catch (e) {
+      throw PlatformExceptionHandler.handlePlatformException(e, CredentialType.passwordCredentials);
+    }
+  }
+
+  Map<String, String> _credentialRequestParameters({
+    CredentialLoginOptions? passKeyOption,
+    FetchOptionsAndroid? fetchOptions,
+  }) {
+    final parameters = <String, String>{};
+    if (passKeyOption != null) {
+      parameters['passKeyOption'] = jsonEncode(passKeyOption.toJson());
+    }
+
+    parameters['fetchOptions'] = jsonEncode((fetchOptions ?? FetchOptionsAndroid.all()).toJson());
+    return parameters;
   }
 
   @override
   Future<GoogleIdTokenCredential?> saveGoogleCredential(bool useButtonFlow, {String? nonce}) async {
     try {
-      final res = await methodChannel.invokeMethod<Map<Object?, Object?>>(
-        'save_google_credential',
-        {"useButtonFlow": useButtonFlow, "nonce": nonce},
-      );
+      final res = await methodChannel.invokeMethod<Map<Object?, Object?>>('save_google_credential', {
+        "useButtonFlow": useButtonFlow,
+        "nonce": nonce,
+      });
 
       if (res == null) {
         throw CredentialException(
@@ -141,22 +131,16 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
       }
       return GoogleIdTokenCredential.fromJson(jsonDecode(jsonEncode(res)));
     } on PlatformException catch (e) {
-      throw PlatformExceptionHandler.handlePlatformException(
-        e,
-        CredentialType.googleIdTokenCredentials,
-      );
+      throw PlatformExceptionHandler.handlePlatformException(e, CredentialType.googleIdTokenCredentials);
     }
   }
 
   @override
-  Future<PublicKeyCredential> savePasskeyCredentials({
-    required CredentialCreationOptions request,
-  }) async {
+  Future<PublicKeyCredential> savePasskeyCredentials({required CredentialCreationOptions request}) async {
     try {
-      final res = await methodChannel.invokeMethod<String>(
-        'save_public_key_credential',
-        {"requestJson": jsonEncode(request.toJson())},
-      );
+      final res = await methodChannel.invokeMethod<String>('save_public_key_credential', {
+        "requestJson": jsonEncode(request.toJson()),
+      });
 
       if (res != null) {
         var data = res.toString();
@@ -164,16 +148,9 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
         return credential;
       }
 
-      throw CredentialException(
-        code: 302,
-        message: "Create Credentials failed",
-        details: null,
-      );
+      throw CredentialException(code: 302, message: "Create Credentials failed", details: null);
     } on PlatformException catch (e) {
-      throw PlatformExceptionHandler.handlePlatformException(
-        e,
-        CredentialType.publicKeyCredentials,
-      );
+      throw PlatformExceptionHandler.handlePlatformException(e, CredentialType.publicKeyCredentials);
     }
   }
 
@@ -183,11 +160,7 @@ class CredentialManagerAndroid extends CredentialManagerPlatform {
     if (res != null && res == "Logout successful") {
       return;
     }
-    throw CredentialException(
-      code: 504,
-      message: "Logout failed",
-      details: null,
-    );
+    throw CredentialException(code: 504, message: "Logout failed", details: null);
   }
 
   @override

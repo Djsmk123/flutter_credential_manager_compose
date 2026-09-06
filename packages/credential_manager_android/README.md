@@ -13,6 +13,7 @@ This package is automatically included when you use `credential_manager` on Andr
 - Password credentials management
 - Google Sign-In credentials
 - Passkey support (WebAuthn)
+- Android 14+ credential preparation for a lower-latency account selector
 - Secure credential storage using Android Credential Manager
 
 ## Requirements
@@ -23,4 +24,3 @@ This package is automatically included when you use `credential_manager` on Andr
 ## License
 
 See the [LICENSE](../LICENSE) file for details.
-

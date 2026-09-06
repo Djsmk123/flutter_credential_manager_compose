@@ -1,12 +1,9 @@
-# 3.2.0
-- Migrated to Flutter's built-in Kotlin support: removed the explicit `kotlin-android` plugin
-  application and `ext.kotlin_version`/`kotlin-gradle-plugin` classpath from `android/build.gradle`.
-  Fixes the "applies the Kotlin Gradle Plugin, which will cause build failures in future versions
-  of Flutter" warning consuming apps saw on Flutter 3.44+; see
-  https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
-- No functional or API changes
+# Unreleased
+- `getCredentials` now applies the `preferImmediatelyAvailableCredentials` value supplied during initialization.
+- Added Android 14+ credential preparation. A matching `getCredentials` call consumes the prepared handle and falls
+  back to the normal request if the prefetched data can no longer be used.
 
-## 3.1.0
+# 3.1.0
 - Bumped `credential_manager_platform_interface` to `^3.0.0` (required — the previously-declared
   `^2.0.8` resolves to a published version that predates the `nonce` parameter this package's
   `saveGoogleCredential` override already relies on)
@@ -37,4 +34,3 @@
 - Initial release of Android implementation package
 - Android-specific implementation using Jetpack Credential Manager API
 - Supports password credentials, passkeys, and Google Sign-In
-

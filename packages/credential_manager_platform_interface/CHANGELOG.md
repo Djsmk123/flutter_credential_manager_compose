@@ -1,3 +1,6 @@
+# Unreleased
+- Added a backward-compatible `prepareCredentials` platform hook that defaults to `false` on unsupported platforms.
+
 # 3.0.0
 - **Breaking:** `CredentialManagerPlatform.saveGoogleCredential` gains an optional named `{String?
   nonce}` parameter. This was actually added in a prior commit without a version bump — the
@@ -34,4 +37,3 @@
 - Initial release of platform interface package
 - Provides abstract `CredentialManagerPlatform` class
 - Supports modular plugin architecture
-
