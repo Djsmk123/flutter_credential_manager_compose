@@ -18,8 +18,11 @@ pluginManagement {
 
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-    id "com.android.application" version "8.6.0" apply false
-    id "org.jetbrains.kotlin.android" version "2.0.20" apply false
+    id "com.android.application" version "9.0.1" apply false
+    // Not applied (built-in Kotlin, via AGP 9, compiles Kotlin sources without this plugin) -
+    // declared only so Flutter's built-in-Kotlin support resolves this version instead of its
+    // own default, which silences "Kotlin version will soon be dropped" warnings.
+    id "org.jetbrains.kotlin.android" version "2.2.20" apply false
 }
 
 include ":app"
