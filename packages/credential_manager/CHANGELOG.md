@@ -2,7 +2,7 @@
 
 # 4.3.0
 - Republishes 4.2.0's contents with a clean `example/` directory. 4.2.0's published archive
-  accidentally included 4 locally-modified-but-uncommitted `example/ios/` files (Xcode-project
+  accidentally included 4 locally-modified-but-uncommitted `example/ios/` files (Xcode-project d
   migration churn from local tooling, not a deliberate change) instead of what's committed to
   `main` — cosmetic only (demo app scaffolding, not `lib/` or native plugin source), but
   corrected here for a clean package listing. No functional or API changes.
