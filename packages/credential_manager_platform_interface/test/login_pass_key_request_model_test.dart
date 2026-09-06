@@ -29,8 +29,7 @@ void main() {
       expect(options.allowCredentials, isEmpty);
     });
 
-    test('serialises without the key while empty, matching the previous output',
-        () {
+    test('serialises without the key while empty, matching the previous output', () {
       final options = CredentialLoginOptions.fromJson(_requestOptions());
 
       expect(options.toJson(), {

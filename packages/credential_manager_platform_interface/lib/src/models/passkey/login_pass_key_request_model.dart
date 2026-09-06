@@ -111,10 +111,8 @@ class CredentialLoginOptions {
       userVerification: json['userVerification'],
       timeout: json['timeout'] ?? 1800000,
       conditionalUI: json['conditionalUI'] ?? false,
-      allowCredentials: (json['allowCredentials'] as List?)
-              ?.map((i) => AllowCredential.fromJson(i))
-              .toList() ??
-          const [],
+      allowCredentials:
+          (json['allowCredentials'] as List?)?.map((i) => AllowCredential.fromJson(i)).toList() ?? const [],
     );
   }
 
@@ -134,8 +132,7 @@ class CredentialLoginOptions {
       'userVerification': userVerification,
       'timeout': timeout,
       'conditionalUI': conditionalUI,
-      if (allowCredentials.isNotEmpty)
-        'allowCredentials': allowCredentials.map((i) => i.toJson()).toList(),
+      if (allowCredentials.isNotEmpty) 'allowCredentials': allowCredentials.map((i) => i.toJson()).toList(),
     };
   }
 }
