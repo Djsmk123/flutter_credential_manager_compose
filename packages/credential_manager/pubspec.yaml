@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   credential_manager_platform_interface: ^3.0.0
-  credential_manager_android: ^3.1.0
+  credential_manager_android: ^3.2.0
   credential_manager_ios: ^3.2.0
   credential_manager_web: ^2.2.0
 
