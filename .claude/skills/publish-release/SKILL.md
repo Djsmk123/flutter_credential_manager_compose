@@ -178,6 +178,27 @@ moving on, it can take a few minutes to propagate):
 gotten the user's explicit go-ahead for this exact package in this exact step; it does not mean
 skipping the confirmation itself.
 
+## Step 9 — Create the GitHub release
+
+Once `credential_manager` (the umbrella package, always last) is published and live, tag and
+create the GitHub release on `main`. This repo's convention (see `gh release list`) is
+auto-generated notes and no binary assets — pub.dev is the actual distribution channel for a
+plugin, so don't build/attach an APK or any other binary unless the user explicitly asks for one:
+
+```
+git tag -l "v.*" | tail -5   # confirm the most recent tag's exact naming (v.X.Y.Z, dot after v)
+gh release create "v.X.Y.Z" --target main --title "v.X.Y.Z" --generate-notes --notes-start-tag "v.<previous>"
+```
+
+Use the umbrella `credential_manager` package's new version for `X.Y.Z` (it's the one users
+depend on and the one this repo has always tagged releases against, even in releases that also
+bump the platform packages). `--notes-start-tag` should point at whatever tag the last release
+used, so the generated "What's Changed"/"Full Changelog" range covers everything since then.
+
+This step needs the same explicit go-ahead as any other public, hard-to-reverse action — creating
+a release is a distinct decision from publishing to pub.dev, so ask before running it even if
+pub.dev publishing was already confirmed.
+
 ## Notes
 
 - If a package's change doesn't warrant a version bump (e.g. pure CI/doc change with no
