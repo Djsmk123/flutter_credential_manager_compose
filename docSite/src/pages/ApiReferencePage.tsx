@@ -80,6 +80,10 @@ const ApiReferencePage = () => {
             <td className="border border-gray-300 px-4 py-2">Retrieves stored credentials based on provided options.</td>
           </tr>
           <tr>
+            <td className="border border-gray-300 px-4 py-2 font-mono text-sm">prepareCredentials()</td>
+            <td className="border border-gray-300 px-4 py-2">Prefetches a matching credential request ahead of time on Android 14+, so a following <code>getCredentials()</code> call can resolve instantly; returns <code>false</code> on unsupported platforms.</td>
+          </tr>
+          <tr>
             <td className="border border-gray-300 px-4 py-2 font-mono text-sm">logout()</td>
             <td className="border border-gray-300 px-4 py-2">Clears saved credentials from session (Android only).</td>
           </tr>
@@ -103,8 +107,13 @@ const ApiReferencePage = () => {
       <p className="mb-4">Class for configuring passkey creation options.</p>
       
       <h3 className="text-xl font-semibold mt-6 mb-2">CredentialLoginOptions</h3>
-      
-      <p className="mb-4">Class for configuring passkey authentication options.</p>
+
+      <p className="mb-4">
+        Class for configuring passkey authentication options. Accepts an optional <code>allowCredentials</code> list
+        of <code>AllowCredential</code> descriptors (<code>id</code>, <code>type</code>, <code>transports</code>) to
+        restrict which passkey the OS offers for the assertion, instead of showing every passkey registered for the
+        relying party.
+      </p>
       
       <h3 className="text-xl font-semibold mt-6 mb-2">FetchOptionsAndroid</h3>
       

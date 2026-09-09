@@ -6,6 +6,43 @@
 
 const changelog = [
   {
+    version: "5.0.0",
+    items: [
+      <>Bumped <code>credential_manager_platform_interface</code>, <code>credential_manager_android</code>, and <code>credential_manager_ios</code> to <code>^4.0.0</code>, and <code>credential_manager_web</code> to <code>^2.3.0</code>.</>,
+      <>Added <code>prepareCredentials</code>, which prefetches a matching Android credential request on Android 14 and newer (returns <code>false</code> on unsupported platforms) — pairs with <code>getCredentials</code>, which now consumes the prepared handle automatically and falls back to a normal request if it can no longer be used.</>,
+      <><code>CredentialLoginOptions</code> now accepts <code>allowCredentials</code>, letting a relying party restrict which passkey the OS offers for a WebAuthn assertion, instead of showing every passkey registered for the rpId.</>,
+      "No breaking changes to this package's own public Dart API.",
+    ],
+  },
+  {
+    version: "4.3.0",
+    items: [
+      "Republished 4.2.0's contents with a clean example/ directory (packaging fix only, no functional or API changes).",
+    ],
+  },
+  {
+    version: "4.2.0",
+    items: [
+      <>Bumped <code>credential_manager_ios</code> to <code>^3.2.0</code>, fixing an issue where passkey registration/authentication could silently hang forever on iOS.</>,
+      "No breaking changes to this package's own public Dart API.",
+    ],
+  },
+  {
+    version: "4.1.0",
+    items: [
+      <>Fixed a critical issue in 4.0.0: it depended on a <code>credential_manager_platform_interface</code> version that predated the <code>nonce</code> parameter its Google Sign-In call relies on, breaking <code>flutter pub get</code>/analysis for anyone resolving from pub.dev.</>,
+      <>Bumped <code>credential_manager_android</code> and <code>credential_manager_ios</code> to <code>^3.1.0</code>, and <code>credential_manager_web</code> to <code>^2.2.0</code>.</>,
+      "No breaking changes to this package's own public Dart API.",
+    ],
+  },
+  {
+    version: "4.0.0",
+    items: [
+      <><strong>New: Web platform support.</strong> Adds <code>credential_manager_web</code>, bringing passkey (WebAuthn), password credential, and Google Sign-In (GIS/FedCM) support to Flutter Web.</>,
+      "No breaking changes to the existing Android/iOS Dart API.",
+    ],
+  },
+  {
     version: "3.0.1",
     items: [
       <>Bumped <code>credential_manager_ios</code> to <code>^3.0.1</code> and <code>credential_manager_android</code> to <code>^3.0.1</code>, both of which add native static analysis (SwiftLint, Detekt) with no functional or API changes.</>,

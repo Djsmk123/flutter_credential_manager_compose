@@ -1,10 +1,16 @@
 # Changelog
 
-# Unreleased
+# 5.0.0
+- Bumped `credential_manager_platform_interface` to `^4.0.0`, `credential_manager_android` to `^4.0.0`,
+  `credential_manager_ios` to `^4.0.0`, and `credential_manager_web` to `^2.3.0`
 - Added `prepareCredentials`, which prefetches a matching Android credential request on Android 14 and newer and
-  returns `false` on unsupported platforms.
+  returns `false` on unsupported platforms
+- `CredentialLoginOptions` now accepts `allowCredentials`, letting a relying party restrict which passkey the OS
+  offers for a WebAuthn assertion — see `credential_manager_platform_interface` and `credential_manager_ios`
+  CHANGELOGs for details
+- No breaking changes to this package's own public Dart API
 
-# 4.3.0
+## 4.3.0
 - Republishes 4.2.0's contents with a clean `example/` directory. 4.2.0's published archive
   accidentally included 4 locally-modified-but-uncommitted `example/ios/` files (Xcode-project d
   migration churn from local tooling, not a deliberate change) instead of what's committed to
