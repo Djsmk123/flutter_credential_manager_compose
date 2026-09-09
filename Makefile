@@ -1,6 +1,6 @@
 MELOS := PATH="$$PATH:$$HOME/.pub-cache/bin" melos
 
-.PHONY: bootstrap format format-check analyze lint-ios lint-android lint check
+.PHONY: bootstrap format format-check analyze lint-ios lint-android lint check pr-review
 
 ## Install melos (if needed) and bootstrap the workspace
 bootstrap:
@@ -32,3 +32,8 @@ lint: lint-ios lint-android
 
 ## Run everything CI checks: format, analyze, and native lint
 check: format-check analyze lint
+
+## Run the local AI PR reviewer against a PR number (requires gh, jq, claude). Usage: make pr-review PR=123 [DRY_RUN=1]
+pr-review:
+	@if [ -z "$(PR)" ]; then echo "usage: make pr-review PR=<number> [DRY_RUN=1]" >&2; exit 1; fi
+	scripts/pr-review/review.sh $(PR) $(if $(DRY_RUN),--dry-run,)
