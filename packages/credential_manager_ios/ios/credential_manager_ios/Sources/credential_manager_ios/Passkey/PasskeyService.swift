@@ -165,6 +165,17 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
         let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
         let request = platformProvider.createCredentialAssertionRequest(challenge: challengeData)
 
+        // Restrict the credential picker to the descriptors the relying party allows.
+        // Leaving `allowedCredentials` untouched when the list is empty keeps the
+        // WebAuthn default of offering every credential registered for the rpId.
+        // `allowedCredentials` is iOS 15+ and this type is already gated to iOS 16+,
+        // so no availability check is required here.
+        if !passkeyLoginRequest.allowCredentialIDs.isEmpty {
+            request.allowedCredentials = parseCredentials(
+                credentialIDs: passkeyLoginRequest.allowCredentialIDs
+            )
+        }
+
         let con = AuthenticateController { [weak self] res in
             self?.lock.unlock()
             Self.handleAuthenticationResult(res, result: result)
