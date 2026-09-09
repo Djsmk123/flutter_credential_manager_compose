@@ -77,5 +77,18 @@ void main() {
       expect(credential.transports, isEmpty);
       expect(credential.toJson(), {'id': _credentialId, 'type': 'public-key'});
     });
+
+    test('drops descriptors missing a String id instead of throwing', () {
+      final options = CredentialLoginOptions.fromJson(
+        _requestOptions(allowCredentials: [
+          {'type': 'public-key'},
+          {'id': 123},
+          {'id': _credentialId, 'type': 'public-key'},
+        ]),
+      );
+
+      expect(options.allowCredentials, hasLength(1));
+      expect(options.allowCredentials.first.id, _credentialId);
+    });
   });
 }

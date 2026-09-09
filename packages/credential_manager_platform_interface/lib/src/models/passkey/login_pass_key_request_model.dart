@@ -35,7 +35,7 @@ class AllowCredential {
   /// - "transports": (Optional) The transports the credential is reachable over.
   factory AllowCredential.fromJson(Map<String, dynamic> json) {
     return AllowCredential(
-      id: json['id'],
+      id: json['id'] as String,
       type: json['type'] ?? 'public-key',
       transports: (json['transports'] as List?)?.cast<String>() ?? const [],
     );
@@ -111,8 +111,14 @@ class CredentialLoginOptions {
       userVerification: json['userVerification'],
       timeout: json['timeout'] ?? 1800000,
       conditionalUI: json['conditionalUI'] ?? false,
-      allowCredentials:
-          (json['allowCredentials'] as List?)?.map((i) => AllowCredential.fromJson(i)).toList() ?? const [],
+      // Descriptors missing a String "id" are dropped rather than crashing the whole
+      // parse, matching the Swift side's compactMap over `credential["id"] as? String`.
+      allowCredentials: (json['allowCredentials'] as List?)
+              ?.cast<Map<String, dynamic>>()
+              .where((i) => i['id'] is String)
+              .map(AllowCredential.fromJson)
+              .toList() ??
+          const [],
     );
   }
 
