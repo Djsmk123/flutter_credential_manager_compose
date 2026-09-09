@@ -1,4 +1,12 @@
-# 3.2.0
+# 4.0.0
+- Bumped `credential_manager_platform_interface` to `^4.0.0` (required for `allowCredentials`)
+- Honor `allowCredentials` on passkey assertion requests: parses the WebAuthn `allowCredentials`
+  descriptors into `PasskeyLoginRequest.allowCredentialIDs` and assigns `request.allowedCredentials`
+  when non-empty, so the OS only offers credentials the relying party allows instead of every passkey
+  registered for the rpId
+- No breaking changes to the public Dart API
+
+## 3.2.0
 - **Fixes #92: passkey registration/authentication silently hangs since 3.0.1.** `savePassKeyCredentials`
   and `getPasskeyCredentials` created `PasskeyService` as a local variable with no strong reference
   held anywhere; once the enclosing method returned, it deallocated immediately. Since

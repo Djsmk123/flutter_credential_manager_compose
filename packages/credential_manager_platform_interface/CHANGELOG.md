@@ -1,7 +1,15 @@
-# Unreleased
-- Added a backward-compatible `prepareCredentials` platform hook that defaults to `false` on unsupported platforms.
+# 4.0.0
+- Added `AllowCredential` (`{id, type, transports}`) and `CredentialLoginOptions.allowCredentials`,
+  letting a relying party restrict which passkey the OS offers for a WebAuthn assertion. Previously
+  the field was dropped before reaching the platform, so an account bound to a single passkey still
+  showed a picker listing every credential registered for the rpId.
+- `CredentialLoginOptions.fromJson` now filters out `allowCredentials` entries whose `id` is missing
+  or not a `String` instead of throwing and failing the entire parse.
+- Added a backward-compatible `prepareCredentials` platform hook that defaults to `false` on
+  unsupported platforms, enabling Android 14+ credential prefetching.
+- No breaking changes to the public Dart API.
 
-# 3.0.0
+## 3.0.0
 - **Breaking:** `CredentialManagerPlatform.saveGoogleCredential` gains an optional named `{String?
   nonce}` parameter. This was actually added in a prior commit without a version bump — the
   package published as `2.0.8` on pub.dev predates this change and does not have `nonce`, which
