@@ -1,9 +1,16 @@
-# Unreleased
+# 4.0.0
+- Bumped `credential_manager_platform_interface` to `^4.0.0` (required for `prepareCredentials` and
+  `allowCredentials`)
 - `getCredentials` now applies the `preferImmediatelyAvailableCredentials` value supplied during initialization.
-- Added Android 14+ credential preparation. A matching `getCredentials` call consumes the prepared handle and falls
-  back to the normal request if the prefetched data can no longer be used.
+- Added Android 14+ credential preparation: a new `prepareCredentials` call prefetches a matching credential
+  request ahead of time. A matching `getCredentials` call consumes the prepared handle and falls back to the
+  normal request if the prefetched data can no longer be used.
+- Fixed compiling against `androidx.credentials` 1.6.0: apps that also depend on `google_sign_in` (which pulls
+  in 1.6.0) no longer crash with `NoSuchMethodError` when creating a passkey, since Gradle unifies the runtime
+  classpath to the highest requested version.
+- No breaking changes to the public Dart API.
 
-# 3.1.0
+## 3.1.0
 - Bumped `credential_manager_platform_interface` to `^3.0.0` (required — the previously-declared
   `^2.0.8` resolves to a published version that predates the `nonce` parameter this package's
   `saveGoogleCredential` override already relies on)

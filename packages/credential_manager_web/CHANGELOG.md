@@ -1,4 +1,10 @@
-# 2.2.0
+# 2.3.0
+- Bumped `credential_manager_platform_interface` to `^4.0.0` (required by its new `prepareCredentials`
+  and `allowCredentials` additions). No functional changes here: this package's JS bridge already
+  accepted an `allowCredentials` descriptor list, and there is no browser equivalent of Android's
+  credential prefetch to implement.
+
+## 2.2.0
 - Bumped `credential_manager_platform_interface` to `^3.0.0` (required — the previously-declared
   `^2.0.8` resolves to a published version that predates the `nonce` parameter this package's
   `saveGoogleCredential` override already relies on)
