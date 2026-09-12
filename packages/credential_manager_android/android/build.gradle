@@ -73,6 +73,12 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
 dependencies {
     detektPlugins 'io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7'
     implementation 'androidx.annotation:annotation:1.9.1'

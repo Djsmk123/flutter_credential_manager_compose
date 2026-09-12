@@ -1,3 +1,6 @@
+## Unreleased
+- Explicitly target JVM 17 for Kotlin to match Java compilation after the built-in Kotlin migration, including when Flutter applies KGP with built-in Kotlin disabled on JDK 21.
+
 # 4.0.0
 - Bumped `credential_manager_platform_interface` to `^4.0.0` (required for `prepareCredentials` and
   `allowCredentials`)
