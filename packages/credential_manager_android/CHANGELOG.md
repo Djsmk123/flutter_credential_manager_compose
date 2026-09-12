@@ -1,7 +1,10 @@
-## Unreleased
-- Explicitly target JVM 17 for Kotlin to match Java compilation after the built-in Kotlin migration, including when Flutter applies KGP with built-in Kotlin disabled on JDK 21.
+# 4.1.0
+- Explicitly target JVM 17 for Kotlin to match Java compilation after the built-in Kotlin migration, fixing
+  `compileDebugKotlin` failures for consuming apps that disable built-in Kotlin and run Gradle on JDK 21 or
+  newer (Kotlin previously defaulted to targeting whichever JVM ran Gradle, instead of matching Java's JVM 17).
+- No breaking changes to the public Dart API.
 
-# 4.0.0
+## 4.0.0
 - Bumped `credential_manager_platform_interface` to `^4.0.0` (required for `prepareCredentials` and
   `allowCredentials`)
 - `getCredentials` now applies the `preferImmediatelyAvailableCredentials` value supplied during initialization.

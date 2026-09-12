@@ -1,6 +1,6 @@
 name: credential_manager_android
 description: Android implementation of the credential_manager plugin using Jetpack Credential Manager API.
-version: 4.0.0
+version: 4.1.0
 homepage: https://djsmk123.github.io/flutter_credential_manager_compose
 repository: https://github.com/Djsmk123/flutter_credential_manager_compose
 environment:
