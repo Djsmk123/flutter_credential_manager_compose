@@ -1,6 +1,13 @@
 # Changelog
 
-# 5.0.0
+# 5.1.0
+- Bumped `credential_manager_android` to `^4.1.0`, fixing `compileDebugKotlin` failures for consuming apps that
+  disable built-in Kotlin and run Gradle on JDK 21+ — see its own CHANGELOG for details
+- Documented the remainder of this package's public API (`CredentialManagerPlatformManager`, `EncryptData`, and
+  a library-level doc comment), bringing public API documentation coverage to 100%
+- No breaking changes to this package's own public Dart API
+
+## 5.0.0
 - Bumped `credential_manager_platform_interface` to `^4.0.0`, `credential_manager_android` to `^4.0.0`,
   `credential_manager_ios` to `^4.0.0`, and `credential_manager_web` to `^2.3.0`
 - Added `prepareCredentials`, which prefetches a matching Android credential request on Android 14 and newer and
