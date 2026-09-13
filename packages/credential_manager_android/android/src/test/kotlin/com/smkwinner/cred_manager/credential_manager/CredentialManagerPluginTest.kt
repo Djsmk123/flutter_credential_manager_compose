@@ -1,12 +1,14 @@
 package com.smkwinner.cred_manager.credential_manager
 
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
+import android.content.Context
+import kotlinx.coroutines.runBlocking
 import org.mockito.Mockito
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /*
- * This demonstrates a simple unit test of the Kotlin portion of this plugin's implementation.
+ * Unit tests for [CredentialManagerHostApiImpl], the Pigeon `CredentialManagerHostApi`
+ * implementation that replaced the plugin's old raw `MethodChannel` dispatch.
  *
  * Once you have built the plugin's example app, you can run these tests from the command
  * line by running `./gradlew testDebugUnitTest` in the `example/android/` directory, or
@@ -15,13 +17,12 @@ import kotlin.test.Test
 
 internal class CredentialManagerPluginTest {
     @Test
-    fun onMethodCall_getPlatformVersion_returnsExpectedValue() {
-        val plugin = CredentialManagerPlugin()
+    fun getPlatformVersion_returnsExpectedValue() = runBlocking {
+        val context: Context = Mockito.mock(Context::class.java)
+        val hostApi = CredentialManagerHostApiImpl(CredentialManagerUtils()) { context }
 
-        val call = MethodCall("getPlatformVersion", null)
-        val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-        plugin.onMethodCall(call, mockResult)
+        val version = hostApi.getPlatformVersion()
 
-        Mockito.verify(mockResult).success("Android " + android.os.Build.VERSION.RELEASE)
+        assertEquals("Android " + android.os.Build.VERSION.RELEASE, version)
     }
 }

@@ -1,6 +1,6 @@
 MELOS := PATH="$$PATH:$$HOME/.pub-cache/bin" melos
 
-.PHONY: bootstrap format format-check analyze lint-ios lint-android lint check pr-review
+.PHONY: bootstrap format format-check analyze lint-ios lint-android lint check pr-review pigeon
 
 ## Install melos (if needed) and bootstrap the workspace
 bootstrap:
@@ -32,6 +32,11 @@ lint: lint-ios lint-android
 
 ## Run everything CI checks: format, analyze, and native lint
 check: format-check analyze lint
+
+## Regenerate the Pigeon-generated Android host API (Kotlin + Dart) from pigeons/messages.dart.
+## Re-run after editing that schema; the generated files are committed, not gitignored.
+pigeon:
+	cd packages/credential_manager_android && dart run pigeon --input pigeons/messages.dart
 
 ## Run the local AI PR reviewer against a PR number (requires gh, jq, claude). Usage: make pr-review PR=123 [DRY_RUN=1]
 pr-review:
