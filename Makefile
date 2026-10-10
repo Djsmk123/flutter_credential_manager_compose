@@ -33,10 +33,12 @@ lint: lint-ios lint-android
 ## Run everything CI checks: format, analyze, and native lint
 check: format-check analyze lint
 
-## Regenerate the Pigeon-generated Android host API (Kotlin + Dart) from pigeons/messages.dart.
-## Re-run after editing that schema; the generated files are committed, not gitignored.
+## Regenerate the Pigeon-generated host APIs from each package's pigeons/messages.dart
+## (Android: Kotlin + Dart, iOS: Swift + Dart). Re-run after editing a schema; the generated
+## files are committed, not gitignored.
 pigeon:
 	cd packages/credential_manager_android && dart run pigeon --input pigeons/messages.dart
+	cd packages/credential_manager_ios && dart run pigeon --input pigeons/messages.dart
 
 ## Run the local AI PR reviewer against a PR number (requires gh, jq, claude). Usage: make pr-review PR=123 [DRY_RUN=1]
 pr-review:

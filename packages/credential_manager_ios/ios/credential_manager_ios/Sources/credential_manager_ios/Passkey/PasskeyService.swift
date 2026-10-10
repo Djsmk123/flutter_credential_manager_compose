@@ -7,6 +7,8 @@
 import AuthenticationServices
 import Flutter
 
+typealias PasskeyCompletion = (Result<String, Error>) -> Void
+
 @available(iOS 16.0, *)
 class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
                        ASAuthorizationControllerPresentationContextProviding {
@@ -17,49 +19,33 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
         return ASPresentationAnchor()
     }
 
-    func registerPasskeyCredentials(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments as? [String: Any],
-              let requestJson = args["requestJson"] as? String else {
-            result(FlutterError(
-                code: CustomErrors.invalidArguments.description, message: "Missing required fields", details: nil
-            ))
-            return
-        }
-
+    func registerPasskeyCredentials(requestJson: String, completion: @escaping PasskeyCompletion) {
         guard let requestJsonData = requestJson.data(using: .utf8) else {
-            result(FlutterError(
-                code: CustomErrors.invalidJson.description, message: "Invalid JSON string", details: nil
-            ))
+            completion(.failure(FlutterError(code: .invalidJson, message: "Invalid JSON string")))
             return
         }
 
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: requestJsonData, options: [])
             guard let jsonObject = jsonObject as? [String: Any] else {
-                result(FlutterError(
-                    code: CustomErrors.invalidJsonStructure.description, message: "Invalid JSON structure", details: nil
-                ))
+                completion(.failure(FlutterError(code: .invalidJsonStructure, message: "Invalid JSON structure")))
                 return
             }
 
             guard let registerRequest = RegisterRequest.fromJson(jsonObject) else {
-                result(FlutterError(
-                    code: CustomErrors.invalidRegisterRequest.description,
-                    message: "Invalid RegisterRequest JSON",
-                    details: nil
-                ))
+                completion(.failure(FlutterError(
+                    code: .invalidRegisterRequest, message: "Invalid RegisterRequest JSON"
+                )))
                 return
             }
 
-            startRegistration(registerRequest, result: result)
+            startRegistration(registerRequest, completion: completion)
         } catch {
-            result(FlutterError(
-                code: CustomErrors.jsonParsingError.description, message: error.localizedDescription, details: nil
-            ))
+            completion(.failure(FlutterError(code: .jsonParsingError, message: error.localizedDescription)))
         }
     }
 
-    private func startRegistration(_ registerRequest: RegisterRequest, result: @escaping FlutterResult) {
+    private func startRegistration(_ registerRequest: RegisterRequest, completion: @escaping PasskeyCompletion) {
         let rpId = registerRequest.relyingParty
         let userId = registerRequest.user.id
         let userName = registerRequest.user.name
@@ -69,9 +55,7 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
             ?? challengeString.data(using: .utf8)?.base64EncodedData()
         let userIDData = Data(base64Encoded: userId) ?? userId.data(using: .utf8)?.base64EncodedData()
         guard let challengeData = challengeData, let userIDData = userIDData else {
-            result(FlutterError(
-                code: CustomErrors.invalidData.description, message: "Invalid challenge or user ID", details: nil
-            ))
+            completion(.failure(FlutterError(code: .invalidData, message: "Invalid challenge or user ID")))
             return
         }
 
@@ -92,7 +76,7 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
 
         let con = RegisterController { [weak self] res in
             self?.lock.unlock()
-            Self.handleRegistrationResult(res, result: result)
+            Self.handleRegistrationResult(res, completion: completion)
         }
         con.run(request: registrationRequest)
         inFlightController = con
@@ -100,54 +84,27 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
 
     private static func handleRegistrationResult(
         _ res: Result<RegisterResponse, Error>,
-        result: @escaping FlutterResult
+        completion: @escaping PasskeyCompletion
     ) {
         switch res {
         case .success(let response):
-            if let jsonData = try? JSONSerialization.data(withJSONObject: response.toJson(), options: []),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                result(jsonString)
-            } else {
-                result(FlutterError(
-                    code: CustomErrors.jsonConversionError.description,
-                    message: "Failed to convert response to JSON string",
-                    details: nil
-                ))
-            }
+            completion(Self.jsonString(from: response.toJson()))
         case .failure(let error):
-            if let asError = error as? ASAuthorizationError {
-                result(FlutterError(from: asError))
-            } else if let nsError = error as NSError? {
-                result(FlutterError(fromNSError: nsError))
-            } else {
-                result(FlutterError(
-                    code: CustomErrors.unknown.description, message: error.localizedDescription, details: nil
-                ))
-            }
+            completion(.failure(Self.flutterError(from: error)))
         }
     }
 
     func getPasskeyCredentials(
-        call: FlutterMethodCall,
-        result: @escaping FlutterResult,
+        passkeyRequestJson: String,
+        completion: @escaping PasskeyCompletion,
         preferImmediatelyAvailableCredentials: Bool = false
     ) {
-        guard let args = call.arguments as? [String: Any],
-              let passKeyOption = args["passKeyOption"] as? [String: Any] else {
-            result(FlutterError(
-                code: CustomErrors.invalidArguments.description, message: "Missing required fields", details: nil
-            ))
+        guard let requestData = passkeyRequestJson.data(using: .utf8),
+              let passKeyOption = (try? JSONSerialization.jsonObject(with: requestData)) as? [String: Any] else {
+            completion(.failure(FlutterError(code: .invalidJson, message: "Invalid passkey request JSON")))
             return
         }
-        let passkeyLoginRequest: PasskeyLoginRequest? = PasskeyLoginRequest.fromJson(passKeyOption)
-        guard let passkeyLoginRequest = passkeyLoginRequest else {
-            result(FlutterError(
-                code: CustomErrors.invalidPasskeyOption.description,
-                message: "Failed to parse passKeyOption",
-                details: nil
-            ))
-            return
-        }
+        let passkeyLoginRequest = PasskeyLoginRequest.fromJson(passKeyOption)
 
         let challengeString = passkeyLoginRequest.challenge
         let rpId = passkeyLoginRequest.rpId
@@ -156,9 +113,7 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
         let challengeData = Data(base64Encoded: challengeString)
             ?? challengeString.data(using: .utf8)?.base64EncodedData()
         guard let challengeData = challengeData else {
-            result(FlutterError(
-                code: CustomErrors.invalidChallenge.description, message: "Invalid challenge", details: nil
-            ))
+            completion(.failure(FlutterError(code: .invalidChallenge, message: "Invalid challenge")))
             return
         }
 
@@ -178,7 +133,7 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
 
         let con = AuthenticateController { [weak self] res in
             self?.lock.unlock()
-            Self.handleAuthenticationResult(res, result: result)
+            Self.handleAuthenticationResult(res, completion: completion)
         }
         con.run(
             request: request,
@@ -190,31 +145,38 @@ class PasskeyService: NSObject, ASAuthorizationControllerDelegate,
 
     private static func handleAuthenticationResult(
         _ res: Result<AuthenticateResponse, Error>,
-        result: @escaping FlutterResult
+        completion: @escaping PasskeyCompletion
     ) {
         switch res {
         case .success(let response):
-            do {
-                let jsonData = try JSONSerialization.data(withJSONObject: response.toJson(), options: [])
-                if let jsonString = String(data: jsonData, encoding: .utf8) {
-                    result(["type": "PublicKeyCredentials", "data": jsonString])
-                } else {
-                    result(FlutterError(
-                        code: CustomErrors.jsonConversionError.description,
-                        message: "Failed to convert response to JSON string",
-                        details: nil
-                    ))
-                }
-            } catch {
-                result(FlutterError(
-                    code: CustomErrors.jsonParsingError.description, message: error.localizedDescription, details: nil
+            completion(Self.jsonString(from: response.toJson()))
+        case .failure(let error):
+            completion(.failure(Self.flutterError(from: error)))
+        }
+    }
+
+    private static func jsonString(from json: [String: Any]) -> Result<String, Error> {
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
+            guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+                return .failure(FlutterError(
+                    code: .jsonConversionError, message: "Failed to convert response to JSON string"
                 ))
             }
-        case .failure(let error):
-            result(FlutterError(
-                code: CustomErrors.unknown.description, message: error.localizedDescription, details: nil
-            ))
+            return .success(jsonString)
+        } catch {
+            return .failure(FlutterError(code: .jsonParsingError, message: error.localizedDescription))
         }
+    }
+
+    private static func flutterError(from error: Error) -> FlutterError {
+        if let flutterError = error as? FlutterError {
+            return flutterError
+        }
+        if let asError = error as? ASAuthorizationError {
+            return FlutterError(from: asError)
+        }
+        return FlutterError(fromNSError: error as NSError)
     }
 
     // Parse credentials from base64 URL strings

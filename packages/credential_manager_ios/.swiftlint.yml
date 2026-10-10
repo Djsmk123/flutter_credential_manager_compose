@@ -1,6 +1,11 @@
 included:
   - ios/credential_manager_ios/Sources
 
+# Pigeon-generated code (from pigeons/messages.dart) isn't hand-written and shouldn't be held to
+# hand-written style rules; re-run `make pigeon` after editing the schema instead.
+excluded:
+  - ios/credential_manager_ios/Sources/credential_manager_ios/Messages.g.swift
+
 line_length:
   warning: 120
   error: 160

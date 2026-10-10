@@ -1,4 +1,18 @@
-# 4.0.0
+# 5.0.0
+- Migrated the iOS platform channel bridge from a hand-rolled `MethodChannel` to a
+  [Pigeon](https://pub.dev/packages/pigeon)-generated, type-safe host API (issue #62), mirroring the
+  Android migration. Replaces untyped `Map` arguments/results and the `"Initialization successful"` /
+  `"Logout successful"` string sentinels with generated typed Swift/Dart code. `Messages.g.swift` lives in
+  the shared `Sources/` directory, so CocoaPods and Swift Package Manager both pick it up.
+- **Minimum iOS deployment target raised from 12.0 to 13.0** (podspec and `Package.swift`): Pigeon's Swift
+  output uses Swift concurrency (`async`/`await`), which requires iOS 13. Flutter itself no longer supports iOS 12.
+- `logout` now has a native handler (a no-op, as there is no iOS session state) instead of surfacing a
+  `MissingPluginException`; `getCredentials` without a passkey option now throws a `CredentialException`
+  (code 103, not supported) for the same reason.
+- No breaking changes to the public Dart API — `CredentialManagerPlatform`'s method signatures and all
+  `credential_manager_platform_interface` models are unchanged.
+
+## 4.0.0
 - Bumped `credential_manager_platform_interface` to `^4.0.0` (required for `allowCredentials`)
 - Honor `allowCredentials` on passkey assertion requests: parses the WebAuthn `allowCredentials`
   descriptors into `PasskeyLoginRequest.allowCredentialIDs` and assigns `request.allowedCredentials`

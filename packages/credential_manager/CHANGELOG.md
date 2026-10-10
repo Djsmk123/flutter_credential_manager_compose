@@ -1,6 +1,12 @@
 # Changelog
 
-# 5.2.0
+# 5.3.0
+- Bumped `credential_manager_ios` to `^5.0.0`, which migrates the iOS platform channel bridge from a
+  hand-rolled `MethodChannel` to a Pigeon-generated type-safe host API (issue #62) — see its own
+  CHANGELOG for details
+- No breaking changes to this package's own public Dart API
+
+## 5.2.0
 - Bumped `credential_manager_android` to `^5.0.0`, which migrates the Android platform channel
   bridge from a hand-rolled `MethodChannel` to a Pigeon-generated type-safe host API (preview of
   the native-interop migration tracked in issue #62/#63) — see its own CHANGELOG for details
