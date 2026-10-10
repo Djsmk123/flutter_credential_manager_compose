@@ -1,4 +1,13 @@
-# 4.1.0
+# 5.0.0
+- Migrated the Android platform channel bridge from a hand-rolled `MethodChannel` to a
+  [Pigeon](https://pub.dev/packages/pigeon)-generated, type-safe host API (issue #63, a preview
+  of the broader native-interop migration tracked in #62). Replaces untyped `Map` arguments/results
+  and a JSON-string-in-Map workaround for fetch options with generated typed Kotlin/Dart classes.
+- No breaking changes to the public Dart API — `CredentialManagerPlatform`'s method signatures
+  and all `credential_manager_platform_interface` models are unchanged; this only replaces the
+  implementation underneath `credential_manager_android`.
+
+## 4.1.0
 - Explicitly target JVM 17 for Kotlin to match Java compilation after the built-in Kotlin migration, fixing
   `compileDebugKotlin` failures for consuming apps that disable built-in Kotlin and run Gradle on JDK 21 or
   newer (Kotlin previously defaulted to targeting whichever JVM ran Gradle, instead of matching Java's JVM 17).

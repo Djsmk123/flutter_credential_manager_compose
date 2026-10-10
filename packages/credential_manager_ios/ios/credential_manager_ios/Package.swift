@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "credential_manager_ios",
     platforms: [
-        .iOS("12.0")
+        .iOS("13.0")
     ],
     products: [
         .library(name: "credential-manager-ios", targets: ["credential_manager_ios"])

@@ -31,6 +31,9 @@ detekt {
 
 tasks.withType(io.gitlab.arturbosch.detekt.Detekt).configureEach {
     autoCorrect = project.hasProperty("detektAutoCorrect")
+    // Pigeon-generated code (from pigeons/messages.dart) isn't hand-written and shouldn't be
+    // held to hand-written style rules; re-run `make pigeon` after editing the schema instead.
+    exclude("**/*.g.kt")
 }
 
 android {
