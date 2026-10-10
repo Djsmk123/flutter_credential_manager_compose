@@ -67,6 +67,11 @@ public class CredentialManagerPlugin: NSObject, FlutterPlugin, CredentialManager
     func logout() async throws {}
 
     private static var unsupportedPlatformError: FlutterError {
-        FlutterError(code: .unsupportedPlatform, message: "Passkey is not supported on this platform")
+        // Built with the plain initializer: the `CustomErrors` convenience init is iOS 16+ only.
+        FlutterError(
+            code: String(describing: CustomErrors.unsupportedPlatform),
+            message: "Passkey is not supported on this platform",
+            details: nil
+        )
     }
 }
